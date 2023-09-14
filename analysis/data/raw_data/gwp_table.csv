@@ -1,0 +1,9 @@
+Gas,GWP100,Source
+CO2,1,IPCC AR6
+CH4,27.9,IPCC AR6
+NO2,273,IPCC AR6
+CO,2.2,"IPCC AR5, Table 8.A.4"
+NMHC,3.4,IPCC AR4
+BC,900,Reynolds and Kandlikar 2008
+OC,-35,Reynolds and Kandlikar 2008
+SO2,-30,Shindell et al. 2009

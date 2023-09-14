@@ -1,0 +1,963 @@
+---
+title: "synthesis of scenarios for the microsimulation projection model "
+author: "Camille Belmin"
+date: "6/15/2021"
+output: pdf_document
+---
+
+
+
+The doc is the new version of Scenario.Rmd, to (1) group the age group 95-99 and 100+ together and (2) extend the scenario to 2070. 
+
+############
+All input from this file: 
+############
+age_group_correspondance.csv
+wcde_data_survival_ratio_age_education.csv
+wcde_data_educ_distribution_age.csv
+metadata_dhs_full.csv
+Zambia DHS 4 waves (find them in the backup)
+scenario_energy_by_urban.csv
+urbproj_all.xlsx
+(base_pop.csv)
+(base_pop_calib.csv)
+wcde_data_asfr_education_zambia_2070.csv
+
+
+#############
+All output from this file: 
+#############
+asfr_scenarios.csv
+education_scenarios.csv
+mortality_scenarios.csv
+education_scenarios_without_edu_trans.csv
+elec_scenario.csv
+mcf_scenario.csv
+urban_scenarios.csv
+urban_sc_percentages.csv
+urban_scenarios_ssp.csv
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+library(tidyverse)
+library(here)
+library(patchwork)
+library(miceadds)
+library(survey)
+library(sjlabelled)
+library(imputeTS)
+library(RColorBrewer)
+library(zoo)
+library(janitor)
+
+path_dhs_data = paste0(str_remove(here(), "microsim.energy"), "DHS_data/") # the DHS data is in the parent directory because I use DHS data in several projects
+
+
+source.all(here("R"))
+
+path_PR_data = paste0(path_dhs_data, "PR/") # path to individual recode
+
+age_group_map = read.csv(here("analysis", "data", "raw_data", "age_group_correspondance.csv")) %>%
+  rename(Age = age_group_char) %>% 
+  mutate(Age = as.character(Age)) %>% 
+  # create the age group cat 95+ 
+  mutate(Age = ifelse(Age == "95--99", "95+", Age)) %>% 
+  filter(!(Age == "100"))
+```
+
+# 1. Mortality assumptions
+
+We take already existing mortality projections from the Wittgenstein Centre for Human Capital. The data is survivorship of population (as a % of the population) in a particular education group and by five-year age group. THe levels of education are: No education, Incomplete Primary, Primary, Lower secondary, Upper secondary, post secondary. 
+
+
+```{r}
+# Open the WCHC data for survival probabilities by education, age and sex
+mort_sc_raw = read.csv(here("analysis", "data", "raw_data", "wcde_data_survival_ratio_age_education.csv"), skip = 8)
+
+
+mort_sc = mort_sc_raw %>% 
+  filter(!(Age == "100+")) %>% 
+  mutate(Age = ifelse(Age == "95--99", "95+", Age)) %>% 
+  left_join(age_group_map, by = "Age") %>% 
+  mutate(Ratio = Ratio/100) %>% 
+  # Rename education levels
+  mutate(Education = case_when(Education == "No Education" ~1,
+                               Education == "Incomplete Primary" ~2, 
+                               Education == "Primary" ~3, 
+                               Education == "Lower Secondary" ~4, 
+                               Education == "Upper Secondary" ~5, 
+                               Education == "Post Secondary" ~6)) %>% 
+  mutate(Sex = case_when(Sex == "Male" ~ 1, 
+                         Sex == "Female" ~ 2)) %>% 
+  # add period min and max
+  mutate(period_min = substr(Period, start = 1, stop = 4), 
+         period_max = substr(Period, start = 6, stop = 9)) %>% 
+  mutate(across(c(period_min, period_max), as.numeric)) %>% 
+  mutate(Scenario = as.character(Scenario)) %>% 
+  mutate(age_group = ifelse(Age == "Newborn", 0 , age_group)) %>% 
+  # add the univ sc 
+  bind_rows(filter(., Scenario == "SSP1") %>% mutate(Scenario = "Universal")) %>% 
+    janitor::clean_names()
+
+write.csv(mort_sc, here("analysis", "data", "derived_data", "mortality_scenarios.csv"), row.names = F)
+
+
+```
+
+# 2. Education assumptions
+
+## With transition probability
+
+To calculate scenario for education, we use the data from the Wittengstein Center for Human capital, that made scenarios about the distribution of the population in 6 different education group, under different SSPs. In order to derive the probability of transition from one education level to the other, at each time step, we use the following formula, following Marois (ref): 
+$$pe6 = (e6_{t+5} - e6_{t})/e5_{t}$$
+$$pe5 = (e5_{t+5} - e5_{t}\times(1 - pe6))/e4_{t}$$
+$$pe4 = (e4_{t+5} - e4_{t}\times(1 - pe5))/e3_{t}$$
+
+```{r}
+# Open the WCHC data for the distribution of the population by education level, by age and sex
+edu_sc_raw = read.csv(here("analysis", "data", "raw_data", "wcde_data_educ_distribution_age.csv"), skip = 8)
+
+edu_sc_t = edu_sc_raw %>%
+    filter(!(Age == "100+")) %>% 
+  mutate(Age = ifelse(Age == "95--99", "95+", Age)) %>% 
+    left_join(age_group_map, by = "Age") %>% 
+  # from percentage to proportion (from 0 to 1)
+  mutate(Distribution = Distribution/100) %>% 
+    # Only keep the distributions for age between 15-30 because we don't assume any increase in education after 30
+  filter(age_group %in% 4:6, 
+         !(Sex == "Both"),  
+         !(Education == "Under 15")) %>% 
+ mutate(Education = case_when(Education == "No Education" ~1,
+                               Education == "Incomplete Primary" ~2, 
+                               Education == "Primary" ~3, 
+                               Education == "Lower Secondary" ~4, 
+                               Education == "Upper Secondary" ~5, 
+                               Education == "Post Secondary" ~6)) %>% 
+
+  pivot_wider(names_from = "Education", values_from = "Distribution", names_prefix = "t_")  %>% 
+  #  replace all t5,t4 and t3 that are equal to 0 to 0.001 to avoid dividing by 0
+  mutate(t_3 = ifelse(t_3 == 0, 0.001, t_3), 
+         t_4 = ifelse(t_4 == 0, 0.001, t_4), 
+         t_5 = ifelse(t_5 == 0, 0.001, t_5))
+  
+
+# In order to calcualte proba of transition, we need the distrib at time t, and the distrib at time t+5. 
+# Here we get the distribution at time t+5
+edu_sc_tplus5 = edu_sc_t %>% 
+  group_by(Scenario,age_group, Sex) %>% 
+  # Make a "lead" (opposite of lag) by 1 time step, i.e. 5 years
+    mutate(across(starts_with("t_"), lead, n = 1, order_by = age_group)) %>% 
+    mutate(Year_tplus5 = Year + 5, 
+         Age_tplus5 = age_group + 1) %>% 
+  ungroup() %>% 
+  rename_with(~{str_replace(.x, "t_", "tplus5_")}, starts_with("t_"))
+
+# Join the dsitribution at time t and the distrib at time t+5
+edu_sc = edu_sc_t %>% 
+  left_join(edu_sc_tplus5, by = c("Scenario", "Year", "age_group", "Sex", "Area")) %>% 
+  # mutate(x1 = replace(x1, x1 == 2, 99))
+ # mutate(across(starts_with("t_") & starts_with("tplus5"), ~ replace(., 0.000, 0.0001)))
+  # calculate transition probabilities 
+  mutate(pe6  =(tplus5_6 - t_6)/t_5) %>% 
+  # it results in transition prob < 0 so replace by 0
+  mutate(pe6 = ifelse(pe6 < 0, 0, pe6)) %>% 
+  # because of division by 0, it creates Inf values, replace by 1
+#  mutate(pe6 = ifelse(is.infinite(pe6), 1, pe6)) %>% 
+  mutate(pe5 = (tplus5_5 - t_5*(1 - pe6))/t_4) %>% 
+  mutate(pe5 = ifelse(pe5 < 0, 0, pe5)) %>% 
+ # mutate(pe5 = ifelse(is.infinite(pe5), 1, pe5)) %>% 
+  mutate(pe4 = (tplus5_4 - t_4*(1 - pe5))/t_3) %>% 
+  mutate(pe4 = ifelse(pe4 < 0, 0, pe4)) %>% 
+ # mutate(pe4 = ifelse(is.infinite(pe4), 1, pe4)) %>% 
+  mutate(Sex = ifelse(Sex == "Male", 1, 2)) %>% 
+  # remove the year 2075
+  filter(!(Year == 2075)) %>% 
+  # Na values are generated when divided by 0. Replace by proba of 1 in these cases
+  mutate(pe4 = ifelse(is.na(pe4), 1, pe4)) %>% 
+    mutate(pe5 = ifelse(is.na(pe5), 1, pe5)) %>%  
+    mutate(pe6 = ifelse(is.na(pe6), 1, pe6))
+
+# add the universal access sc (the same as SSP1 for education, so just a copy)
+edu_sc = edu_sc %>% 
+  bind_rows( filter(.,Scenario == "SSP1") %>% mutate(Scenario = "Universal")) %>% 
+  janitor::clean_names()
+
+# Check whether all proba are between 0 and 1 
+tmp = edu_sc %>% filter(pe4 > 1 | pe5 > 1 | pe6 > 1)
+
+write.csv(edu_sc, here("analysis", "data", "derived_data", "education_scenarios.csv"), row.names = F)
+```
+
+## Without transition probability 
+
+```{r}
+
+# Open the WCHC data for the distribution of the population by education level, by age and sex
+edu_sc_raw = read.csv(here("analysis", "data", "raw_data", "wcde_data_educ_distribution_age.csv"), skip = 8)
+
+edu_sc_t_bis = edu_sc_raw %>%
+    filter(!(Age == "100+")) %>% 
+  mutate(Age = ifelse(Age == "95--99", "95+", Age)) %>% 
+    left_join(age_group_map, by = "Age") %>% 
+  # from percentage to proportion (from 0 to 1)
+  mutate(Distribution = Distribution/100) %>% 
+    # Only keep the distributions for age between 15-30 because we don't assume any increase in education after 30
+  filter(age_group %in% 4:7, 
+         !(Sex == "Both"),  
+         !(Education == "Under 15")) %>% 
+ mutate(Education = case_when(Education == "No Education" ~1,
+                               Education == "Incomplete Primary" ~2, 
+                               Education == "Primary" ~3, 
+                               Education == "Lower Secondary" ~4, 
+                               Education == "Upper Secondary" ~5, 
+                               Education == "Post Secondary" ~6)) %>% 
+
+  pivot_wider(names_from = "Education", values_from = "Distribution", names_prefix = "t_") %>%
+  # make sure that the sum of all is equal to 1 (at least it shouldnt be under)
+  mutate(sum = t_1 + t_2 +t_3 + t_4 + t_5 +t_6) %>% 
+  mutate(t_6 = ifelse(sum < 1, t_6 + 0.001, t_6)) %>% 
+  mutate(sum2 =  t_1 + t_2 +t_3 + t_4 + t_5 +t_6)
+
+edu_sc_t_bis = edu_sc_t_bis %>% 
+    mutate(Sex = ifelse(Sex == "Male", 1, 2)) %>% 
+  # remove the year 2075
+  filter(!(Year == 2075)) %>% 
+  bind_rows( filter(.,Scenario == "SSP1") %>% mutate(Scenario = "Universal")) %>% 
+  janitor::clean_names()
+
+write.csv(edu_sc_t_bis, here("analysis", "data", "derived_data", "education_scenarios_without_edu_trans.csv"), row.names = F)
+
+
+
+```
+
+# Energy access assumptions 
+
+
+## Prepare the data
+
+```{r cars}
+metadata_dhs = read.csv(here("analysis","data", "derived_data","metadata_dhs_full.csv"))
+
+p_country_code = "ZMB"
+min_year = 1992 # ethiopia: 2005. Senegal: 2017
+# metadata of the country 
+
+metadata_country = metadata_dhs %>% filter(country_code == p_country_code, survey_year >= min_year)
+# Read the data from Zambia for the last three waves, and combine them together 
+data_pre = NULL
+for( i in 1:nrow(metadata_country)) {
+  data_current_raw = readRDS(file =  paste0(path_dhs_data,"IR/", metadata_country$file_name[i])) %>% as.data.frame()
+  names(data_current_raw) = tolower(names(data_current_raw))
+  data_current =  data_current_raw %>%  
+    dplyr::select(#caseid, 
+      PSU = "v021", strata = "v022", 
+      year = v007,
+      elec = v119, 
+      contains("v161"),
+      educ_years = v133, 
+      urban = v025,
+      weight1e6 = v005 ) %>% 
+    {if("v161" %in% names(.))   add_cooking_fuel_type(., coal = "traditional") else .} %>% 
+    mutate(survey_year = metadata_country$survey_year[i])
+  print(i)
+  data_current = data_current %>% copy_labels(data_pre)
+  data_pre = bind_rows(data_pre , data_current)
+}
+
+# Pre-process the combined data 
+data = data_pre %>% 
+  # make type of cooking fuel a binary variables (if in the data)
+  {if("modern_cooking_fuel" %in% names(.))  
+    mutate(.,modern_cooking_fuel = ifelse(cooking_fuel_type == "modern", 
+                                          1, 
+                                          ifelse(is.na(cooking_fuel_type),
+                                                 NA, 
+                                                 0))) 
+    else .} %>% 
+    mutate(urban = ifelse(urban == 2, 0, urban), 
+          weight = weight1e6/1e6) %>% 
+  # recode non-numerical variables coded as numbers
+  mutate(educ_years = ifelse(educ_years > 90, NA, educ_years)) %>% 
+  mutate(across(any_of(c("urban", "elec")),
+                    recode_na, threshold_NA = 1)) %>% 
+  mutate(across(any_of(c("elec","modern_cooking_fuel")), as.factor)) %>% 
+  mutate(year = as.factor(year)) %>% 
+   # make education levels. Levels of education in Zambia: 
+  # 7 complete primary, 9 complete lower sec, 12 complete higher sec
+  # according to https://www.scholaro.com/pro/Countries/Zambia/Education-System
+  mutate(educ_level = case_when(educ_years == 0 ~ "e1", 
+                                educ_years > 0 & educ_years < 7 ~ "e2", 
+                                educ_years == 7 ~ "e3", 
+                                educ_years >7 & educ_years < 10 ~ "e4", 
+                                educ_years > 9 & educ_years < 13 ~ "e5", 
+                                educ_years > 12 ~ "e6"))
+
+```
+
+
+## Yearly acess to electricity and modern cooking fuels
+
+
+```{r}
+
+survey_years = data$survey_year %>% unique()
+
+elec_rate = NULL
+mcf_rate = NULL
+for (i in 1:length(survey_years)){
+  data_current = data %>% filter(survey_year == survey_years[i])  %>% 
+    mutate(urban = as.factor(urban))
+  
+  survey_design = survey::svydesign(id = ~ PSU, strata = ~ strata, weights = ~ weight, data = data_current)
+
+  # Electrification rate by urban/rural
+  elec_rate_current = svyby(~elec, by = ~urban, design = survey_design, na.rm = T, svymean ) %>%
+    as.data.frame() %>%
+  #  rownames_to_column() %>% 
+    select(urban, "elec1", "se.elec1") %>% 
+    mutate(survey_year = survey_years[i]) %>% 
+    rename(elec_rate = elec1, SE_elec_rate = se.elec1)
+  
+  elec_rate = bind_rows(elec_rate,elec_rate_current)
+  
+  
+  if(!all(is.na(data_current$modern_cooking_fuel))){
+    mcf_rate_current =  svyby(~modern_cooking_fuel,  by = ~urban, design = survey_design, na.rm = T, svymean ) %>%
+    as.data.frame() %>%
+   # rownames_to_column() %>% 
+    select(urban, "modern_cooking_fuel1", "se.modern_cooking_fuel1")  %>% 
+    mutate(survey_year = survey_years[i]) %>% 
+    rename(mcf_rate = modern_cooking_fuel1, SE_mcf_rate = se.modern_cooking_fuel1) 
+    
+  mcf_rate = bind_rows(mcf_rate,mcf_rate_current)
+  }
+}
+
+# From rate to % 
+elec_rate = elec_rate %>% mutate(elec_rate = 100*elec_rate,SE_elec_rate = 100 *SE_elec_rate)
+mcf_rate = mcf_rate %>% mutate(mcf_rate = 100*mcf_rate,  SE_mcf_rate = 100* SE_mcf_rate)
+
+
+```
+
+```{r}
+
+# Visualize electrification rate in time with SE 
+
+plot_elec = ggplot(data = elec_rate, aes(x = survey_year, y = elec_rate, group = urban, color = urban)) + 
+  geom_point()+ 
+  geom_errorbar(aes(ymin = elec_rate - SE_elec_rate, ymax = elec_rate + SE_elec_rate), width = 0.5)+
+  theme_bw()+
+  labs(title= "From DHS data",subtitle = "NB: Error bar = 1 Standard Error", x = "Survey year", y = "Women with access to electricity (%)")
+
+plot_mcf = ggplot(data = mcf_rate, aes(x = survey_year, y = mcf_rate, group = urban, color = urban)) + 
+  geom_point()+ 
+  geom_errorbar(aes(ymin = mcf_rate - SE_mcf_rate, ymax = mcf_rate + SE_mcf_rate), width = 0.5)+
+  theme_bw()+
+  labs(x = "Survey year", y = "Women with access to  \n modern cooking fuels (%)")
+
+plot_elec + plot_mcf
+
+```
+
+\pagebreak 
+
+Now compare past trends in DHS with scenario of energy access expansion by urban/rural
+
+*Electricity*
+
+```{r}
+# This is the SSPs scenarios of energy access for SSA derived from a bottom-up analysis until 2050
+scenario_energy_urban_rural = read.csv(here("analysis", "data", "raw_data", "scenario_energy_by_urban.csv"), check.names = F) %>% 
+  mutate(across(c("2020", "2030", "2040", "2050"), as.character)) %>% 
+  mutate(across(c("2020", "2030", "2040", "2050"), ~ str_replace(., "%",""))) %>% 
+    mutate(across(c("2020", "2030", "2040", "2050"), as.numeric)) 
+
+# Scenario only for electricity access 
+scenario_elec_urban_rural = scenario_energy_urban_rural %>% 
+  filter(Indicator == "p_elec") %>% 
+  select(-Indicator) %>% 
+  pivot_longer(cols = c("2020", "2030", "2040", "2050"),names_to = "year", values_to = "elec_rate") %>% 
+  #mutate(SE_elec_rate = NA) %>% 
+  mutate(year = as.numeric(year)) %>% 
+  group_by(Scenario, Locality) %>% 
+  # calculate the percentage increase
+  mutate(elec_rate_lag = lag(elec_rate,1)) %>% 
+  mutate(p_increase = (elec_rate-elec_rate_lag)/elec_rate_lag, # percentage increase from one decade to the other
+         diff = elec_rate-elec_rate_lag) %>%  # absolute difference of percentage point from one decade to the other
+  ungroup() %>% 
+  # Shonalis data did not have the year 2015 so for the first year the percentage increase is missing
+  # Here, replace the missing value of p. increase by the first value available (p-increase from 2020 to 2030)
+  mutate(p_increase = ifelse(is.na(p_increase), lead(p_increase), p_increase), 
+         diff = ifelse(is.na(diff), lead(diff), diff)) %>% 
+  # NOW ADD THE EXTRAPOLATION TO 2070
+  group_by(Scenario, Locality) %>% 
+  group_modify(~ add_row(.x,year = c(2060,2070))) %>% 
+  # use the percentage increase of 2050 for 2060 and 2070
+  mutate(p_increase = ifelse(is.na(p_increase), lag(p_increase), p_increase)) %>% 
+  mutate(p_increase = ifelse(is.na(p_increase), lag(p_increase), p_increase)) %>% 
+  # fill in elec rate and elec_rate_lag for 2060
+  mutate(elec_rate_lag = lag(elec_rate)) %>% 
+  mutate(elec_rate = ifelse(is.na(elec_rate), elec_rate_lag * (1+ p_increase), elec_rate)) %>% 
+  # repeat for 2070
+  mutate(elec_rate_lag = lag(elec_rate)) %>% # add new value of elec_rate to elec_rate_lag
+   mutate(elec_rate = ifelse(is.na(elec_rate), elec_rate_lag * (1+ p_increase), elec_rate)) %>% 
+  # threshold by 100 
+  mutate(elec_rate = ifelse(elec_rate > 100, 100, elec_rate)) %>% 
+  # fill in the diff
+  mutate(diff =  elec_rate-elec_rate_lag) %>% 
+  ungroup()
+
+# Now apply the percentage increase or the absolute diff, to the actual value of 2018
+elec_rate_sc = elec_rate %>% 
+  # here we consider that 2018 is 2020
+  mutate(year = ifelse(survey_year== 2018, 2020, survey_year)) %>% 
+  mutate(Locality = ifelse(urban == 1, "urban", "rural"), 
+         # if the year is 2020 do not call scenario "past_trends" otherwise 
+         # it will not join the corresponding p_increase
+          Scenario = ifelse(year == 2020, "SSP1", "past_trends")) %>% 
+  select(-urban, - survey_year) %>%
+  # add the cells for SSP2 and SSP3 for 2020
+  bind_rows(select(.,elec_rate, year, Locality) %>%
+              filter(year == 2020) %>% 
+              expand_grid(Scenario = c("SSP2", "SSP3"))) %>% 
+  # add the cells for 2030 to 2050, for all scenarios
+  bind_rows(expand_grid(Locality = c("urban", "rural"), 
+                                   year = c(2030, 2040, 2050, 2060, 2070),
+                                   Scenario = c("SSP1", "SSP2", "SSP3"))) %>% 
+  # add the percentage increase
+  left_join(scenario_elec_urban_rural %>% select(-elec_rate, -elec_rate_lag),
+            by = c("Locality", "year", "Scenario")) %>% 
+  # calculate the yearly elec rate based on the p increase for 2030
+  group_by(Locality, Scenario) %>% 
+  mutate(elec_rate_proj_2030 = lag(elec_rate,1) + lag(elec_rate,1) * p_increase, 
+         elec_rate_proj_2030_add = lag(elec_rate,1) + diff) %>% 
+  # for 2040
+   mutate(elec_rate_proj_2040 = lag(elec_rate_proj_2030,1) + lag(elec_rate_proj_2030,1) * p_increase, 
+          elec_rate_proj_2040_add = lag(elec_rate_proj_2030_add,1) + diff) %>% 
+  # for 2050
+  mutate(elec_rate_proj_2050 = lag(elec_rate_proj_2040,1) + lag(elec_rate_proj_2040,1) * p_increase, 
+         elec_rate_proj_2050_add = lag(elec_rate_proj_2040_add,1) + diff) %>% 
+   # for 2060
+  mutate(elec_rate_proj_2060 = lag(elec_rate_proj_2050,1) + lag(elec_rate_proj_2050,1) * p_increase, 
+         elec_rate_proj_2060_add = lag(elec_rate_proj_2050_add,1) + diff) %>% 
+   # for 2050
+  mutate(elec_rate_proj_2070 = lag(elec_rate_proj_2060,1) + lag(elec_rate_proj_2060,1) * p_increase, 
+         elec_rate_proj_2070_add = lag(elec_rate_proj_2060_add,1) + diff) %>% 
+  ungroup() %>% 
+  # Unite the three columns that were created for each year
+  unite("elec_proj", c(elec_rate,elec_rate_proj_2030, elec_rate_proj_2040, elec_rate_proj_2050, 
+                       elec_rate_proj_2060, elec_rate_proj_2070), 
+        na.rm = TRUE, remove = F) %>% 
+   unite("elec_proj_add", c(elec_rate,elec_rate_proj_2030_add, elec_rate_proj_2040_add, elec_rate_proj_2050_add, 
+                             elec_rate_proj_2060_add, elec_rate_proj_2070_add),
+         na.rm = TRUE, remove = T) %>% 
+  select(-elec_rate_proj_2030, -elec_rate_proj_2040, -elec_rate_proj_2050, 
+         -elec_rate_proj_2060,  -elec_rate_proj_2070) %>% 
+  mutate(across(c("elec_proj", "elec_proj_add"), as.numeric)) %>% 
+  mutate(elec_proj = ifelse(elec_proj >= 100, 100, elec_proj), 
+        elec_proj_add = ifelse(elec_proj_add >= 100, 100, elec_proj_add)) %>% # threshold is 100%
+  # Duplicate the values for 2020 to ensure the continuity in the plot 
+  bind_rows(filter(., year == 2020) %>% mutate(Scenario = "past_trends"))
+
+
+```
+
+```{r}
+ 
+# with the scenario where we add each year the absolute difference in percentage point from SSA scenario and we apply it to Zambia
+plot_elec_add = ggplot() +
+  geom_line(data = elec_rate_sc, aes(x = year, y = elec_proj_add, color = Scenario))+ 
+  theme_bw()+
+  facet_wrap(~Locality) +
+  scale_color_brewer(palette = "Dark2")+
+  labs( x = "Year", y = "Population with access to electricity (%)")
+plot_elec_add
+
+
+```
+
+## Assumption for universal electricity access using Shonalis SSP scenarios 
+
+```{r}
+# Create the electrification proj for the unviersal access sc, for urban and rural 
+# URBAN
+elec_2015_urban = elec_rate_sc %>% filter(year == 2020, Scenario == "past_trends", Locality == "urban") %>% 
+  filter(!(is.na(SE_elec_rate))) %>% 
+  select(elec_proj) %>% pull()
+# RURAL
+elec_2015_rural = elec_rate_sc %>% filter(year == 2020, Scenario == "past_trends", Locality == "rural") %>% 
+  filter(!(is.na(SE_elec_rate))) %>% 
+  select(elec_proj) %>% pull()
+
+elec_2040 = 100
+
+elec_proj_univ = 
+   data.frame(elec_proj_add =
+                c(seq(from = elec_2015_urban,
+                      to =  elec_2040, 
+                      length.out = (2040-2020)/5-1), # reaches 100% in 2040,
+                  100, 100, 100),# remains 100 from 2040 to 2070  after
+              Locality = "urban", year = seq(2020,2070,10)) %>% 
+  bind_rows(
+    data.frame(elec_proj_add =
+                 c(seq(from = elec_2015_rural,
+                       to =  elec_2040,
+                       length.out = (2040-2020)/5-1), # reaches 100% in 2040,
+                           100,100, 100), # remains 100 from 2040 to 2070  after
+              Locality = "rural", year = seq(2020,2070,10))) %>% 
+  mutate(Scenario = "Universal")
+  
+# Add the universal access scenario to other scenarios
+
+elec_rate_sc = elec_rate_sc %>% 
+    # add the universal access scenario 
+  bind_rows(elec_proj_univ) %>% 
+  # add the intermediate years 
+ bind_rows(expand_grid(year = c(2015, 2025,2035,2045, 2055, 2065),
+#  bind_rows(expand_grid(year = c(2015, 2025,2035,2045),
+                        Scenario = c("SSP1", "SSP2", "SSP3", "Universal"), Locality = c("urban", "rural"))) %>% 
+#  bind_rows(data.frame(year = 2015, Scenario = "past_trends", Locality = c("urban", "rural"))) %>% 
+  select(elec_proj = elec_proj_add, year, Locality, Scenario) %>% 
+
+  # Add 2013 as a year with all SSPs to be able to interpolate the year 2015 below
+  bind_rows(select(.,elec_proj, year, Locality) %>% filter(year == 2013) %>% 
+              expand_grid(Scenario = c("SSP1", "SSP2", "SSP3", "Universal"))) %>% 
+  group_by(Scenario, Locality) %>% 
+  arrange(year) %>% 
+  # impute missing years
+  mutate(elec_proj = na.approx(elec_proj)) %>% 
+  ungroup() 
+
+```
+
+```{r}
+# Check if the interpolation worked (the graph should be the same as the graph without interpolation)
+plot = ggplot() +
+  geom_line(data = elec_rate_sc, aes(x = year, y = elec_proj, color = Scenario))+ 
+  theme_bw()+
+    facet_wrap(~Locality) +
+  scale_color_brewer(palette = "Dark2")+
+  labs( x = "Year", y = "Population with access to electricity (%)")
+plot
+
+```
+
+```{r}
+
+# Now calculate transition proba from one having no access to having access for each time step. 
+
+elec_rate_sc = elec_rate_sc %>% 
+  group_by(Scenario, Locality) %>% 
+  # Make a "lead" (opposite of lag) by 1 time step, i.e. 5 years
+  mutate(elec_proj_tp5 = lead(elec_proj, n = 1), 
+           year_tp5 = year + 5) %>% 
+  # Make the transition proba
+  mutate(p_elec = (elec_proj_tp5 - (elec_proj))/(100-elec_proj)) %>% 
+  mutate(p_elec = ifelse(p_elec < 0, 0, p_elec))  %>% 
+  # at the end of the univ sc, the proba of getting access is  100% 
+  # NB: i am not sure why "year < 2050 was added before as an additional condition. Now i removed it. 
+  mutate(p_elec = ifelse(is.na(p_elec), # & year < 2050
+                         1, p_elec )) %>% 
+  ungroup() %>% 
+  filter(!(Scenario == "past_trends"),
+         year > 2013) %>% 
+  rename(period_min = year, period_max = year_tp5) %>% 
+  mutate(Locality = ifelse(Locality == "urban", 1, 0)) %>% 
+  rename(urban = Locality) %>% 
+  janitor::clean_names()
+
+# write scenarios file
+write.csv(elec_rate_sc, here("analysis", "data", "derived_data", "elec_scenario.csv"), row.names = F)
+
+
+```
+
+
+## Assumption for MCF access using Shonalis SSP scenarios 
+
+```{r}
+# For access to clean cooking fuels 
+scenario_mcf_urban_rural = scenario_energy_urban_rural %>% 
+  filter(Indicator == "p_solid_fuel") %>% 
+  select(-Indicator) %>% 
+  pivot_longer(cols = c("2020", "2030", "2040", "2050"),names_to = "year", values_to = "p_solid_fuel") %>% 
+  mutate(mcf_rate = 100 - p_solid_fuel) %>% 
+    mutate(year = as.numeric(year)) %>% 
+    group_by(Scenario, Locality) %>% 
+  mutate(mcf_rate_lag = lag(mcf_rate,1)) %>% 
+  mutate(p_increase = (mcf_rate-mcf_rate_lag)/mcf_rate_lag, # percentage increase from one decade to the other
+         diff = mcf_rate-mcf_rate_lag) %>%  # absolute difference of percentage point from one decade to the other
+  ungroup() %>% 
+  mutate(p_increase = ifelse(is.na(p_increase), lead(p_increase), p_increase), 
+         diff = ifelse(is.na(diff), lead(diff), diff)) %>% 
+    # Now combine with past trend data 
+ # bind_rows(mcf_rate %>% 
+  #            rename(year = survey_year) %>% 
+   #           mutate(Locality = ifelse(urban == 1, "urban", "rural"), 
+    #                 Scenario = "past_trends") %>% 
+     #         select(-urban)) %>% 
+  select(-p_solid_fuel) %>% 
+### TEST TEST TEST
+  # NOW ADD THE EXTRAPOLATION TO 2070
+  group_by(Scenario, Locality) %>% 
+  group_modify(~ add_row(.x,year = c(2060,2070))) %>% 
+  # use the percentage increase of 2050 for 2060 and 2070
+  mutate(p_increase = ifelse(is.na(p_increase), lag(p_increase), p_increase)) %>% 
+  mutate(p_increase = ifelse(is.na(p_increase), lag(p_increase), p_increase)) %>% 
+  # fill in mcf rate and mcf_rate_lag for 2060
+  mutate(mcf_rate_lag = lag(mcf_rate)) %>% 
+  mutate(mcf_rate = ifelse(is.na(mcf_rate), mcf_rate_lag * (1+ p_increase), mcf_rate)) %>% 
+  # repeat for 2070
+  mutate(mcf_rate_lag = lag(mcf_rate)) %>% # add new value of mcf_rate to mcf_rate_lag
+   mutate(mcf_rate = ifelse(is.na(mcf_rate), mcf_rate_lag * (1+ p_increase), mcf_rate)) %>% 
+
+  # fill in the diff
+  mutate(diff =  mcf_rate-mcf_rate_lag) %>% 
+    # threshold by 100 
+  mutate(mcf_rate = ifelse(mcf_rate > 100, 100, mcf_rate)) %>% 
+  ungroup()
+
+
+# Now apply the percentage increase to the value of 2018
+mcf_rate_sc = mcf_rate %>% 
+  # here we consider that 2018 is 2020
+  mutate(year = ifelse(survey_year== 2018, 2020, survey_year)) %>% 
+  mutate(Locality = ifelse(urban == 1, "urban", "rural"), 
+  # if the year is 2020 do not call scenario "past_trends" otherwise it will not join the corresponding p_increase
+        Scenario = ifelse(year == 2020, "SSP1", "past_trends")) %>% 
+  select(-urban, - survey_year) %>%
+  # add the cells for SSP2 and SSP3 for 2020
+  bind_rows(select(.,mcf_rate, year, Locality) %>%
+              filter(year == 2020) %>%
+              expand_grid(Scenario = c("SSP2", "SSP3"))) %>% 
+  # add the cells for 2030 to 2050, for all scenarios
+  bind_rows(expand_grid(Locality = c("urban", "rural"), 
+                                   year = c(2030, 2040, 2050, 2060, 2070),
+                                   Scenario = c("SSP1", "SSP2", "SSP3"))) %>% 
+  # add the percentage increase
+  left_join(scenario_mcf_urban_rural %>%
+              select(-mcf_rate, -mcf_rate_lag), 
+                   #  -SE_mcf_rate),
+            by = c("Locality", "year", "Scenario")) %>% 
+  # calculate the yearly elec rate based on the p increase for 2030
+  group_by(Locality, Scenario) %>% 
+  mutate(mcf_rate_proj_2030 = lag(mcf_rate,1) + lag(mcf_rate,1) * p_increase, 
+         mcf_rate_proj_2030_add = lag(mcf_rate,1) + diff) %>% 
+  # for 2040
+   mutate(mcf_rate_proj_2040 = lag(mcf_rate_proj_2030,1) + lag(mcf_rate_proj_2030,1) * p_increase, 
+          mcf_rate_proj_2040_add = lag(mcf_rate_proj_2030_add,1) + diff) %>% 
+  # for 2050
+  mutate(mcf_rate_proj_2050 = lag(mcf_rate_proj_2040,1) + lag(mcf_rate_proj_2040,1) * p_increase, 
+         mcf_rate_proj_2050_add = lag(mcf_rate_proj_2040_add,1) + diff) %>% 
+   # for 2060
+  mutate(mcf_rate_proj_2060 = lag(mcf_rate_proj_2050,1) + lag(mcf_rate_proj_2050,1) * p_increase, 
+         mcf_rate_proj_2060_add = lag(mcf_rate_proj_2050_add,1) + diff) %>% 
+   # for 2070
+  mutate(mcf_rate_proj_2070 = lag(mcf_rate_proj_2060,1) + lag(mcf_rate_proj_2060,1) * p_increase, 
+         mcf_rate_proj_2070_add = lag(mcf_rate_proj_2060_add,1) + diff) %>% 
+  ungroup() %>% 
+  unite("mcf_proj", c(mcf_rate,mcf_rate_proj_2030, mcf_rate_proj_2040, mcf_rate_proj_2050, 
+                      mcf_rate_proj_2060, mcf_rate_proj_2070),
+        na.rm = TRUE, remove = F) %>% 
+    unite("mcf_proj_add", c(mcf_rate,mcf_rate_proj_2030_add, mcf_rate_proj_2040_add, mcf_rate_proj_2050_add, 
+                            mcf_rate_proj_2060_add, mcf_rate_proj_2070_add),
+          na.rm = TRUE, remove = T) %>% 
+  select(-mcf_rate_proj_2030, -mcf_rate_proj_2040, -mcf_rate_proj_2050, -mcf_rate_proj_2060, -mcf_rate_proj_2070) %>% 
+  mutate(across(c("mcf_proj", "mcf_proj_add"), as.numeric)) %>% 
+  mutate(mcf_proj = ifelse(mcf_proj >= 100, 100, mcf_proj),  # threshold is 100%
+         mcf_proj_add = ifelse(mcf_proj_add >= 100, 100, mcf_proj_add)) %>%
+  # Duplicate the values for 2020 to ensure the continuity in the plot 
+  bind_rows(filter(., year == 2020) %>% mutate(Scenario = "past_trends"))
+```
+
+```{r}
+
+# With the scenario where we add each year the absolute difference in percentage point from SSA scenario and we apply it to Zambia
+plot_mcf_add = ggplot() +
+  geom_line(data = mcf_rate_sc, aes(x = year, y = mcf_proj_add, color = Scenario))+ 
+  theme_bw()+
+  facet_wrap(~Locality) +
+  scale_color_brewer(palette = "Dark2")+
+  labs( x = "Year", y = "Population with access to \n modern cooking fuels (%)")
+plot_mcf_add
+
+
+```
+
+
+
+```{r}
+# Create the access to MCF proj for the unviersal access sc, for urban and rural 
+## URBAN
+mcf_2015_urban = mcf_rate_sc %>% filter(year == 2020, Scenario == "past_trends", Locality == "urban") %>% slice(1) %>% select(mcf_proj) %>% pull()
+mcf_2015_rural = mcf_rate_sc %>% filter(year == 2020, Scenario == "past_trends", Locality == "rural") %>% slice(1) %>% select(mcf_proj) %>% pull()
+mcf_2040 = 100
+
+mcf_proj_univ = 
+   data.frame(mcf_proj_add =
+                c(
+                  seq(
+                    from = mcf_2015_urban,
+                    to =  mcf_2040, 
+                    length.out = (2040-2020)/5-1), # reaches 100% in 2040,
+                  100, 100, 100), # remains 100 after
+              Locality = "urban", year = seq(2020,2070,10)) %>% 
+  bind_rows(
+    data.frame(mcf_proj_add = 
+                 c(
+                   seq(
+                     from = mcf_2015_rural,
+                     to =  mcf_2040, 
+                     length.out = (2040-2020)/5-1), # reaches 100% in 2040,
+                   100,100, 100), # remains 100 after
+              Locality = "rural", year = seq(2020,2070,10))) %>% 
+  mutate(Scenario = "Universal")
+
+
+mcf_rate_sc = mcf_rate_sc %>% 
+      # add the universal access scenario 
+  bind_rows(mcf_proj_univ) %>% 
+  bind_rows(expand_grid(year = c(2015, 2025,2035,2045, 2055, 2065),
+                        Scenario = c("SSP1", "SSP2", "SSP3", "Universal"), 
+                        Locality = c("urban", "rural"))) %>% 
+  select(mcf_proj = mcf_proj_add, year, Locality, Scenario) %>% 
+   # Add 2013 as a year with all SSPs to be able to interpolate the year 2015 below
+  bind_rows(select(.,mcf_proj, year, Locality) %>% filter(year == 2013) %>% 
+              expand_grid(Scenario = c("SSP1", "SSP2", "SSP3", "Universal"))) %>% 
+  group_by(Scenario, Locality) %>% 
+  arrange(year) %>% 
+  mutate(mcf_proj = na.approx(mcf_proj)) %>% 
+  ungroup()
+
+```
+
+```{r}
+# Check if the interpolation worked (the graph should be the same as the graph without interpolation)
+plot = ggplot() +
+  geom_line(data =mcf_rate_sc, aes(x = year, y = mcf_proj, color = Scenario))+ 
+  theme_bw()+
+    facet_wrap(~Locality) +
+  scale_color_brewer(palette = "Dark2")+
+  labs( x = "Year", y = "Population with access to modern cooking fuels (%)")
+plot
+```
+###  Make transition proba
+
+```{r}
+
+mcf_rate_sc = mcf_rate_sc %>% 
+  group_by(Scenario, Locality) %>% 
+  # Make a "lead" (opposite of lag) by 1 time step, i.e. 5 years
+  mutate(mcf_proj_tp5 = lead(mcf_proj, n = 1), 
+           year_tp5 = year + 5) %>% 
+  # Make the transition proba
+  mutate(p_mcf = (mcf_proj_tp5 - (mcf_proj))/(100-mcf_proj)) %>% 
+  mutate(p_mcf = ifelse(p_mcf < 0, 0, p_mcf))  %>% 
+  mutate(p_mcf = ifelse(is.na(p_mcf), #& year < 2050,
+                        1, p_mcf )) %>% 
+  ungroup() %>% 
+  filter(!(Scenario == "past_trends"), 
+         year > 2013)  %>% 
+  rename(period_min = year, period_max = year_tp5) %>% 
+  mutate(Locality = ifelse(Locality == "urban", 1, 0)) %>% 
+  rename(urban = Locality) %>% 
+  janitor::clean_names()
+
+# write the scenario file
+
+write.csv(mcf_rate_sc, here("analysis", "data", "derived_data", "mcf_scenario.csv"), row.names = F)
+
+
+```
+
+
+# Urbanisation assumption
+
+
+```{r}
+
+library(readxl)
+
+urban_ssp = readxl::read_xlsx(here("analysis", "data", "raw_data", "urbproj_all.xlsx"), sheet = "data") %>% 
+  filter(Region == "ZMB")
+
+# What is the initial urbanisation rate in the base pop? 
+base_pop = read.csv(file = here("analysis", "data", "derived_data", "base_pop.csv"))
+base_pop_calib = read.csv(file = here("analysis", "data", "derived_data", "base_pop_calib.csv"))
+
+urban_base_pop = base_pop %>% 
+  group_by(urban) %>% 
+  summarize(pop_rururb = sum(weight)) %>% 
+  ungroup() %>% 
+  mutate(p_rururb = pop_rururb / sum(base_pop$weight)) 
+
+urban_base_pop_calib = base_pop_calib %>% 
+  group_by(urban) %>% 
+  summarize(pop_rururb = sum(weight)) %>% 
+  ungroup() %>% 
+  mutate(p_rururb = pop_rururb / sum(base_pop$weight)) 
+
+# Level of urbanisation in 2018, Zambia: 41%
+
+#########
+# SSP1
+#########
+# Urbanisation rate, SSP1, 2015: 40.72120
+# Urbanisation rate, SSP1, 2020: 45.73977
+# probability of transition from 2015 to 2020: 
+(45.73977 - 40.72120)/(100- 40.72120) # 0.08466045 --> 8.5 %
+# ---> In SSP1, the proba of transitioning from rural to urban area is 0.085 at each time step. 
+
+#########
+# SSP2
+#########
+# Urbanisation rate, SSP2, 2015: 38.78411
+# Urbanisation rate, SSP2, 2020: 41.82490
+(41.82490 - 38.78411)/(100-38.78411) # 0.04967321 --> 4.97 %
+# ---> the proba of transitioning from rural to urban area is 0.0497 at each time step. 
+
+#########
+# SSP3
+#########
+# Urbanisation rate, SSP3, 2015: 36.50178
+# Urbanisation rate, SSP3, 2020: 37.30473
+(37.30473 - 36.50178)/(100-36.50178) #0.01264524 --> 1.26 %
+# ---> the proba of transitioning from rural to urban area is 0.0126 at each time step. 
+
+# rate of change in Urbanisation rate to apply to all years in SSP1: 
+#   
+
+# Create a file for urban scenario 
+
+n_scenario = 4
+n_timestep = (2070-2015)/5 +1 
+
+urban_scenario = data.frame(period_min = rep(seq(2015, 2070, 5), n_scenario) , period_max = rep(seq(2020, 2075,5), 4), 
+                            scenario =c(rep("SSP1",n_timestep ),rep("SSP2",n_timestep ), rep("SSP3",n_timestep ),
+                                        rep("Universal",n_timestep )), 
+                            p_urban = c(rep(0.08466045,n_timestep), # Proba of transition for SSP1
+                                        rep(0.04967321, n_timestep), # Proba of transition for SSP2
+                                        rep(0.01264524, n_timestep), # Proba of transition for SSP3
+                                        rep(0.08466045, n_timestep)))  # Proba of transition for Unviersal
+
+write.csv(urban_scenario, file = here("analysis", "data", "derived_data", "urban_scenarios.csv"), row.names = F)
+
+
+```
+
+## Urbanisation with actual percentages at each time step (used for the visualization in paper)
+
+```{r}
+# SSP2 
+
+p_increase_ssp2 = 4.97
+urban_rate_ssp2 = 41 # (at first time step urban rate is 41)
+for (i in 1:11){
+  urban_rate_current = p_increase_ssp2 * urban_rate_ssp2[[i]]/100 + urban_rate_ssp2[[i]]
+  urban_rate_ssp2 = c(urban_rate_ssp2, urban_rate_current)
+}
+
+# SSP1
+
+p_increase_ssp1 = 8.46
+urban_rate_ssp1 = 41 # (at first time step urban rate is 41)
+for (i in 1:11){
+  urban_rate_current = p_increase_ssp1 * urban_rate_ssp1[[i]]/100 + urban_rate_ssp1[[i]]
+  urban_rate_ssp1 = c(urban_rate_ssp1, urban_rate_current)
+}
+
+
+
+df_urban_rate= data.frame(p_urban = c(urban_rate_ssp2, urban_rate_ssp1), 
+                             scenario = c(rep("SSP2", 12),rep("SSP1", 12)), 
+                             year = rep(seq(2015, 2070, 5),2)) %>% 
+  mutate(p_urban = ifelse(p_urban > 100, 100, p_urban))
+
+df_urban_rate %>% write_csv(file = here("analysis", "data","derived_data", "urban_sc_percentages.csv"))
+
+
+```
+## Urbanisation from SSP scenario 
+
+```{r}
+
+urban_sc_ssp = readxl::read_xlsx(here("analysis","data","raw_data","urbproj_all.xlsx"), sheet ="data") %>%
+  filter(Region == "ZMB",
+         Scenario %in% c("SSP1_v9_131230","SSP2_v9_131230")) %>% 
+  mutate(scenario = ifelse(Scenario == "SSP2_v9_131230","SSP2","SSP1")) %>% 
+  select(-Model, - Region, - Unit, -Variable, -Scenario) %>% 
+      pivot_longer(cols = -scenario, names_to = "year", values_to = "urban_pop") %>% 
+  group_by(scenario) %>% 
+  mutate(urban_pop_lead = lead(urban_pop,1)) %>% 
+  mutate(p_urban = (urban_pop_lead - urban_pop)/urban_pop) %>% 
+  filter(year < 2075 & year > 2010) %>% 
+  bind_rows(filter(.,scenario=="SSP1") %>% mutate(scenario=ifelse(scenario=="SSP1","Universal", "SSP2"))) %>% 
+  select(-urban_pop, -urban_pop_lead)
+
+write_csv(urban_sc_ssp, here("analysis","data","derived_data", "urban_scenarios_ssp.csv"))
+
+```
+
+# Fertility assumption (for validation)
+
+To check whether there is any problem in our fertility module, we reproduce the model by using ASFR projections from WIC, instead of our fertility function. Prepare the ASFR pseudo scenario here. 
+
+```{r}
+
+# Open the WCHC data for survival probabilities by education, age and sex
+asfr_sc_raw = read.csv(here("analysis", "data", "raw_data", "wcde_data_asfr_education_zambia_2070.csv"), skip = 8)
+
+
+asfr_sc = asfr_sc_raw %>% 
+  left_join(age_group_map, by = "Age") %>% 
+  mutate(p = Rate/1000) %>% 
+  # Rename education levels
+  mutate(Education = case_when(Education == "No Education" ~1,
+                               Education == "Incomplete Primary" ~2, 
+                               Education == "Primary" ~3, 
+                               Education == "Lower Secondary" ~4, 
+                               Education == "Upper Secondary" ~5, 
+                               Education == "Post Secondary" ~6)) %>% 
+  # add period min and max
+  mutate(period_min = substr(Period, start = 1, stop = 4), 
+         period_max = substr(Period, start = 6, stop = 9)) %>% 
+  mutate(across(c(period_min, period_max), as.numeric)) %>% 
+  mutate(Scenario = as.character(Scenario)) %>% 
+  # add the univ sc 
+  bind_rows(filter(., Scenario == "SSP1") %>% mutate(Scenario = "Universal")) %>% 
+    janitor::clean_names()
+
+# ## test ASFR sc by dividing ba 1000*factor so that probabilities sum to 1 
+# 
+# asfr_sum = asfr_sc_raw %>% 
+#   group_by(Scenario, Period, Education) %>% 
+#   summarise(sum_asfr = sum(Rate)) %>% 
+#   ungroup()
+# 
+# asfr_sc = asfr_sc_raw %>% 
+#   left_join(age_group_map, by = "Age") %>% 
+#   left_join(asfr_sum, by = c("Scenario", "Period", "Education")) %>% 
+#   mutate(p = Rate/1000*) %>% 
+#   # Rename education levels
+#   mutate(Education = case_when(Education == "No Education" ~1,
+#                                Education == "Incomplete Primary" ~2, 
+#                                Education == "Primary" ~3, 
+#                                Education == "Lower Secondary" ~4, 
+#                                Education == "Upper Secondary" ~5, 
+#                                Education == "Post Secondary" ~6)) %>% 
+#   # add period min and max
+#   mutate(period_min = substr(Period, start = 1, stop = 4), 
+#          period_max = substr(Period, start = 6, stop = 9)) %>% 
+#   mutate(across(c(period_min, period_max), as.numeric)) %>% 
+#   mutate(Scenario = as.character(Scenario)) %>% 
+#   # add the univ sc 
+#   bind_rows(filter(., Scenario == "SSP1") %>% mutate(Scenario = "Universal")) %>% 
+#     janitor::clean_names()
+
+
+write.csv(asfr_sc, here("analysis", "data", "derived_data", "asfr_scenarios.csv"), row.names = F)
+
+```

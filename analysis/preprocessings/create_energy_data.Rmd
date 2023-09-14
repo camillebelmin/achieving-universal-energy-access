@@ -1,0 +1,558 @@
+---
+title: "Energy use module"
+author: "Camille Belmin"
+date: '2022-08-05'
+output: html_document
+---
+
+In this document (i) I use the data from Baltruszewicz et al. (2021) to estimate the energy footprint per education and urbanisation level in Zambia, and (ii) I explain how I calculate and project the average CO2 factor for electricity in Zambia. 
+
+##########
+Input: 
+##########
+socio_econ_EF_zambia_for_PiK_with_edu.xls
+IRENA_electricity_mix_zambia.xlsx
+electricity_share_and_emission_factors.xlsx
+
+#########
+Output: 
+##########
+zambia_ef_clean.rds
+ef_by_edu_urban.rds
+ef_by_edu_urban_energy_by_year.csv
+co2_factor_electricity_zambia.csv
+
+
+```{r}
+
+rm(list = ls())
+
+library(here)
+library(tidyverse)
+library(haven)
+library(readxl)
+library(radiant.data) # for weighted standard errors
+library(miceadds)
+source.all(here("R"))
+```
+
+# Energy footprint of Zambia 
+
+We use the study from Baltruszewicz et al. (2021) to get energy footprint per capita in Zambia. 
+
+First load the data and do some basic checks. 
+
+```{r}
+
+metadata_zambia_ef = readxl::read_xls(path = here("analysis", "data", "raw_data", "zambia_baltruszewicz", "socio_econ_EF_zambia_for_PiK_with_edu.xls"), sheet = "Sheet2", col_names = F)
+
+#zambia_ef = read_dta(file = here("analysis", "data", "raw_data", "zambia_baltruszewicz", "socio_econ_EF_zambia_for_PiK.dta"))
+zambia_ef = readxl::read_xls(path = here("analysis", "data", "raw_data", "zambia_baltruszewicz", "socio_econ_EF_zambia_for_PiK_with_edu.xls"), sheet = "Sheet1") %>% 
+  rename(hh_size= hhsize, 
+         cap_GJ_direct_EF = cap_GJ_Direct_EF, 
+         cap_GJ_indirect_EF = cap_GJ_Indirect_EF)
+
+# Add variables education and energy 
+
+
+zambia_ef = zambia_ef %>% 
+  mutate(edu_group_head = case_when(edu_head %in% c("Grade 1", "Grade 2", "Grade 3",
+                                                    "Grade 4", "Grade 5", "Grade 6", "Grade 7") ~ "primary",
+                                    edu_head %in% c("Grade 8", "Grade 9") ~ "junior_secondary", 
+                                    edu_head %in% c("Grade 10", "Grade 11", "Grade 12", "12 A Levels") ~ "senior_secondary", 
+                                    edu_head %in% c("Degree", "Certificate" ,"Diploma", "Doctorate", "Masters Degree") ~ "post_secondary", 
+                                    TRUE ~ "No education")) %>% 
+  mutate(elec_access = case_when(el_access == "Yes"~ 1, 
+                                 el_access == "No" & main_en_cook == "ELECTRICITY" ~ 1, 
+                                 el_access == "No" & main_dev_cook == "ELECTRICITY" ~ 1, 
+                                 TRUE ~ 0)) %>% 
+#  mutate(elec_access = ifelse(el_access == "Yes", 1,0)) %>% 
+  mutate(modern_fuel = case_when(main_en_cook == "CHARCOAL PURCHASED" ~ 0, 
+                                main_en_cook == "CHARCOAL OWN PRODUCED" ~ 0, 
+                                main_en_cook == "ELECTRICITY" ~ 1, 
+                                main_en_cook == "COLLECTED FIREWOOD" ~ 0, 
+                                main_en_cook == "PURCHASED FIREWOOD" ~ 0, 
+                                main_en_cook == "GAS" ~ 1, 
+                             #   main_en_cook == "OTHER (SPECIFY)" ~ NA, 
+                                main_en_cook == "SOLAR" ~ 1, 
+                                main_en_cook == "KEROSINE/PARAFFIN" ~ 0, 
+                                main_en_cook == "CROP/LIVESTOCK RESIDUES" ~ 0, 
+                                main_en_cook == "COAL" ~ 0)) %>% 
+  mutate(modern_stove = case_when(main_dev_cook == "BRAZIER (MBAULA)" ~ 0, 
+                                  main_dev_cook == "STOVE/COOKER" ~ 1, 
+                                  main_dev_cook == "BRICK/STONE STAND ON OPEN FIRE" ~ 0, 
+                                  main_dev_cook == "CLAY STOVE (MBAULA)" ~ 0, 
+                                #  main_dev_cook == "OTHER (SPECIFY)" ~ NA, 
+                                  main_dev_cook == "SOLAR" ~ 1, 
+                                  main_dev_cook == "CROP/LIVESTOCK RESIDUES" ~ 0, 
+                                  main_dev_cook == "ELECTRICITY" ~ 1, 
+                                 main_dev_cook == "GAS" ~ 1, 
+                                main_dev_cook == "METAL STAND ON  OPEN FIRE" ~0,
+                                  main_dev_cook == "HOT PLATE WITHOUT STAND" ~ 1, 
+                                  main_dev_cook == "VEHICLE TYRE RIM" ~ 0)) %>% 
+  mutate(clean_cooking = ifelse((modern_fuel == 1 | modern_stove == 1 ), 1, 0)) 
+
+
+
+# Remove observations without weights 
+zambia_ef = zambia_ef %>% filter(!(is.na(wt_ind)))
+
+zambia_ef %>% write_rds(file = here("analysis", "data", "derived_data", "zambia_ef_clean.rds"))
+
+```
+
+## Some sanity checks on the data
+ 
+```{r}
+
+# Check whether sum of weights now sums to sample size
+sum(zambia_ef$wt_ind, na.rm = T)
+nrow(zambia_ef)
+
+# Calculate total energy footprint per capita
+total_ef_pc = weighted.mean(x = zambia_ef$tot_EF_cap_GJ, w =  zambia_ef$wt_ind, na.rm = T) # 14 GJ/cap/year
+
+# Calculate total energy footprint per hh and check if it corresponds to the number in the paper
+zambia_ef = zambia_ef %>% mutate(tot_EF_hh_GJ = tot_EF_cap_GJ * hh_size)
+total_ef_phh = weighted.mean(x = zambia_ef$tot_EF_hh_GJ, w =  zambia_ef$wt_hh, na.rm = T) # 72 GJ/hh/year (as in the paper)
+
+# Calculate total DIRECT and INDIRECT energy footprint per capita (IEA: 19.375 GJ/cap http://energyatlas.iea.org/#!/tellmap/-1002896040/1)
+total_direct_ef_pc = weighted.mean(x = zambia_ef$cap_GJ_direct_EF,
+                                   w =  zambia_ef$wt_ind, na.rm = T) # 11.8 GJ/cap/year
+total_indirect_ef_pc = weighted.mean(x = zambia_ef$cap_GJ_indirect_EF,
+                                     w =  zambia_ef$wt_ind, na.rm = T) # 2.2 GJ/cap/year
+
+# Calculate total energy footprint per hh
+zambia_ef = zambia_ef %>% mutate(tot_direct_EF_hh_GJ = cap_GJ_direct_EF * hh_size, 
+                                 tot_indirect_EF_hh_GJ = cap_GJ_indirect_EF * hh_size)
+
+total_direct_ef_phh = weighted.mean(x = zambia_ef$tot_direct_EF_hh_GJ,
+                                    w =  zambia_ef$wt_hh, na.rm = T) # 61.22 GJ/hh/year (in paper: 68)
+total_indirect_ef_phh = weighted.mean(x = zambia_ef$tot_indirect_EF_hh_GJ, 
+                                      w =  zambia_ef$wt_hh, na.rm = T) # 11.63 GJ/hh/year (in paper: 10)
+
+
+# Now i want to get an order of magnitude of the carbon footprint of the average Zambia person, assuming that 80% of the energy consumed is charcoal or wood, and 20% is another type of energy, with a carbon emission factor of 40 tCO2/TJ = 40kgCO2/GJ
+# emission factor for biomass and charcoal:  112.000 tCO2/TJ = 112 kCO2/GJ
+
+carbon_footprint_average_zambian = 14*0.8*112 + 14*0.2*40 # 1366.4 kCO2/cap/year = 1.3 tCO2/cap/year
+
+# According to Our world in data, average CO2 footprint in Zambia in 2015: 0,32tCO2/capita. https://ourworldindata.org/co2/country/zambia
+
+```
+
+*Check the frequency of stove to choose emission factors*
+
+```{r}
+
+# frequency of stove 
+sum_weight = sum(zambia_ef$wt_hh)
+stove_freq=zambia_ef %>% group_by(main_dev_cook) %>% summarize(n = sum(wt_hh), f = sum(wt_hh)/sum_weight)
+
+# frequency of fuels 
+fuel_freq=zambia_ef %>% group_by(main_en_cook) %>% summarize(n = sum(wt_hh), f = sum(wt_hh)/sum_weight)
+
+```
+ 
+*Sample size in all the groups*
+ 
+```{r}
+
+zambia_ef = zambia_ef %>% 
+  mutate(energy_name = case_when(elec_access == 0 & clean_cooking == 0 ~ "No elec \n No CC", 
+                            elec_access == 1 & clean_cooking == 0 ~ "Elec \n No CC", 
+                            elec_access == 0 & clean_cooking == 1 ~ "No elec \n CC", 
+                            elec_access == 1 & clean_cooking == 1 ~ "Elec \n  CC"), 
+         energy = case_when(elec_access == 0 & clean_cooking == 0 ~ "elec0_CC0", 
+                            elec_access == 1 & clean_cooking == 0 ~ "elec1_CC0", 
+                            elec_access == 0 & clean_cooking == 1 ~ "elec0_CC1", 
+                            elec_access == 1 & clean_cooking == 1 ~ "elec1_CC1")) %>% 
+    mutate(name_edu_group_head = case_when(edu_group_head == "No education" ~ "No education",
+                                         edu_group_head == "primary" ~ "Primary", 
+                                         edu_group_head == "junior_secondary" ~ "Junior Secondary",
+                                         edu_group_head == "senior_secondary" ~ "Senior Secondary", 
+                                         edu_group_head == "post_secondary" ~ "Post Secondary")) %>% 
+  mutate(name_edu_group_head = # relevel the factor so that the quantiles are ordered in descending order
+           fct_relevel(name_edu_group_head, "No education", "Primary", "Junior Secondary", "Senior Secondary", "Post Secondary")) %>% 
+    mutate(meta_education = ifelse(edu_group_head %in% c("No education", "primary") , "low_education", edu_group_head))
+
+  
+  
+sample_size = zambia_ef %>% 
+  group_by(rururb, name_edu_group_head, energy_name) %>% 
+  summarize(n_cases = n()) %>% 
+  ungroup() %>%
+  na.omit() %>% 
+ mutate(n_cases_print = ifelse(n_cases < 100, n_cases, NA))
+
+ggplot(data = sample_size , aes(x = name_edu_group_head, y = n_cases))+
+  geom_bar(stat = "identity")+
+  geom_text( aes(label = as.character(n_cases_print), y = n_cases + 300), color = "red")+
+  facet_grid(vars(rururb),vars(energy_name))+
+  theme_bw()+ 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+# Calculation of energy footprint for energy X education X rururb group 
+
+We have to re-group some observations to increase sample size: 
+  - 1. Grouping no education and primary education together
+  - 2. For the category no electricity and clean cooking fuel, which has the lower sample size in both urban and rural areas, group all together, and calculate one single energy footprint for this group. 
+
+
+```{r}
+
+###########################################
+# 1. Calculate first energy footprint for all groups, but grouping no education and primary education together
+
+# MEAN
+ef_by_edu_urban_energy_mean = zambia_ef %>%
+  # make a variable meta_education with regrouping of no education and primary together
+  mutate(meta_education = ifelse(edu_group_head %in% c("No education", "primary") , "low_education", edu_group_head)) %>% 
+     group_by(meta_education, rururb, energy) %>% 
+ #  group_by(edu_group_head, rururb, energy) %>% 
+    summarize(firewood = weighted.mean(x = cap_GJ_TOTAL_firewood, w = wt_ind,  na.rm = F), # Firewood
+              gas = weighted.mean(cap_GJ_TOTAL_gas, wt_ind, na.rm = T), 
+              coal = weighted.mean(cap_GJ_TOTAL_Coal, wt_ind, na.rm = T), 
+              charcoal =  weighted.mean(cap_GJ_Charcoal, wt_ind, na.rm = T), 
+              diesel_home =  weighted.mean(cap_GJ_Diesel_home, wt_ind, na.rm = T),
+              electricity =  weighted.mean(cap_GJ_Electricity, wt_ind, na.rm = T),
+              paraffin =  weighted.mean(cap_GJ_Paraffin, wt_ind, na.rm = T), 
+              kerosene =  weighted.mean(cap_GJ_Kerosene, wt_ind, na.rm = T)) %>% 
+    ungroup() %>%
+  na.omit() %>% 
+    pivot_longer(cols = c(-energy, -meta_education, -rururb), names_to = "fuel", values_to = "cap_GJ_average") 
+  
+# STANDARD ERROR
+ef_by_edu_urban_energy_sd = zambia_ef %>%
+    mutate(meta_education = ifelse(edu_group_head %in% c("No education", "primary") , "low_education", edu_group_head)) %>% 
+     group_by(meta_education, rururb, energy) %>% 
+ #  group_by(edu_group_head, rururb, energy) %>% 
+    summarize(firewood = weighted.sd(x = cap_GJ_TOTAL_firewood, w = wt_ind,  na.rm = F), 
+              gas = weighted.sd(cap_GJ_TOTAL_gas, wt_ind, na.rm = T), 
+           coal = weighted.sd(cap_GJ_TOTAL_Coal, wt_ind, na.rm = T),
+               charcoal =  weighted.sd(cap_GJ_Charcoal, wt_ind, na.rm = T), 
+               diesel_home =  weighted.sd(cap_GJ_Diesel_home, wt_ind, na.rm = T), 
+                 electricity =  weighted.sd(cap_GJ_Electricity, wt_ind, na.rm = T), 
+              paraffin =  weighted.sd(cap_GJ_Paraffin, wt_ind, na.rm = T), 
+                kerosene =  weighted.sd(cap_GJ_Kerosene, wt_ind, na.rm = T)) %>% 
+    ungroup() %>%
+  na.omit() %>% 
+   pivot_longer(cols = c(-energy, -meta_education, -rururb), names_to = "fuel", values_to = "cap_GJ_sd") 
+
+# ALL TOGETHER
+ef_by_edu_urban_energy = ef_by_edu_urban_energy_mean %>% 
+  left_join(ef_by_edu_urban_energy_sd,
+            by = c("meta_education", "energy", "rururb", "fuel")) %>% 
+  # add sample size
+  left_join(zambia_ef %>%
+     group_by(meta_education, rururb, energy) %>% summarize(n_cases = n()) %>%  ungroup() %>%  na.omit(), 
+     by = c("meta_education", "energy", "rururb")) %>% 
+  mutate(cap_GJ_se = cap_GJ_sd/sqrt(n_cases)) %>% 
+   mutate(name_meta_education =
+            fct_relevel(meta_education, "low_education", "junior_secondary", "senior_secondary", "post_secondary"))
+
+# Let's visualize the energy footprint per fuel and their confidence interval for the energy category elec0_cc1 in rural areas 
+
+ggplot(data = ef_by_edu_urban_energy %>% filter(energy == "elec0_CC1", rururb == "Rural"),
+       aes(x = name_meta_education, y = cap_GJ_average, fill = fuel))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = cap_GJ_average - 0.95*cap_GJ_se, ymax =cap_GJ_average + 0.95*cap_GJ_se , x = name_meta_education), width = 0.1)+
+ # geom_text( aes(label = as.character(n_cases_print), y = n_cases + 300), color = "red")+
+ # facet_grid(vars(rururb),vars(energy_name))+
+  theme_bw()+ 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+
+
+```{r}
+
+################################################
+# 2. group together No elec and CC, calculate the EF 
+
+ef_elec0_CC1 = zambia_ef %>%
+  filter(energy == "elec0_CC1") %>% 
+  summarize(firewood = weighted.mean(x = cap_GJ_TOTAL_firewood, w = wt_ind,  na.rm = F), # Firewood
+            gas = weighted.mean(cap_GJ_TOTAL_gas, wt_ind, na.rm = T), 
+            coal = weighted.mean(cap_GJ_TOTAL_Coal, wt_ind, na.rm = T), 
+            charcoal =  weighted.mean(cap_GJ_Charcoal, wt_ind, na.rm = T), 
+            diesel_home =  weighted.mean(cap_GJ_Diesel_home, wt_ind, na.rm = T),
+            electricity =  weighted.mean(cap_GJ_Electricity, wt_ind, na.rm = T),
+            paraffin =  weighted.mean(cap_GJ_Paraffin, wt_ind, na.rm = T), 
+            kerosene =  weighted.mean(cap_GJ_Kerosene, wt_ind, na.rm = T)) %>% 
+  ungroup() %>% mutate(energy = "elec0_CC1") %>% 
+   pivot_longer(cols = c(-energy), names_to = "fuel", values_to = "cap_GJ_average") %>% 
+  # Add standard errors 
+  left_join( zambia_ef %>%
+               filter(energy == "elec0_CC1") %>% 
+               summarize(firewood = weighted.sd(x = cap_GJ_TOTAL_firewood, w = wt_ind,  na.rm = F),
+                         gas = weighted.sd(cap_GJ_TOTAL_gas, wt_ind, na.rm = T), 
+                         coal = weighted.sd(cap_GJ_TOTAL_Coal, wt_ind, na.rm = T),
+                         charcoal =  weighted.sd(cap_GJ_Charcoal, wt_ind, na.rm = T), 
+                         diesel_home =  weighted.sd(cap_GJ_Diesel_home, wt_ind, na.rm = T), 
+                         electricity =  weighted.sd(cap_GJ_Electricity, wt_ind, na.rm = T), 
+                         paraffin =  weighted.sd(cap_GJ_Paraffin, wt_ind, na.rm = T), 
+                         kerosene =  weighted.sd(cap_GJ_Kerosene, wt_ind, na.rm = T)) %>% ungroup() %>% 
+               mutate(energy = "elec0_CC1") %>% pivot_longer(cols = c(-energy), names_to = "fuel", values_to = "cap_GJ_sd") , 
+  by = c("fuel", "energy")) %>% 
+  mutate(n_cases = zambia_ef %>%
+              filter(energy == "elec0_CC1") %>% nrow()) %>% 
+  mutate(cap_GJ_se = cap_GJ_sd/sqrt(n_cases))
+  
+ggplot(data = ef_elec0_CC1, aes(x = fuel, y =cap_GJ_average ))+
+   geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin = cap_GJ_average - 0.95*cap_GJ_se, ymax =cap_GJ_average + 0.95*cap_GJ_se ), width = 0.1)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# looks good 
+
+```
+
+```{r}
+#####################################
+# 3. Put everything together again.  
+
+ef_by_edu_urban_energy_combined = ef_by_edu_urban_energy %>% 
+  filter(!(energy == "elec0_CC1"))  %>% 
+  bind_rows( expand_grid(ef_elec0_CC1, meta_education =  ef_by_edu_urban_energy$meta_education %>% unique(), rururb = c("Rural", "Urban"))) %>% 
+
+  mutate(name_energy = case_when(energy == "elec0_CC0"~ "No elec, \n No CC", 
+                                 energy == "elec1_CC0"~ "Elec, \n No CC", 
+                                 energy == "elec0_CC1"~ "No elec, \n CC", 
+                                 energy == "elec1_CC1"~ "Elec, \n CC")) %>% 
+  mutate(meta_education_name_tmp = case_when(meta_education == "low_education" ~ "Low educ.", 
+                                         meta_education == "junior_secondary" ~ "Junior sec.", 
+                                         meta_education == "senior_secondary" ~ "Senior sec.", 
+                                         meta_education == "post_secondary" ~ "Post sec.")) %>% 
+    mutate(name_meta_education =
+            fct_relevel(meta_education_name_tmp, "Low educ.", "Junior sec.", "Senior sec.", "Post sec.")) 
+
+#write.csv(ef_by_edu_urban_energy_combined %>% select(-meta_education_name_tmp,name_meta_education), file = here("analysis", "data", "derived_data", "ef_by_edu_urban_energy.csv"), row.names = F)
+
+# plot energy consumption for firewood, for all energy groups, urban/rural, and by edu group 
+
+ggplot(data = ef_by_edu_urban_energy_combined %>% filter(fuel == "electricity"), aes(x = meta_education, y =cap_GJ_average ))+ 
+  geom_bar(stat = "identity")+ 
+  geom_errorbar(aes(ymin = cap_GJ_average-0.95*cap_GJ_se, ymax = cap_GJ_average+0.95*cap_GJ_se), width =0.2)+
+  facet_grid(cols = vars(name_energy), rows = vars(rururb))+
+  theme_bw()+
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# all fuels together
+ggplot(data = ef_by_edu_urban_energy_combined, aes(x = name_meta_education, y =cap_GJ_average, fill = fuel ))+ 
+  geom_bar(stat = "identity", position = "stack")+ 
+ # geom_errorbar(aes(ymin = cap_GJ_average-0.95*cap_GJ_se, ymax = cap_GJ_average+0.95*cap_GJ_se, color = fuel), width =0.2)+
+  facet_grid(rows = vars(rururb), cols = vars(name_energy))+
+  scale_fill_brewer(name = "Energy carrier", palette ="Set2")+
+  theme_bw()+
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          legend.position = "bottom")+
+  labs(x = "", y = "Final energy (GJ/capita/year)")
+
+```
+
+# Calculate energy footprint for new scenario 
+
+Linear increase from 2020 to 2040 means: 
+25% of tradi energy is displaced in 2025, 
+50% in 2030 
+75% in 2035
+100% in 2040 
+
+```{r}
+
+eff_elec = 0.75 # source: Dagnachew et al 2020, table 1, value for 2015
+
+# ratio of efficiency between a given traditional energy and electricity 
+
+# Source: Dagnachew et al. 2020, Table 1, value for traditional biomass in 2015
+r_eff_firewood = 0.12/eff_elec 
+# source old (eff = 0.18): value for Traditional firewood in Figure 1.28 GEA (Chapter Energy Primer, page 139)
+
+# Source: Value for Traditional charcoal in Figure 1.28 GEA (Chapter Energy Primer, page 139)
+r_eff_charcoal = 0.18/eff_elec
+# Source alternative (eff: 0.12): Dagnachew et al. 2020, Table 1, value for traditional biomass in 2015
+
+# Source: value for Traditional Coal, from Figure 1.28 GEA (Chapter Energy Primer, page 139)
+r_eff_coal = 0.14/eff_elec 
+
+# Source:  Dagnachew et al. 2020, Table 1, value for kerosene  in 2015
+r_eff_paraffin = 0.35/eff_elec # source: TODO
+r_eff_kerosene = 0.35 /eff_elec # source: TODO 
+# source alternative (eff: 0.49): value for Kerosene, from Figure 1.28 GEA (Chapter Energy Primer, page 139)
+
+
+it_educ = ef_by_edu_urban_energy_combined$meta_education %>% unique()
+it_rururb = ef_by_edu_urban_energy_combined$rururb %>% unique()
+it_energy = ef_by_edu_urban_energy_combined$energy %>% unique()
+
+df_displace = tibble()
+
+for (ed in it_educ){
+  for (r in it_rururb){
+    for(en in it_energy){
+      
+      df_displace_current = ef_by_edu_urban_energy_combined %>% 
+        # take only the necessary
+        select(meta_education, rururb, energy, fuel, cap_GJ_average_2020 = cap_GJ_average) %>% 
+        #  filter one educ , elec, rururb
+        filter(meta_education == ed, rururb ==  r , energy == en) %>% 
+        displace_fuels(round = 1) %>% 
+        displace_fuels(round = 2) %>% 
+        displace_fuels(round = 3) %>% 
+        displace_fuels(round = 4) 
+       
+      df_displace = bind_rows(df_displace,df_displace_current)
+    }
+  }
+  
+}
+
+# Complete the df with values for after 2040
+
+# First create the empty cases
+df_displace = df_displace %>% 
+  # make long format
+  pivot_longer(cols = -c(meta_education, rururb, energy, fuel), 
+              names_to = "year", values_to = "cap_GJ_average") %>% 
+  mutate(year = str_remove(year, "cap_GJ_average_")) %>% 
+  mutate(year = as.numeric(year)) %>% 
+  # Add years from 2040 to 2070
+  group_by(meta_education, rururb, energy, fuel) %>%  
+  # here I use group_modify otherwise cannot add_row by group
+  group_modify(~ add_row(.,year = seq(2045,2070,5))) %>% 
+  ungroup()
+
+# Then fill them in with value of 2040
+df_displace_complete = df_displace %>% 
+  group_by(meta_education, rururb, energy, fuel) %>%  
+  group_modify(~mutate(., cap_GJ_average = ifelse(year %in% 2045:2070, 
+                                 filter(.,year == 2040) %>% 
+                                   select(cap_GJ_average) %>% 
+                                   pull(),
+                                 cap_GJ_average))) %>% 
+  ungroup()
+
+# Sanity check 1: check whether values before 2040 were not changed
+check = df_displace %>%  
+  left_join(df_displace_complete %>%
+              filter(year < 2045) %>% 
+              rename(cap_GJ_average_tmp = cap_GJ_average),
+            by = c("meta_education", "rururb", "energy", "fuel", "year")) %>% 
+  mutate(test = cap_GJ_average - cap_GJ_average_tmp)
+
+check$test %>% table() # should have only zeros --> ok 
+rm(check)
+
+# Sanity check 2: check whether all values after 2040 are the same and 
+# they correspond to the value of 2040
+check2 = df_displace_complete %>%  
+  filter(year > 2045) %>%
+  select(-year) %>% 
+  unique() %>% 
+  left_join(df_displace %>% filter(year == 2040), 
+            by = c("meta_education", "rururb", "energy", "fuel")) %>% 
+  mutate(test2 = cap_GJ_average.x-cap_GJ_average.y)
+
+nrow(check2) == 4 * 2 * 4 * 8 # (n_edu_group X n_rururb_group X n_energy_group X n_fuels)
+# --> OK
+
+check2$test2 %>% table() # --> OK 
+
+write.csv(df_displace_complete, here("analysis", "data", "derived_data", "ef_by_edu_urban_energy_by_year.csv"), row.names = F)
+```
+
+# Average CO2 factor of electricity in Zambia
+
+I adopt the following procedure to estimate and project the average CO2 factor of electricity in Zambia:
+
+1. I take the electricity source mix of Zambia in the year 2020 from IRENA data, and calculate % of renewable and % of non-renewable. 
+2. Calculate the percentage change in renewable from Antemneh data, take only SSP2.
+3. I then apply the percentage change to the renewable mix of zambia. For values from 2050 to 2070, repeat the value of 2050
+4. I calculate the average co2 factor of non renewable electricity source. 
+5. I calculate the CO2 factor of electricity for each 5-year time stpe using the average co2 factor and the mix of renewable.  
+
+```{r}
+
+# 1. Take the electricity source mix of Zambia in the year 2020 from IRENA data, and calculate % of renewable and % of non-renewable. 
+elec_mix_zambia= readxl::read_xlsx(here("analysis", "data", "raw_data", "IRENA_electricity_mix_zambia.xlsx")) %>% 
+  rename(electricity_source =electricity_source_2020, "p" = "%" ) %>% 
+  mutate(type = case_when(electricity_source == "non_renewable" ~ "non_renewable", 
+                          electricity_source %in% 
+                            c("hydro", "solar", "wind", "bioenergy", "geothermal") ~ "renewable")) %>%
+  group_by(type) %>% 
+  summarize(p = sum(p)) %>% 
+  ungroup() %>% 
+  mutate(year = 2020) %>% 
+  filter(type == "renewable") %>% 
+  tibble::add_row(year = seq(from = 2025, to = 2050, 5), p =NA, type = "renewable") 
+
+
+# NB for the ICR methodology report, one of the constant paramteres reported was Percentage of non-renewable electricity in the electricity source mix in Zambia for 2020, the value is 18 and we took it from the data right above. 
+
+
+# 2. Calculate the percentage change in renewable in the electricity mix from Antoneh data, take only SSP2.
+
+# data 
+
+electricity_mix_SA_raw = read_xlsx(path = here("analysis", "data", "raw_data", "electricity_share_and_emission_factors.xlsx"), skip = 1) %>% 
+  # remove CCS technology because they are 0 all over the years 
+  select(-contains("CCS")) %>% 
+  janitor::clean_names() %>% 
+  mutate(renewable = solar + wind + wave + hydro + geothermal_ocean,
+         non_renewable = nuclear + coal + oil + natural_gas + biomass) %>% 
+  select(year, region, scenario, renewable, non_renewable) %>% 
+  mutate(check = renewable + non_renewable)
+
+# calculate the rate of change in renewable uptake in all scenario
+
+p_change_renewable = electricity_mix_SA_raw %>% 
+  group_by(scenario) %>% 
+      tidyr::complete(year = full_seq(year,5)) %>% 
+  mutate(renewable = imputeTS::na_interpolation(renewable)) %>% 
+  mutate(lag_renewable = lag(renewable,1)) %>% 
+  mutate(p_change = (renewable - lag_renewable)*100/lag_renewable) %>% 
+  select(-region, -non_renewable, -check) %>% 
+  # remove 2010 and 2015 which correspond to the p change between 2005 and 2010 and 2010 and 2015
+filter(!(year %in% c(2010, 2015)), 
+       scenario == "SSP2") %>% 
+  ungroup() %>% 
+  select(-scenario)
+
+# 3.Apply the percentage change to the renewable mix of zambia. For values from 2050 to 2070, repeat the value of 2050
+
+for (i in 1:6){
+  current_p_change = p_change_renewable %>%  filter(year == elec_mix_zambia$year[i+1]) %>% select(p_change) %>% pull()
+  elec_mix_zambia$p[i+1] =  round(elec_mix_zambia$p[i] + elec_mix_zambia$p[i]*current_p_change/100,1)
+}
+
+# add year 2055 to 2075, repeat the value of 2050
+p_2050 = elec_mix_zambia %>% filter(year == 2050) %>% select(p) %>% pull()
+elec_mix_zambia  = elec_mix_zambia %>% 
+  tibble::add_row(year = seq(from = 2055, to = 2075, 5), p =p_2050, type = "renewable") 
+
+# 4. Calculate the average co2 factor of non renewable electricity source. 
+
+# Emission factors in Antoneh's data. Unit is kg/GJ
+  ## Question: where do they come from?
+emission_factors_antoneh = read_xlsx(path = here("analysis", "data", "raw_data", "electricity_share_and_emission_factors.xlsx"), sheet = 2, skip = 1) %>% 
+  janitor::clean_names() %>% 
+pivot_longer(-region, names_to = "electricity_source_pre", values_to = "co2_factor") 
+
+mean_co2_factor_elec_non_renewable = mean(emission_factors_antoneh$co2_factor)
+
+# NB for the ICR methodology, one constant parameter reported is the Average CO2 emission factor for the non-renewable electricity source in Sub-Saharan Africa, which is 85%. We took it from the data above.
+
+
+# 5. Calculate the CO2 factor of electricity for each 5-year time stpe using the average co2 factor and the mix of renewable.  
+
+elec_mix_zambia = elec_mix_zambia %>% 
+  mutate(mean_co2_factor = (1-p/100)*mean_co2_factor_elec_non_renewable)
+
+elec_mix_zambia %>% write.csv(here("analysis", "data", "derived_data", "co2_factor_electricity_zambia.csv"), row.names = F) # Units is kg/GJ
+
+```

@@ -1,0 +1,48 @@
+Source: Wittgenstein Centre for Demography and Global Human Capital (2018). Wittgenstein Centre Data Explorer Version 2.0
+Available at: www.wittgensteincentre.org/dataexplorer 
+
+""
+"Population Size (000's)"
+"De facto population in a country or region, classified by sex and by five-year age groups. Available in all scenarios and at all geographical scales. Figures are presented in thousands. <br><br> Source for 1950 to 2015: <a href=""http://esa.un.org/wpp/documentation/WPP%202010%20publications.htm"">UN Population Division, World Population Prospects 2017</a>"
+"Multiple Scenarios"
+" "
+"Scenario","Area","Year","Population"
+"SSP2","Zambia",2015,16099.5
+"SSP2","Zambia",2020,18783.5
+"SSP2","Zambia",2025,21624.2
+"SSP2","Zambia",2030,24607.3
+"SSP2","Zambia",2035,27715.4
+"SSP2","Zambia",2040,30888.7
+"SSP2","Zambia",2045,34040.9
+"SSP2","Zambia",2050,37072.9
+"SSP2","Zambia",2055,39913.7
+"SSP2","Zambia",2060,42545.7
+"SSP2","Zambia",2065,44942.2
+"SSP2","Zambia",2070,47086.8
+"SSP2","Zambia",2075,48944
+"SSP1","Zambia",2015,16099.5
+"SSP1","Zambia",2020,18385.4
+"SSP1","Zambia",2025,20356.6
+"SSP1","Zambia",2030,22138.4
+"SSP1","Zambia",2035,23872.6
+"SSP1","Zambia",2040,25588.3
+"SSP1","Zambia",2045,27198.5
+"SSP1","Zambia",2050,28577.4
+"SSP1","Zambia",2055,29676
+"SSP1","Zambia",2060,30517.3
+"SSP1","Zambia",2065,31141
+"SSP1","Zambia",2070,31567.2
+"SSP1","Zambia",2075,31778.5
+"SSP3","Zambia",2015,16099.5
+"SSP3","Zambia",2020,19059.4
+"SSP3","Zambia",2025,22556.4
+"SSP3","Zambia",2030,26575.9
+"SSP3","Zambia",2035,31004.5
+"SSP3","Zambia",2040,35789.9
+"SSP3","Zambia",2045,40939.9
+"SSP3","Zambia",2050,46380.9
+"SSP3","Zambia",2055,51972.1
+"SSP3","Zambia",2060,57584.1
+"SSP3","Zambia",2065,63147.8
+"SSP3","Zambia",2070,68644.7
+"SSP3","Zambia",2075,74050.7

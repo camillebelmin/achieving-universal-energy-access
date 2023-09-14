@@ -1,0 +1,35 @@
+Source: Wittgenstein Centre for Demography and Global Human Capital (2018). Wittgenstein Centre Data Explorer Version 2.0
+Available at: www.wittgensteincentre.org/dataexplorer 
+
+""
+"Average Annual Rate of Natural Increase"
+"Represents the portion of population growth (or decline) determined exclusively by births and deaths. Available in all scenarios and at all geographical scales. It is expressed per 1,000 population annually. <br><br> Data for 1950 to 2015: Based on <a href=""http://esa.un.org/wpp/documentation/WPP%202010%20publications.htm"">UN Population Division, World Population Prospects 2017</a>"
+"Multiple Scenarios"
+" "
+"Scenario","Area","Period","Rate"
+"SSP2","Zambia","2010-2015",30.5
+"SSP2","Zambia","2015-2020",33.4
+"SSP2","Zambia","2020-2025",30.4
+"SSP2","Zambia","2025-2030",27.8
+"SSP2","Zambia","2030-2035",25.5
+"SSP2","Zambia","2035-2040",23.1
+"SSP2","Zambia","2040-2045",20.7
+"SSP2","Zambia","2045-2050",18.1
+"SSP2","Zambia","2050-2055",15.7
+"SSP2","Zambia","2055-2060",13.5
+"SSP2","Zambia","2060-2065",11.7
+"SSP2","Zambia","2065-2070",9.9
+"SSP2","Zambia","2070-2075",8.3
+"SSP1","Zambia","2010-2015",30.5
+"SSP1","Zambia","2015-2020",28.5
+"SSP1","Zambia","2020-2025",21.5
+"SSP1","Zambia","2025-2030",17.6
+"SSP1","Zambia","2030-2035",15.8
+"SSP1","Zambia","2035-2040",14.6
+"SSP1","Zambia","2040-2045",12.8
+"SSP1","Zambia","2045-2050",10.4
+"SSP1","Zambia","2050-2055",8
+"SSP1","Zambia","2055-2060",6
+"SSP1","Zambia","2060-2065",4.4
+"SSP1","Zambia","2065-2070",3.1
+"SSP1","Zambia","2070-2075",1.7

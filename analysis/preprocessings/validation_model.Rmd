@@ -1,0 +1,361 @@
+---
+title: "validation_model"
+output: pdf_document
+date: "2023-05-18"
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(readr)
+library(janitor)
+library(haven) # to read .dta files
+library(RColorBrewer)
+library(patchwork)
+library(ggdist)
+library(miceadds)
+
+```
+
+```{r}
+
+source.all(here("R"))
+res_path = here("analysis", "data", "derived_data", "output/")
+
+
+#full_output_wc_zambia = read.csv(here("analysis", "data", "raw_data", "Full_output_zambia.csv"))
+
+#pop_zambia = 15879370 # population size zambia in 2015. Source: United Nations Population Division. 
+# pop zambia 2020: 18383955
+#pop_zambia = 18383955
+# NB in WIC data it is 16099500
+#pop_zambia = 16099500
+# this is the average of SSP1 and SSP2 in 2020 in the WIC data
+pop_zambia = 18584450
+
+
+# Map between age group string and num ####
+age_group_map = read.csv(here("analysis", "data", "raw_data", "age_group_correspondance.csv")) %>%
+  rename(age = age_group_char) %>% 
+  mutate(age = as.character(age)) %>% 
+  # create the age group cat 95+ 
+  mutate(age = ifelse(age == "95--99", "95+", age)) %>% 
+  filter(!(age == "100")) %>%
+  separate(age, c("age_min", "age_max"), sep = "--") %>% 
+  mutate(age_min = as.integer(age_min)) %>% 
+  na.omit()
+
+
+
+```
+
+
+# 1
+
+Compare the pop in full_output_zambia with the pop in wcde file 
+
+
+```{r}
+
+# Full_output file (from Guillaume)
+
+full_output_wc_zambia_raw = read.csv(here("analysis", "data", "raw_data", "Full_output_zambia.csv"))
+
+full_output = full_output_wc_zambia_raw %>%  dplyr::select(age, sex, period, pop) %>% 
+  group_by(period) %>% 
+  summarize(population = sum(pop), scenario_name = "Full_output") %>% 
+  ungroup() %>% 
+  rename(year = period)
+# WIC file 
+
+# From WC projections
+df_pop_wc = read.csv(here("analysis", "data", "raw_data", "wcde_data_pop_zambia.csv"), skip = 8) %>% 
+  clean_names() %>% 
+  filter(!(scenario == "SSP3")) %>% 
+ mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1 - IIASA", 
+                              scenario == "SSP2" ~ "SSP2 - IIASA")) %>% 
+  select( year, population , scenario_name = scenario) %>% 
+  bind_rows(full_output) %>% 
+  filter(year < 2075) %>% 
+  mutate(population = population * 1000)
+
+# Plot 
+
+ggplot(data = df_pop_wc, aes(x = year, y = population, color = scenario_name))+
+  geom_line(size = 1, alpha = 0.5)+
+  theme_bw()
+
+
+```
+
+--> result. The population "pop" matches the IIASA population. It means that the IIASA population corresponds to the population before births, before deaths etc.  
+
+
+# 2 
+
+Compare the population structure  in validation with either the pop structure in full output or in the scde dile 
+
+```{r}
+# Load validation data 
+
+experiment = "51"
+
+###########
+# Load all files
+##########
+
+# An experiment can consist of different scenarios (e.g. SSP1, SSP2) and then different iterations using different random seeds to capture the stochastic variability of the model.
+
+#######################
+# Data population 
+
+files_pop = filename_pop = list.files(res_path, 
+                              pattern = paste0("st_population_", 
+                                               experiment, "_"))
+# dataframe with the results from one experiement (different scenarios, different seeds)
+data_pop <- files_pop %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_population = data.frame(filename = files_pop) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_pop = nrow(read_rds(file.path(res_path, files_pop[1])))
+
+# Add iteration, experiment, sampling fraction to the pop data
+df_data_pop = data.frame(exp = rep(grid_population$exp, each=rows_pop),
+                    scenario = rep(grid_population$scenario, each=rows_pop),
+                    iteration = rep(grid_population$iteration, each=rows_pop),
+                    seed = rep(grid_population$seed, each=rows_pop)) %>% 
+  bind_cols(data_pop) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration),
+         mcf_access = strtoi(mcf_access),
+         elec_access = strtoi(elec_access)) %>% 
+  select(-seed) %>% 
+  # change scenario names 
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA"))
+
+# Determine the Initial size pop and add it to the sim_param parameter
+df_pop_init = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sum(Freq)) %>% 
+  ungroup() %>% 
+  filter(timestep == 1) %>% 
+  select(scenario,population_init = population, iteration) 
+
+#######################
+# Sim parameters 
+
+# load sim_param file
+files_params = filename_params = list.files(res_path, 
+                              pattern = paste0("sim_params_", 
+                                               experiment, "_"))
+data_params <- files_params %>%
+  # read in all the files, appending the path before the filename
+  map(~ readRDS(file.path(res_path, .))) %>% # NB: this should be read_rds in the next round
+  #  map(~ read_csv(file.path(res_path, .))) %>% # NB: this should be read_rds in the next round
+  reduce(rbind) %>%
+  # add column for iteration
+  mutate(iteration = str_split_fixed(run_id, pattern = "_", n = 4)[,3])  %>% 
+  rename(scenario = scenario_name) %>% 
+  mutate(iteration = strtoi(iteration)) %>% 
+    # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  left_join(df_pop_init, by = c("scenario", "iteration")) %>% 
+  # Add sampling fraction 
+  mutate(sampling_fraction = pop_zambia/population_init)
+
+# Add the  sampling fraction to  df_data_pop
+df_data_pop = df_data_pop %>% 
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+#######################
+# Data births
+
+files_births = filename_births = list.files(res_path, 
+                              pattern = paste0("st_birth_", 
+                                               experiment, "_"))
+data_births <- files_births %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_births = data.frame(filename = files_births) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_births = nrow(read_rds(file.path(res_path, files_births[1])))
+
+# Add iteration, experiment, sampling fraction to the birth data
+df_data_births = data.frame(exp = rep(grid_births$exp, each=rows_births),
+                    scenario = rep(grid_births$scenario, each=rows_births),
+                    iteration = rep(grid_births$iteration, each=rows_births),
+                    seed = rep(grid_births$seed, each=rows_births)) %>% 
+  bind_cols(data_births) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration)) %>% 
+  select(-seed) %>% 
+    # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  # Add the sampling fraction
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+#######################
+# Data deaths
+
+files_deaths = filename_deaths = list.files(res_path, 
+                              pattern = paste0("st_death_", 
+                                               experiment, "_"))
+data_deaths <- files_deaths %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_deaths = data.frame(filename = files_deaths) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_births = nrow(read_rds(file.path(res_path, files_deaths[1])))
+
+# Add iteration, experiment, sampling fraction to the death data
+df_data_deaths = data.frame(exp = rep(grid_deaths$exp, each=rows_births),
+                    scenario = rep(grid_deaths$scenario, each=rows_births),
+                    iteration = rep(grid_deaths$iteration, each=rows_births),
+                    seed = rep(grid_deaths$seed, each=rows_births)) %>% 
+  bind_cols(data_deaths) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration)) %>% 
+  select(-seed) %>% 
+      # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  # Add the sampling fraction
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+### Useful dataframes 
+
+
+# data frame with population size
+df_pop = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup()
+
+# data frame with population by age group 
+df_pop_age = df_data_pop %>% 
+  group_by(scenario, age_group, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup()
+
+
+
+
+```
+
+
+```{r, eval = F}
+
+# Plot 
+
+
+color_pal = c("#440154FF", "#20A387FF", "#FDE725FF","#31688e")
+###################
+## Population 
+
+# Data frame with population size
+df_pop = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup() %>% unique() %>% 
+  mutate(scenario_name = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA")) # 
+
+
+
+
+# From WC projections
+df_pop_wc = read.csv(here("analysis", "data", "raw_data", "wcde_data_pop_zambia.csv"), skip = 8) %>% 
+  clean_names() %>% 
+ mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1 - IIASA", 
+                              scenario == "SSP2" ~ "SSP2 - IIASA")) %>% 
+  select( year, population , scenario_name = scenario) %>% 
+  mutate(timestep = (as.numeric(year)-2020)/5 +1 , 
+         source = "WCDE", 
+         population = population*1000) %>% 
+  mutate(timestep_st = as.character(year)) %>% 
+  filter(scenario_name %in% c("SSP2 - IIASA","SSP1 - IIASA"),  
+         year < 2070)
+
+plot_pop_smooth_valid = 
+  ggplot()+
+  #geom_line(data = df_pop %>% filter(iteration == 2), aes(x=(timestep-1)*5+2020, y = population))+
+  geom_smooth(data = df_pop, aes(x=(timestep-1)*5+2020, y = population, 
+                                 color = scenario_name, fill = scenario_name),
+              method = "loess", se=T, size = 0.5) +
+  geom_line(data = df_pop_wc, aes(x = year, y = population, color = scenario_name))+
+  scale_color_manual(name = "Scenario", values = color_pal) +
+  scale_fill_manual(guide = "none", values = color_pal) +
+  theme_minimal()+ 
+  labs(x = "", y = "Population")
+
+plot_pop_smooth_valid
+```
+
+
+
+```{r}
+
+# Full_output file (from Guillaume)
+
+full_output_wc_zambia_raw = read.csv(here("analysis", "data", "raw_data", "Full_output_zambia.csv"))
+
+full_output_age = full_output_wc_zambia_raw %>%  dplyr::select(age, sex, period, pop) %>% 
+  group_by(period, age) %>% 
+  summarize(population = 1000*sum(pop), scenario_name = "Full_output") %>% 
+  ungroup() %>% 
+  rename(year = period, 
+         age_min = age) %>% 
+  mutate(year = year + 5)
+
+
+# 
+full_output_age = full_output_age %>% 
+  left_join(age_group_map %>% select(-age_max), by = "age_min")
+
+# 
+
+df_pop_age_mean = df_pop_age %>% group_by(scenario, age_group, timestep) %>% 
+  summarize(population = mean(population)) %>% 
+    mutate(year = (timestep-1)*5+2020)
+
+# THen compare 
+
+df_comparison_ssp2 = full_output_age %>% select(year, population, scenario_name, age_group) %>% 
+  bind_rows(df_pop_age_mean %>% select(year,population, scenario_name = scenario, age_group) %>% filter(scenario_name == "SSP2_EA")) %>% 
+  na.omit() 
+
+# Selection of education and age group (because we can't look at everything at the same time #####
+
+ggplot(data = df_comparison_ssp2 %>%
+         filter(year < 2045),
+       aes(x = as.factor(age_group), y = population, fill = scenario_name))+
+  facet_wrap(~year)+
+  geom_bar(stat = "identity", position = "dodge")
+
+
+```

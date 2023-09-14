@@ -1,0 +1,48 @@
+Source: Wittgenstein Centre for Demography and Global Human Capital (2018). Wittgenstein Centre Data Explorer Version 2.0
+Available at: www.wittgensteincentre.org/dataexplorer 
+
+""
+"Total Fertility Rate"
+"The average number of children born in a period to the women of reproductive age (15-49). Available in all scenarios, and at all geographical scales. It is expressed as children per woman. <br><br> Source for 1950 to 2015: <a href=""http://esa.un.org/wpp/documentation/WPP%202010%20publications.htm"">UN Population Division, World Population Prospects 2017</a>"
+"Multiple Scenarios"
+" "
+"Scenario","Area","Period","Rate"
+"SSP2","Zambia","2010-2015",5.2
+"SSP2","Zambia","2015-2020",5
+"SSP2","Zambia","2020-2025",4.56
+"SSP2","Zambia","2025-2030",4.17
+"SSP2","Zambia","2030-2035",3.83
+"SSP2","Zambia","2035-2040",3.5
+"SSP2","Zambia","2040-2045",3.18
+"SSP2","Zambia","2045-2050",2.89
+"SSP2","Zambia","2050-2055",2.64
+"SSP2","Zambia","2055-2060",2.43
+"SSP2","Zambia","2060-2065",2.27
+"SSP2","Zambia","2065-2070",2.14
+"SSP2","Zambia","2070-2075",2.04
+"SSP1","Zambia","2010-2015",5.2
+"SSP1","Zambia","2015-2020",4.39
+"SSP1","Zambia","2020-2025",3.41
+"SSP1","Zambia","2025-2030",2.76
+"SSP1","Zambia","2030-2035",2.39
+"SSP1","Zambia","2035-2040",2.17
+"SSP1","Zambia","2040-2045",2
+"SSP1","Zambia","2045-2050",1.86
+"SSP1","Zambia","2050-2055",1.74
+"SSP1","Zambia","2055-2060",1.64
+"SSP1","Zambia","2060-2065",1.56
+"SSP1","Zambia","2065-2070",1.5
+"SSP1","Zambia","2070-2075",1.44
+"SSP3","Zambia","2010-2015",5.2
+"SSP3","Zambia","2015-2020",5.45
+"SSP3","Zambia","2020-2025",5.46
+"SSP3","Zambia","2025-2030",5.4
+"SSP3","Zambia","2030-2035",5.21
+"SSP3","Zambia","2035-2040",4.9
+"SSP3","Zambia","2040-2045",4.53
+"SSP3","Zambia","2045-2050",4.15
+"SSP3","Zambia","2050-2055",3.79
+"SSP3","Zambia","2055-2060",3.49
+"SSP3","Zambia","2060-2065",3.24
+"SSP3","Zambia","2065-2070",3.05
+"SSP3","Zambia","2070-2075",2.91

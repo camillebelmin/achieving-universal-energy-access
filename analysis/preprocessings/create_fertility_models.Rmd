@@ -1,0 +1,559 @@
+---
+title: "fertility_modelling"
+author: "Camille Belmin"
+date: "6/7/2021"
+output:
+  bookdown::pdf_document2:
+    toc: false
+    latex_engine: xelatex
+
+header-includes: \usepackage{caption} \usepackage{booktabs} \usepackage{xcolor} \usepackage{longtable}
+  \usepackage{float} \usepackage{rotating} \floatplacement{figure}{H} \usepackage{lineno}
+  \linenumbers
+---
+
+
+input: 
+data_model_glm.rds
+metadata_dhs_full.csv
+age_group_correspondance.csv
+
+
+output: 
+model_glm_simple.rds
+model_glm_base.rds
+coef_model_glm_simple.rds
+model_glm_base_w.rds
+model_glm_no_urban.rds
+model_glm_sq
+model_glm_simple_no_urban.rds
+model_glm_alt.rds
+model_glm_educ.rds
+model_glm_educ_w.rds
+model_glm_energy.rds
+model_glm_energy_w.rds
+model_glm_energy_simple.rds
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+library(tidyverse)
+library(here)
+library(miceadds)
+library(broom)
+library(sjlabelled)
+#library(stargazer)
+library(imputeTS)
+
+metadata_dhs = read.csv(here("analysis","data", "derived_data","metadata_dhs_full.csv"))
+#source.all(here("R"))
+source(here("R", "add_cooking_fuel_type.R"))
+source(here("R", "recode_na.R"))
+path_dhs_data = path_dhs_data = paste0(str_remove(here(), "microsim.energy"), "DHS_data/") # the DHS data is in the parent directory because I use DHS data in several projects
+
+```
+
+# Create the data for the regression from DHS survey
+
+We take the DHS data of Zambia for 7 years and we run a logistic regression to predict the probability of giving birth depending on different covariates: energy access, education and whether the women lives in rural or urban areas.  
+
+
+
+```{r cars}
+
+
+ p_country_code = "ZMB"
+ p_min_year = 2001 # ethiopia: 2005. Senegal: 2017
+# # metadata of the country 
+ p_age_group_map = read.csv(here("analysis", "data", "raw_data", "age_group_correspondance.csv")) 
+# 
+# p_country_code = "ZMB"
+ p_metadata = metadata_dhs
+# 
+metadata_country = p_metadata %>% filter(country_code == p_country_code, survey_year >= p_min_year)
+#   # Read the data from Zambia for the last three waves, and combine them together
+   data_pre = NULL
+  for( i in 1:nrow(metadata_country)) {
+    data_current_raw = readRDS(file =  paste0(path_dhs_data,"IR/", metadata_country$file_name[i])) %>%
+      as.data.frame()
+    names(data_current_raw) = tolower(names(data_current_raw))
+    data_current =  data_current_raw %>%
+      dplyr::select(#caseid,
+        #contains("v190"),
+        year = v007,
+        elec = v119, #radio = v120, tv = v121, fridge = v122, #
+        contains("v161"),
+        #mobile = v169a, internet = v171a, internet_frequency = v171b,
+        age = v012, agecat = v013,
+        educ_years = v133, birth1 = v209, birth5 = v208, urban = v025, weight1e6 = v005 ) %>%
+      {if("v161" %in% names(.))   add_cooking_fuel_type(., coal = "traditional") else .} %>% 
+      mutate(survey_id = metadata_country$SurveyId[i])
+    print(i)
+    data_current = data_current %>% copy_labels(data_pre)
+    data_pre = bind_rows(data_pre , data_current)
+  }
+
+  # Pre-process the combined data
+  data_glm = data_pre %>%
+    # make tpye of cooking fuel a binary variables
+    mutate(modern_cooking_fuel =
+             ifelse(cooking_fuel_type == "modern", 1,
+                    ifelse(is.na(cooking_fuel_type), NA, 0))) %>%
+    # transform multiple birth into single birth
+    mutate(birth1 = ifelse(birth1 %in% c(2,3,4,5,6), 1, birth1),
+           urban = ifelse(urban == 2, 0, urban),
+           weight = weight1e6/1e6) %>%
+    # recode non-numerical variables coded as numbers
+    mutate(educ_years = ifelse(educ_years > 90, NA, educ_years)) %>%
+    mutate(across(any_of(c("urban", "elec", "radio", "tv", "fridge",
+                           "mobile")),
+                  recode_na, threshold_NA = 1)) %>%
+    mutate(across(any_of(c("elec","agecat",
+                           "modern_cooking_fuel", "urban")), as.factor)) %>%
+    # mutate(year = as.factor(year)) %>%
+    # make education levels. Levels of education in Zambia:
+    # 7 complete primary, 9 complete lower sec, 12 complete higher sec
+    # according to https://www.scholaro.com/pro/Countries/Zambia/Education-System
+    mutate(educ_level = case_when(educ_years == 0 ~ "1",
+                                  educ_years > 0 & educ_years < 7 ~ "2",
+                                  educ_years == 7 ~ "3",
+                                  educ_years >7 & educ_years < 10 ~ "4",
+                                  educ_years > 9 & educ_years < 13 ~ "5",
+                                  educ_years > 12 ~ "6")) %>%
+    # modify the age group variable so that it corresponds to the age groups from 0 to 100 year old
+    mutate(age_group_char = case_when(agecat == 1 ~ "15--19",
+                                      agecat == 2 ~ "20--24",
+                                      agecat == 3  ~ "25--29",
+                                      agecat == 4  ~ "30--34",
+                                      agecat == 5  ~ "35--39",
+                                      agecat == 6  ~ "40--44",
+                                      agecat == 7  ~ "45--49")) %>%
+    # add the age group as an integer
+    left_join(p_age_group_map, by = "age_group_char") %>%
+    mutate(age_group = as.factor(age_group))
+
+# Re-weight, so that sum of weight equals sample size, since we pooled samples from different years
+
+sum(data_glm$weight) 
+nrow(data_glm)
+
+data_glm %>% group_by(survey_id) %>% summarize(sum_w = sum(weight))
+ 
+
+data = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% na.omit() %>% 
+  mutate(year_sq = year*year)
+
+
+```
+
+# Regressions 
+
+## Model without interaction terms
+
+```{r}
+
+# Model without interaction terms with age and energy
+model_glm_simple <- glm(birth1 ~ age_group + educ_level + elec + modern_cooking_fuel + urban + year, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data)
+
+summary(model_glm_simple)
+
+### throw out all the stuff we dont need
+sg = model_glm_simple
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_simple.rds"))
+
+
+```
+
+## Model with interaction terms and URBAN
+
+```{r}
+
+data = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% na.omit() %>% 
+  mutate(year_sq = year*year)
+
+# Model without interaction terms with age and energy
+model_glm_base <- glm(birth1 ~ age_group + educ_level + elec*age_group + modern_cooking_fuel*age_group + urban + year, 
+                     family="binomial",
+                     data=data)
+
+summary(model_glm_base)
+
+### throw out all the stuff we dont need
+sg = model_glm_base
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_base.rds"))
+
+# Same model but weighted regression 
+model_glm_base_w <- glm(birth1 ~ age_group + educ_level + elec*age_group + modern_cooking_fuel*age_group + urban + year, 
+                     family="binomial",
+                     data=data, 
+                     weights = weight )
+summary(model_glm_base_w)
+### throw out all the stuff we dont need
+sg = model_glm_base_w
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_base_w.rds"))
+
+summary(model_glm_base_w)
+summary(model_glm_base)
+
+# compare coeff using 
+# # extract the coefficients only and make it a list
+
+tidy_model_glm_coef = tidy(model_glm_base) %>%
+  select(term,estimate_base = estimate) %>% 
+  left_join(tidy(model_glm_base_w) %>%
+  select(term,estimate_base_w = estimate), by = "term") %>% 
+  pivot_longer(cols = -term, names_to = "model", values_to = "estimate")
+
+tidy_model_glm = tidy(model_glm_base) %>%
+  # retrieve the std errors
+  select(term, std_error_base = std.error) %>% 
+  left_join(tidy(model_glm_base_w) %>%
+  select(term, std_error_base_w = std.error), by = "term") %>% 
+  pivot_longer(cols = -term, names_to = "model", values_to = "std_error") %>% 
+  add_column( estimate = tidy_model_glm_coef$estimate) %>% # put the estimate
+  mutate(model = str_remove(model, "std_error_")) # rename
+
+
+ggplot(data = tidy_model_glm %>% filter(!(term == "age_group10:modern_cooking_fuel1")), aes(x = term, y = estimate, color = model)) +
+  geom_point(alpha = 0.5)+
+  geom_errorbar(aes(ymin = estimate - 0.95*std_error, ymax = estimate + 0.95*std_error ))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Zoom in 
+ggplot(data = tidy_model_glm %>% filter(!(term == "age_group10:modern_cooking_fuel1")), aes(x = term, y = estimate, color = model)) +
+  geom_point(alpha = 0.5)+
+  geom_errorbar(aes(ymin = estimate - 0.95*std_error, ymax = estimate + 0.95*std_error ))+
+  ylim(-2.5,2.5)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# CONCLUSION: not much difference in the coefficients between 
+
+```
+
+## Model with interaction terms and NO urban
+
+```{r}
+data = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% na.omit() %>% 
+  mutate(year_sq = year*year)
+
+# Model WITH interaction terms but without urban
+model_glm_no_urban <- glm(birth1 ~ age_group + educ_level + elec*age_group + modern_cooking_fuel*age_group + year, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data)
+
+summary(model_glm_no_urban)
+
+### throw out all the stuff we dont need
+sg = model_glm_no_urban
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_no_urban.rds"))
+
+```
+
+## Model without interaction terms and NO urban
+
+```{r}
+# Model without urban as a predictor
+model_glm_simple_no_urban <- glm(birth1 ~ age_group + educ_level + elec + modern_cooking_fuel + year, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data_glm)
+
+summary(model_glm_simple_no_urban)
+
+### throw out all the stuff we dont need
+sg = model_glm_simple_no_urban
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_simple_no_urban.rds"))
+```
+
+## Model with interaction terms, urban and square of year
+
+```{r}
+
+# Model with square opf year
+model_glm_sq <- glm(birth1 ~ age_group + educ_level + elec*age_group + modern_cooking_fuel*age_group + urban + year_sq, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data)
+
+summary(model_glm_sq)
+
+### throw out all the stuff we dont need
+sg = model_glm_sq
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_sq"))
+
+```
+
+```{r}
+# Alternative model with only the last year of DHS
+model_glm_alt <- glm(birth1 ~ age_group + educ_level + elec*age_group + modern_cooking_fuel*age_group + urban + year, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data %>% filter(year %in% c(2018,2019)))
+
+summary(model_glm_alt)
+
+### throw out all the stuff we dont need
+sg = model_glm_alt
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+rm(list=ls(envir = attr(sg$terms, ".Environment")),
+      envir = attr(sg$terms,
+               ".Environment"))
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_alt.rds"))
+
+``` 
+
+## Model without energy as predictor, without urban
+
+```{r}
+# Model without energy as predictor (so only age and education). 
+# used to compare our results with those from WIC
+data = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% na.omit() %>% 
+  mutate(year_sq = year*year)
+
+model_glm_educ <- glm(birth1 ~ age_group + educ_level + year, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data)
+
+
+summary(model_glm_educ)
+
+# Throw out all the stuff we don't need
+sg = model_glm_educ
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+rm(list=ls(envir = attr(sg$terms, ".Environment")),
+      envir = attr(sg$terms,
+               ".Environment"))
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_educ.rds"))
+
+
+# Same, with urban and with weights 
+
+model_glm_educ_w <- glm(birth1 ~ age_group + educ_level + year + urban, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data, weights = weight)
+
+
+summary(model_glm_educ_w)
+
+# Throw out all the stuff we don't need
+sg = model_glm_educ_w
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_educ_w.rds"))
+
+
+```
+
+## Model without education as a predictor, and interaction terms, No urban
+
+```{r}
+# Model without education as predictor (so only age and energy). 
+# used to compare our results with those from WIC
+data = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% na.omit() %>% 
+  mutate(year_sq = year*year)
+
+model_glm_energy <- glm(birth1 ~ age_group + elec*age_group + modern_cooking_fuel*age_group + year, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data)
+
+
+summary(model_glm_energy)
+
+# Throw out all the stuff we don't need
+sg = model_glm_energy
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_energy.rds"))
+
+# Same but with weights and with urban
+
+model_glm_energy_w <- glm(birth1 ~ age_group + elec*age_group + modern_cooking_fuel*age_group + year + urban, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data, weights = weight)
+
+
+summary(model_glm_energy_w)
+
+# Throw out all the stuff we don't need
+sg = model_glm_energy_w
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_energy_w.rds"))
+
+```
+
+## Model without education as a predictor, WITHOUT interaction terms, No urban
+
+```{r}
+# Model without education as predictor (so only age and energy). 
+# used to compare our results with those from WIC
+data = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% na.omit() %>% 
+  mutate(year_sq = year*year)
+
+model_glm_energy_simple <- glm(birth1 ~ age_group + elec + modern_cooking_fuel+  year, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data)
+
+
+summary(model_glm_energy_simple)
+
+# Throw out all the stuff we don't need
+sg = model_glm_energy_simple
+
+sg$residuals = NULL
+sg$weights = NULL
+sg$fitted.values = NULL
+sg$prior.weights = NULL
+sg$na.action = NULL
+sg$linear.predictors = NULL
+sg$fitted.values = NULL
+sg$effects = NULL
+sg$data = NULL
+sg$qr$qr = NULL
+sg$y = NULL
+
+write_rds(sg, here("analysis", "data", "derived_data", "model_glm_energy_simple.rds"))
+
+
+```
+
+

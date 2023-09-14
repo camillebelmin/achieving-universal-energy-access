@@ -1,0 +1,891 @@
+Source: Wittgenstein Centre for Demography and Global Human Capital (2018). Wittgenstein Centre Data Explorer Version 2.0
+Available at: www.wittgensteincentre.org/dataexplorer 
+
+""
+"Age-Specific Fertility Rate by Education"
+"Number of births occurring to women in a particular age group by level of education attainment during a five-year period divided by the number of women in that age group. Available in all scenarios, and at all geographical scales. It is expressed in births per 1,000 women."
+"Multiple Scenarios"
+" "
+"Scenario","Area","Period","Age","Education","Rate"
+"SSP2","Zambia","2015-2020","15--19","No Education",144
+"SSP2","Zambia","2020-2025","15--19","No Education",131
+"SSP2","Zambia","2025-2030","15--19","No Education",116
+"SSP2","Zambia","2030-2035","15--19","No Education",99
+"SSP2","Zambia","2035-2040","15--19","No Education",83
+"SSP2","Zambia","2040-2045","15--19","No Education",70
+"SSP2","Zambia","2045-2050","15--19","No Education",58
+"SSP2","Zambia","2015-2020","20--24","No Education",402
+"SSP2","Zambia","2020-2025","20--24","No Education",397
+"SSP2","Zambia","2025-2030","20--24","No Education",393
+"SSP2","Zambia","2030-2035","20--24","No Education",374
+"SSP2","Zambia","2035-2040","20--24","No Education",349
+"SSP2","Zambia","2040-2045","20--24","No Education",319
+"SSP2","Zambia","2045-2050","20--24","No Education",290
+"SSP2","Zambia","2015-2020","25--29","No Education",368
+"SSP2","Zambia","2020-2025","25--29","No Education",355
+"SSP2","Zambia","2025-2030","25--29","No Education",349
+"SSP2","Zambia","2030-2035","25--29","No Education",327
+"SSP2","Zambia","2035-2040","25--29","No Education",299
+"SSP2","Zambia","2040-2045","25--29","No Education",269
+"SSP2","Zambia","2045-2050","25--29","No Education",239
+"SSP2","Zambia","2015-2020","30--34","No Education",257
+"SSP2","Zambia","2020-2025","30--34","No Education",246
+"SSP2","Zambia","2025-2030","30--34","No Education",212
+"SSP2","Zambia","2030-2035","30--34","No Education",189
+"SSP2","Zambia","2035-2040","30--34","No Education",164
+"SSP2","Zambia","2040-2045","30--34","No Education",141
+"SSP2","Zambia","2045-2050","30--34","No Education",121
+"SSP2","Zambia","2015-2020","35--39","No Education",168
+"SSP2","Zambia","2020-2025","35--39","No Education",147
+"SSP2","Zambia","2025-2030","35--39","No Education",128
+"SSP2","Zambia","2030-2035","35--39","No Education",112
+"SSP2","Zambia","2035-2040","35--39","No Education",95
+"SSP2","Zambia","2040-2045","35--39","No Education",80
+"SSP2","Zambia","2045-2050","35--39","No Education",67
+"SSP2","Zambia","2015-2020","40--44","No Education",75
+"SSP2","Zambia","2020-2025","40--44","No Education",65
+"SSP2","Zambia","2025-2030","40--44","No Education",56
+"SSP2","Zambia","2030-2035","40--44","No Education",48
+"SSP2","Zambia","2035-2040","40--44","No Education",40
+"SSP2","Zambia","2040-2045","40--44","No Education",33
+"SSP2","Zambia","2045-2050","40--44","No Education",27
+"SSP2","Zambia","2015-2020","45--49","No Education",19
+"SSP2","Zambia","2020-2025","45--49","No Education",15
+"SSP2","Zambia","2025-2030","45--49","No Education",12
+"SSP2","Zambia","2030-2035","45--49","No Education",10
+"SSP2","Zambia","2035-2040","45--49","No Education",7
+"SSP2","Zambia","2040-2045","45--49","No Education",6
+"SSP2","Zambia","2045-2050","45--49","No Education",4
+"SSP2","Zambia","2015-2020","15--19","Incomplete Primary",134
+"SSP2","Zambia","2020-2025","15--19","Incomplete Primary",122
+"SSP2","Zambia","2025-2030","15--19","Incomplete Primary",109
+"SSP2","Zambia","2030-2035","15--19","Incomplete Primary",94
+"SSP2","Zambia","2035-2040","15--19","Incomplete Primary",79
+"SSP2","Zambia","2040-2045","15--19","Incomplete Primary",67
+"SSP2","Zambia","2045-2050","15--19","Incomplete Primary",56
+"SSP2","Zambia","2015-2020","20--24","Incomplete Primary",373
+"SSP2","Zambia","2020-2025","20--24","Incomplete Primary",368
+"SSP2","Zambia","2025-2030","20--24","Incomplete Primary",369
+"SSP2","Zambia","2030-2035","20--24","Incomplete Primary",354
+"SSP2","Zambia","2035-2040","20--24","Incomplete Primary",332
+"SSP2","Zambia","2040-2045","20--24","Incomplete Primary",306
+"SSP2","Zambia","2045-2050","20--24","Incomplete Primary",280
+"SSP2","Zambia","2015-2020","25--29","Incomplete Primary",342
+"SSP2","Zambia","2020-2025","25--29","Incomplete Primary",330
+"SSP2","Zambia","2025-2030","25--29","Incomplete Primary",327
+"SSP2","Zambia","2030-2035","25--29","Incomplete Primary",309
+"SSP2","Zambia","2035-2040","25--29","Incomplete Primary",285
+"SSP2","Zambia","2040-2045","25--29","Incomplete Primary",257
+"SSP2","Zambia","2045-2050","25--29","Incomplete Primary",230
+"SSP2","Zambia","2015-2020","30--34","Incomplete Primary",239
+"SSP2","Zambia","2020-2025","30--34","Incomplete Primary",231
+"SSP2","Zambia","2025-2030","30--34","Incomplete Primary",199
+"SSP2","Zambia","2030-2035","30--34","Incomplete Primary",178
+"SSP2","Zambia","2035-2040","30--34","Incomplete Primary",156
+"SSP2","Zambia","2040-2045","30--34","Incomplete Primary",135
+"SSP2","Zambia","2045-2050","30--34","Incomplete Primary",117
+"SSP2","Zambia","2015-2020","35--39","Incomplete Primary",156
+"SSP2","Zambia","2020-2025","35--39","Incomplete Primary",140
+"SSP2","Zambia","2025-2030","35--39","Incomplete Primary",120
+"SSP2","Zambia","2030-2035","35--39","Incomplete Primary",105
+"SSP2","Zambia","2035-2040","35--39","Incomplete Primary",91
+"SSP2","Zambia","2040-2045","35--39","Incomplete Primary",77
+"SSP2","Zambia","2045-2050","35--39","Incomplete Primary",65
+"SSP2","Zambia","2015-2020","40--44","Incomplete Primary",70
+"SSP2","Zambia","2020-2025","40--44","Incomplete Primary",60
+"SSP2","Zambia","2025-2030","40--44","Incomplete Primary",53
+"SSP2","Zambia","2030-2035","40--44","Incomplete Primary",45
+"SSP2","Zambia","2035-2040","40--44","Incomplete Primary",38
+"SSP2","Zambia","2040-2045","40--44","Incomplete Primary",32
+"SSP2","Zambia","2045-2050","40--44","Incomplete Primary",26
+"SSP2","Zambia","2015-2020","45--49","Incomplete Primary",18
+"SSP2","Zambia","2020-2025","45--49","Incomplete Primary",14
+"SSP2","Zambia","2025-2030","45--49","Incomplete Primary",11
+"SSP2","Zambia","2030-2035","45--49","Incomplete Primary",9
+"SSP2","Zambia","2035-2040","45--49","Incomplete Primary",7
+"SSP2","Zambia","2040-2045","45--49","Incomplete Primary",5
+"SSP2","Zambia","2045-2050","45--49","Incomplete Primary",4
+"SSP2","Zambia","2015-2020","15--19","Primary",109
+"SSP2","Zambia","2020-2025","15--19","Primary",101
+"SSP2","Zambia","2025-2030","15--19","Primary",92
+"SSP2","Zambia","2030-2035","15--19","Primary",80
+"SSP2","Zambia","2035-2040","15--19","Primary",69
+"SSP2","Zambia","2040-2045","15--19","Primary",60
+"SSP2","Zambia","2045-2050","15--19","Primary",51
+"SSP2","Zambia","2015-2020","20--24","Primary",305
+"SSP2","Zambia","2020-2025","20--24","Primary",299
+"SSP2","Zambia","2025-2030","20--24","Primary",306
+"SSP2","Zambia","2030-2035","20--24","Primary",304
+"SSP2","Zambia","2035-2040","20--24","Primary",291
+"SSP2","Zambia","2040-2045","20--24","Primary",274
+"SSP2","Zambia","2045-2050","20--24","Primary",256
+"SSP2","Zambia","2015-2020","25--29","Primary",279
+"SSP2","Zambia","2020-2025","25--29","Primary",270
+"SSP2","Zambia","2025-2030","25--29","Primary",268
+"SSP2","Zambia","2030-2035","25--29","Primary",265
+"SSP2","Zambia","2035-2040","25--29","Primary",250
+"SSP2","Zambia","2040-2045","25--29","Primary",230
+"SSP2","Zambia","2045-2050","25--29","Primary",211
+"SSP2","Zambia","2015-2020","30--34","Primary",195
+"SSP2","Zambia","2020-2025","30--34","Primary",188
+"SSP2","Zambia","2025-2030","30--34","Primary",180
+"SSP2","Zambia","2030-2035","30--34","Primary",153
+"SSP2","Zambia","2035-2040","30--34","Primary",137
+"SSP2","Zambia","2040-2045","30--34","Primary",121
+"SSP2","Zambia","2045-2050","30--34","Primary",107
+"SSP2","Zambia","2015-2020","35--39","Primary",127
+"SSP2","Zambia","2020-2025","35--39","Primary",123
+"SSP2","Zambia","2025-2030","35--39","Primary",102
+"SSP2","Zambia","2030-2035","35--39","Primary",90
+"SSP2","Zambia","2035-2040","35--39","Primary",79
+"SSP2","Zambia","2040-2045","35--39","Primary",69
+"SSP2","Zambia","2045-2050","35--39","Primary",60
+"SSP2","Zambia","2015-2020","40--44","Primary",57
+"SSP2","Zambia","2020-2025","40--44","Primary",55
+"SSP2","Zambia","2025-2030","40--44","Primary",44
+"SSP2","Zambia","2030-2035","40--44","Primary",39
+"SSP2","Zambia","2035-2040","40--44","Primary",34
+"SSP2","Zambia","2040-2045","40--44","Primary",29
+"SSP2","Zambia","2045-2050","40--44","Primary",24
+"SSP2","Zambia","2015-2020","45--49","Primary",15
+"SSP2","Zambia","2020-2025","45--49","Primary",13
+"SSP2","Zambia","2025-2030","45--49","Primary",10
+"SSP2","Zambia","2030-2035","45--49","Primary",8
+"SSP2","Zambia","2035-2040","45--49","Primary",6
+"SSP2","Zambia","2040-2045","45--49","Primary",5
+"SSP2","Zambia","2045-2050","45--49","Primary",4
+"SSP2","Zambia","2015-2020","15--19","Lower Secondary",63
+"SSP2","Zambia","2020-2025","15--19","Lower Secondary",59
+"SSP2","Zambia","2025-2030","15--19","Lower Secondary",54
+"SSP2","Zambia","2030-2035","15--19","Lower Secondary",48
+"SSP2","Zambia","2035-2040","15--19","Lower Secondary",42
+"SSP2","Zambia","2040-2045","15--19","Lower Secondary",37
+"SSP2","Zambia","2045-2050","15--19","Lower Secondary",32
+"SSP2","Zambia","2015-2020","20--24","Lower Secondary",224
+"SSP2","Zambia","2020-2025","20--24","Lower Secondary",223
+"SSP2","Zambia","2025-2030","20--24","Lower Secondary",223
+"SSP2","Zambia","2030-2035","20--24","Lower Secondary",231
+"SSP2","Zambia","2035-2040","20--24","Lower Secondary",233
+"SSP2","Zambia","2040-2045","20--24","Lower Secondary",225
+"SSP2","Zambia","2045-2050","20--24","Lower Secondary",215
+"SSP2","Zambia","2015-2020","25--29","Lower Secondary",216
+"SSP2","Zambia","2020-2025","25--29","Lower Secondary",213
+"SSP2","Zambia","2025-2030","25--29","Lower Secondary",209
+"SSP2","Zambia","2030-2035","25--29","Lower Secondary",210
+"SSP2","Zambia","2035-2040","25--29","Lower Secondary",219
+"SSP2","Zambia","2040-2045","25--29","Lower Secondary",209
+"SSP2","Zambia","2045-2050","25--29","Lower Secondary",197
+"SSP2","Zambia","2015-2020","30--34","Lower Secondary",153
+"SSP2","Zambia","2020-2025","30--34","Lower Secondary",151
+"SSP2","Zambia","2025-2030","30--34","Lower Secondary",148
+"SSP2","Zambia","2030-2035","30--34","Lower Secondary",149
+"SSP2","Zambia","2035-2040","30--34","Lower Secondary",122
+"SSP2","Zambia","2040-2045","30--34","Lower Secondary",111
+"SSP2","Zambia","2045-2050","30--34","Lower Secondary",101
+"SSP2","Zambia","2015-2020","35--39","Lower Secondary",103
+"SSP2","Zambia","2020-2025","35--39","Lower Secondary",101
+"SSP2","Zambia","2025-2030","35--39","Lower Secondary",99
+"SSP2","Zambia","2030-2035","35--39","Lower Secondary",83
+"SSP2","Zambia","2035-2040","35--39","Lower Secondary",71
+"SSP2","Zambia","2040-2045","35--39","Lower Secondary",63
+"SSP2","Zambia","2045-2050","35--39","Lower Secondary",56
+"SSP2","Zambia","2015-2020","40--44","Lower Secondary",47
+"SSP2","Zambia","2020-2025","40--44","Lower Secondary",46
+"SSP2","Zambia","2025-2030","40--44","Lower Secondary",46
+"SSP2","Zambia","2030-2035","40--44","Lower Secondary",35
+"SSP2","Zambia","2035-2040","40--44","Lower Secondary",31
+"SSP2","Zambia","2040-2045","40--44","Lower Secondary",27
+"SSP2","Zambia","2045-2050","40--44","Lower Secondary",23
+"SSP2","Zambia","2015-2020","45--49","Lower Secondary",12
+"SSP2","Zambia","2020-2025","45--49","Lower Secondary",12
+"SSP2","Zambia","2025-2030","45--49","Lower Secondary",11
+"SSP2","Zambia","2030-2035","45--49","Lower Secondary",7
+"SSP2","Zambia","2035-2040","45--49","Lower Secondary",6
+"SSP2","Zambia","2040-2045","45--49","Lower Secondary",5
+"SSP2","Zambia","2045-2050","45--49","Lower Secondary",4
+"SSP2","Zambia","2015-2020","15--19","Upper Secondary",3
+"SSP2","Zambia","2020-2025","15--19","Upper Secondary",0
+"SSP2","Zambia","2025-2030","15--19","Upper Secondary",0
+"SSP2","Zambia","2030-2035","15--19","Upper Secondary",0
+"SSP2","Zambia","2035-2040","15--19","Upper Secondary",0
+"SSP2","Zambia","2040-2045","15--19","Upper Secondary",0
+"SSP2","Zambia","2045-2050","15--19","Upper Secondary",0
+"SSP2","Zambia","2015-2020","20--24","Upper Secondary",161
+"SSP2","Zambia","2020-2025","20--24","Upper Secondary",163
+"SSP2","Zambia","2025-2030","20--24","Upper Secondary",161
+"SSP2","Zambia","2030-2035","20--24","Upper Secondary",160
+"SSP2","Zambia","2035-2040","20--24","Upper Secondary",157
+"SSP2","Zambia","2040-2045","20--24","Upper Secondary",150
+"SSP2","Zambia","2045-2050","20--24","Upper Secondary",144
+"SSP2","Zambia","2015-2020","25--29","Upper Secondary",175
+"SSP2","Zambia","2020-2025","25--29","Upper Secondary",174
+"SSP2","Zambia","2025-2030","25--29","Upper Secondary",172
+"SSP2","Zambia","2030-2035","25--29","Upper Secondary",171
+"SSP2","Zambia","2035-2040","25--29","Upper Secondary",177
+"SSP2","Zambia","2040-2045","25--29","Upper Secondary",185
+"SSP2","Zambia","2045-2050","25--29","Upper Secondary",181
+"SSP2","Zambia","2015-2020","30--34","Upper Secondary",135
+"SSP2","Zambia","2020-2025","30--34","Upper Secondary",134
+"SSP2","Zambia","2025-2030","30--34","Upper Secondary",133
+"SSP2","Zambia","2030-2035","30--34","Upper Secondary",132
+"SSP2","Zambia","2035-2040","30--34","Upper Secondary",133
+"SSP2","Zambia","2040-2045","30--34","Upper Secondary",120
+"SSP2","Zambia","2045-2050","30--34","Upper Secondary",109
+"SSP2","Zambia","2015-2020","35--39","Upper Secondary",99
+"SSP2","Zambia","2020-2025","35--39","Upper Secondary",98
+"SSP2","Zambia","2025-2030","35--39","Upper Secondary",97
+"SSP2","Zambia","2030-2035","35--39","Upper Secondary",97
+"SSP2","Zambia","2035-2040","35--39","Upper Secondary",79
+"SSP2","Zambia","2040-2045","35--39","Upper Secondary",66
+"SSP2","Zambia","2045-2050","35--39","Upper Secondary",60
+"SSP2","Zambia","2015-2020","40--44","Upper Secondary",49
+"SSP2","Zambia","2020-2025","40--44","Upper Secondary",49
+"SSP2","Zambia","2025-2030","40--44","Upper Secondary",48
+"SSP2","Zambia","2030-2035","40--44","Upper Secondary",40
+"SSP2","Zambia","2035-2040","40--44","Upper Secondary",34
+"SSP2","Zambia","2040-2045","40--44","Upper Secondary",30
+"SSP2","Zambia","2045-2050","40--44","Upper Secondary",26
+"SSP2","Zambia","2015-2020","45--49","Upper Secondary",12
+"SSP2","Zambia","2020-2025","45--49","Upper Secondary",12
+"SSP2","Zambia","2025-2030","45--49","Upper Secondary",12
+"SSP2","Zambia","2030-2035","45--49","Upper Secondary",8
+"SSP2","Zambia","2035-2040","45--49","Upper Secondary",7
+"SSP2","Zambia","2040-2045","45--49","Upper Secondary",6
+"SSP2","Zambia","2045-2050","45--49","Upper Secondary",5
+"SSP2","Zambia","2015-2020","15--19","Post Secondary",0
+"SSP2","Zambia","2020-2025","15--19","Post Secondary",0
+"SSP2","Zambia","2025-2030","15--19","Post Secondary",0
+"SSP2","Zambia","2030-2035","15--19","Post Secondary",0
+"SSP2","Zambia","2035-2040","15--19","Post Secondary",0
+"SSP2","Zambia","2040-2045","15--19","Post Secondary",0
+"SSP2","Zambia","2045-2050","15--19","Post Secondary",0
+"SSP2","Zambia","2015-2020","20--24","Post Secondary",69
+"SSP2","Zambia","2020-2025","20--24","Post Secondary",64
+"SSP2","Zambia","2025-2030","20--24","Post Secondary",60
+"SSP2","Zambia","2030-2035","20--24","Post Secondary",56
+"SSP2","Zambia","2035-2040","20--24","Post Secondary",53
+"SSP2","Zambia","2040-2045","20--24","Post Secondary",50
+"SSP2","Zambia","2045-2050","20--24","Post Secondary",47
+"SSP2","Zambia","2015-2020","25--29","Post Secondary",155
+"SSP2","Zambia","2020-2025","25--29","Post Secondary",159
+"SSP2","Zambia","2025-2030","25--29","Post Secondary",155
+"SSP2","Zambia","2030-2035","25--29","Post Secondary",156
+"SSP2","Zambia","2035-2040","25--29","Post Secondary",160
+"SSP2","Zambia","2040-2045","25--29","Post Secondary",158
+"SSP2","Zambia","2045-2050","25--29","Post Secondary",154
+"SSP2","Zambia","2015-2020","30--34","Post Secondary",144
+"SSP2","Zambia","2020-2025","30--34","Post Secondary",144
+"SSP2","Zambia","2025-2030","30--34","Post Secondary",140
+"SSP2","Zambia","2030-2035","30--34","Post Secondary",137
+"SSP2","Zambia","2035-2040","30--34","Post Secondary",138
+"SSP2","Zambia","2040-2045","30--34","Post Secondary",138
+"SSP2","Zambia","2045-2050","30--34","Post Secondary",132
+"SSP2","Zambia","2015-2020","35--39","Post Secondary",112
+"SSP2","Zambia","2020-2025","35--39","Post Secondary",102
+"SSP2","Zambia","2025-2030","35--39","Post Secondary",99
+"SSP2","Zambia","2030-2035","35--39","Post Secondary",98
+"SSP2","Zambia","2035-2040","35--39","Post Secondary",87
+"SSP2","Zambia","2040-2045","35--39","Post Secondary",75
+"SSP2","Zambia","2045-2050","35--39","Post Secondary",69
+"SSP2","Zambia","2015-2020","40--44","Post Secondary",63
+"SSP2","Zambia","2020-2025","40--44","Post Secondary",57
+"SSP2","Zambia","2025-2030","40--44","Post Secondary",55
+"SSP2","Zambia","2030-2035","40--44","Post Secondary",50
+"SSP2","Zambia","2035-2040","40--44","Post Secondary",42
+"SSP2","Zambia","2040-2045","40--44","Post Secondary",37
+"SSP2","Zambia","2045-2050","40--44","Post Secondary",33
+"SSP2","Zambia","2015-2020","45--49","Post Secondary",16
+"SSP2","Zambia","2020-2025","45--49","Post Secondary",13
+"SSP2","Zambia","2025-2030","45--49","Post Secondary",13
+"SSP2","Zambia","2030-2035","45--49","Post Secondary",10
+"SSP2","Zambia","2035-2040","45--49","Post Secondary",9
+"SSP2","Zambia","2040-2045","45--49","Post Secondary",7
+"SSP2","Zambia","2045-2050","45--49","Post Secondary",6
+"SSP1","Zambia","2015-2020","15--19","No Education",134
+"SSP1","Zambia","2020-2025","15--19","No Education",113
+"SSP1","Zambia","2025-2030","15--19","No Education",95
+"SSP1","Zambia","2030-2035","15--19","No Education",78
+"SSP1","Zambia","2035-2040","15--19","No Education",64
+"SSP1","Zambia","2040-2045","15--19","No Education",53
+"SSP1","Zambia","2045-2050","15--19","No Education",44
+"SSP1","Zambia","2015-2020","20--24","No Education",373
+"SSP1","Zambia","2020-2025","20--24","No Education",344
+"SSP1","Zambia","2025-2030","20--24","No Education",321
+"SSP1","Zambia","2030-2035","20--24","No Education",295
+"SSP1","Zambia","2035-2040","20--24","No Education",268
+"SSP1","Zambia","2040-2045","20--24","No Education",242
+"SSP1","Zambia","2045-2050","20--24","No Education",218
+"SSP1","Zambia","2015-2020","25--29","No Education",341
+"SSP1","Zambia","2020-2025","25--29","No Education",308
+"SSP1","Zambia","2025-2030","25--29","No Education",285
+"SSP1","Zambia","2030-2035","25--29","No Education",257
+"SSP1","Zambia","2035-2040","25--29","No Education",230
+"SSP1","Zambia","2040-2045","25--29","No Education",204
+"SSP1","Zambia","2045-2050","25--29","No Education",180
+"SSP1","Zambia","2015-2020","30--34","No Education",239
+"SSP1","Zambia","2020-2025","30--34","No Education",214
+"SSP1","Zambia","2025-2030","30--34","No Education",173
+"SSP1","Zambia","2030-2035","30--34","No Education",148
+"SSP1","Zambia","2035-2040","30--34","No Education",126
+"SSP1","Zambia","2040-2045","30--34","No Education",107
+"SSP1","Zambia","2045-2050","30--34","No Education",91
+"SSP1","Zambia","2015-2020","35--39","No Education",156
+"SSP1","Zambia","2020-2025","35--39","No Education",127
+"SSP1","Zambia","2025-2030","35--39","No Education",105
+"SSP1","Zambia","2030-2035","35--39","No Education",88
+"SSP1","Zambia","2035-2040","35--39","No Education",73
+"SSP1","Zambia","2040-2045","35--39","No Education",61
+"SSP1","Zambia","2045-2050","35--39","No Education",51
+"SSP1","Zambia","2015-2020","40--44","No Education",70
+"SSP1","Zambia","2020-2025","40--44","No Education",56
+"SSP1","Zambia","2025-2030","40--44","No Education",46
+"SSP1","Zambia","2030-2035","40--44","No Education",38
+"SSP1","Zambia","2035-2040","40--44","No Education",31
+"SSP1","Zambia","2040-2045","40--44","No Education",25
+"SSP1","Zambia","2045-2050","40--44","No Education",21
+"SSP1","Zambia","2015-2020","45--49","No Education",18
+"SSP1","Zambia","2020-2025","45--49","No Education",13
+"SSP1","Zambia","2025-2030","45--49","No Education",10
+"SSP1","Zambia","2030-2035","45--49","No Education",8
+"SSP1","Zambia","2035-2040","45--49","No Education",6
+"SSP1","Zambia","2040-2045","45--49","No Education",4
+"SSP1","Zambia","2045-2050","45--49","No Education",3
+"SSP1","Zambia","2015-2020","15--19","Incomplete Primary",124
+"SSP1","Zambia","2020-2025","15--19","Incomplete Primary",106
+"SSP1","Zambia","2025-2030","15--19","Incomplete Primary",89
+"SSP1","Zambia","2030-2035","15--19","Incomplete Primary",74
+"SSP1","Zambia","2035-2040","15--19","Incomplete Primary",61
+"SSP1","Zambia","2040-2045","15--19","Incomplete Primary",51
+"SSP1","Zambia","2045-2050","15--19","Incomplete Primary",42
+"SSP1","Zambia","2015-2020","20--24","Incomplete Primary",347
+"SSP1","Zambia","2020-2025","20--24","Incomplete Primary",319
+"SSP1","Zambia","2025-2030","20--24","Incomplete Primary",301
+"SSP1","Zambia","2030-2035","20--24","Incomplete Primary",278
+"SSP1","Zambia","2035-2040","20--24","Incomplete Primary",255
+"SSP1","Zambia","2040-2045","20--24","Incomplete Primary",232
+"SSP1","Zambia","2045-2050","20--24","Incomplete Primary",211
+"SSP1","Zambia","2015-2020","25--29","Incomplete Primary",317
+"SSP1","Zambia","2020-2025","25--29","Incomplete Primary",286
+"SSP1","Zambia","2025-2030","25--29","Incomplete Primary",268
+"SSP1","Zambia","2030-2035","25--29","Incomplete Primary",243
+"SSP1","Zambia","2035-2040","25--29","Incomplete Primary",219
+"SSP1","Zambia","2040-2045","25--29","Incomplete Primary",195
+"SSP1","Zambia","2045-2050","25--29","Incomplete Primary",173
+"SSP1","Zambia","2015-2020","30--34","Incomplete Primary",222
+"SSP1","Zambia","2020-2025","30--34","Incomplete Primary",200
+"SSP1","Zambia","2025-2030","30--34","Incomplete Primary",163
+"SSP1","Zambia","2030-2035","30--34","Incomplete Primary",140
+"SSP1","Zambia","2035-2040","30--34","Incomplete Primary",120
+"SSP1","Zambia","2040-2045","30--34","Incomplete Primary",103
+"SSP1","Zambia","2045-2050","30--34","Incomplete Primary",88
+"SSP1","Zambia","2015-2020","35--39","Incomplete Primary",144
+"SSP1","Zambia","2020-2025","35--39","Incomplete Primary",122
+"SSP1","Zambia","2025-2030","35--39","Incomplete Primary",99
+"SSP1","Zambia","2030-2035","35--39","Incomplete Primary",83
+"SSP1","Zambia","2035-2040","35--39","Incomplete Primary",70
+"SSP1","Zambia","2040-2045","35--39","Incomplete Primary",58
+"SSP1","Zambia","2045-2050","35--39","Incomplete Primary",49
+"SSP1","Zambia","2015-2020","40--44","Incomplete Primary",65
+"SSP1","Zambia","2020-2025","40--44","Incomplete Primary",52
+"SSP1","Zambia","2025-2030","40--44","Incomplete Primary",43
+"SSP1","Zambia","2030-2035","40--44","Incomplete Primary",36
+"SSP1","Zambia","2035-2040","40--44","Incomplete Primary",29
+"SSP1","Zambia","2040-2045","40--44","Incomplete Primary",24
+"SSP1","Zambia","2045-2050","40--44","Incomplete Primary",20
+"SSP1","Zambia","2015-2020","45--49","Incomplete Primary",17
+"SSP1","Zambia","2020-2025","45--49","Incomplete Primary",12
+"SSP1","Zambia","2025-2030","45--49","Incomplete Primary",9
+"SSP1","Zambia","2030-2035","45--49","Incomplete Primary",7
+"SSP1","Zambia","2035-2040","45--49","Incomplete Primary",5
+"SSP1","Zambia","2040-2045","45--49","Incomplete Primary",4
+"SSP1","Zambia","2045-2050","45--49","Incomplete Primary",3
+"SSP1","Zambia","2015-2020","15--19","Primary",101
+"SSP1","Zambia","2020-2025","15--19","Primary",88
+"SSP1","Zambia","2025-2030","15--19","Primary",75
+"SSP1","Zambia","2030-2035","15--19","Primary",63
+"SSP1","Zambia","2035-2040","15--19","Primary",53
+"SSP1","Zambia","2040-2045","15--19","Primary",46
+"SSP1","Zambia","2045-2050","15--19","Primary",39
+"SSP1","Zambia","2015-2020","20--24","Primary",283
+"SSP1","Zambia","2020-2025","20--24","Primary",259
+"SSP1","Zambia","2025-2030","20--24","Primary",250
+"SSP1","Zambia","2030-2035","20--24","Primary",239
+"SSP1","Zambia","2035-2040","20--24","Primary",224
+"SSP1","Zambia","2040-2045","20--24","Primary",208
+"SSP1","Zambia","2045-2050","20--24","Primary",193
+"SSP1","Zambia","2015-2020","25--29","Primary",259
+"SSP1","Zambia","2020-2025","25--29","Primary",234
+"SSP1","Zambia","2025-2030","25--29","Primary",220
+"SSP1","Zambia","2030-2035","25--29","Primary",209
+"SSP1","Zambia","2035-2040","25--29","Primary",192
+"SSP1","Zambia","2040-2045","25--29","Primary",175
+"SSP1","Zambia","2045-2050","25--29","Primary",158
+"SSP1","Zambia","2015-2020","30--34","Primary",181
+"SSP1","Zambia","2020-2025","30--34","Primary",163
+"SSP1","Zambia","2025-2030","30--34","Primary",147
+"SSP1","Zambia","2030-2035","30--34","Primary",120
+"SSP1","Zambia","2035-2040","30--34","Primary",105
+"SSP1","Zambia","2040-2045","30--34","Primary",92
+"SSP1","Zambia","2045-2050","30--34","Primary",80
+"SSP1","Zambia","2015-2020","35--39","Primary",118
+"SSP1","Zambia","2020-2025","35--39","Primary",106
+"SSP1","Zambia","2025-2030","35--39","Primary",83
+"SSP1","Zambia","2030-2035","35--39","Primary",71
+"SSP1","Zambia","2035-2040","35--39","Primary",61
+"SSP1","Zambia","2040-2045","35--39","Primary",52
+"SSP1","Zambia","2045-2050","35--39","Primary",45
+"SSP1","Zambia","2015-2020","40--44","Primary",53
+"SSP1","Zambia","2020-2025","40--44","Primary",48
+"SSP1","Zambia","2025-2030","40--44","Primary",36
+"SSP1","Zambia","2030-2035","40--44","Primary",31
+"SSP1","Zambia","2035-2040","40--44","Primary",26
+"SSP1","Zambia","2040-2045","40--44","Primary",22
+"SSP1","Zambia","2045-2050","40--44","Primary",18
+"SSP1","Zambia","2015-2020","45--49","Primary",14
+"SSP1","Zambia","2020-2025","45--49","Primary",11
+"SSP1","Zambia","2025-2030","45--49","Primary",8
+"SSP1","Zambia","2030-2035","45--49","Primary",6
+"SSP1","Zambia","2035-2040","45--49","Primary",5
+"SSP1","Zambia","2040-2045","45--49","Primary",4
+"SSP1","Zambia","2045-2050","45--49","Primary",3
+"SSP1","Zambia","2015-2020","15--19","Lower Secondary",58
+"SSP1","Zambia","2020-2025","15--19","Lower Secondary",52
+"SSP1","Zambia","2025-2030","15--19","Lower Secondary",44
+"SSP1","Zambia","2030-2035","15--19","Lower Secondary",37
+"SSP1","Zambia","2035-2040","15--19","Lower Secondary",32
+"SSP1","Zambia","2040-2045","15--19","Lower Secondary",28
+"SSP1","Zambia","2045-2050","15--19","Lower Secondary",24
+"SSP1","Zambia","2015-2020","20--24","Lower Secondary",208
+"SSP1","Zambia","2020-2025","20--24","Lower Secondary",194
+"SSP1","Zambia","2025-2030","20--24","Lower Secondary",183
+"SSP1","Zambia","2030-2035","20--24","Lower Secondary",182
+"SSP1","Zambia","2035-2040","20--24","Lower Secondary",179
+"SSP1","Zambia","2040-2045","20--24","Lower Secondary",171
+"SSP1","Zambia","2045-2050","20--24","Lower Secondary",162
+"SSP1","Zambia","2015-2020","25--29","Lower Secondary",200
+"SSP1","Zambia","2020-2025","25--29","Lower Secondary",185
+"SSP1","Zambia","2025-2030","25--29","Lower Secondary",171
+"SSP1","Zambia","2030-2035","25--29","Lower Secondary",165
+"SSP1","Zambia","2035-2040","25--29","Lower Secondary",168
+"SSP1","Zambia","2040-2045","25--29","Lower Secondary",158
+"SSP1","Zambia","2045-2050","25--29","Lower Secondary",148
+"SSP1","Zambia","2015-2020","30--34","Lower Secondary",142
+"SSP1","Zambia","2020-2025","30--34","Lower Secondary",131
+"SSP1","Zambia","2025-2030","30--34","Lower Secondary",121
+"SSP1","Zambia","2030-2035","30--34","Lower Secondary",117
+"SSP1","Zambia","2035-2040","30--34","Lower Secondary",94
+"SSP1","Zambia","2040-2045","30--34","Lower Secondary",84
+"SSP1","Zambia","2045-2050","30--34","Lower Secondary",76
+"SSP1","Zambia","2015-2020","35--39","Lower Secondary",95
+"SSP1","Zambia","2020-2025","35--39","Lower Secondary",88
+"SSP1","Zambia","2025-2030","35--39","Lower Secondary",81
+"SSP1","Zambia","2030-2035","35--39","Lower Secondary",65
+"SSP1","Zambia","2035-2040","35--39","Lower Secondary",55
+"SSP1","Zambia","2040-2045","35--39","Lower Secondary",48
+"SSP1","Zambia","2045-2050","35--39","Lower Secondary",42
+"SSP1","Zambia","2015-2020","40--44","Lower Secondary",44
+"SSP1","Zambia","2020-2025","40--44","Lower Secondary",40
+"SSP1","Zambia","2025-2030","40--44","Lower Secondary",37
+"SSP1","Zambia","2030-2035","40--44","Lower Secondary",27
+"SSP1","Zambia","2035-2040","40--44","Lower Secondary",24
+"SSP1","Zambia","2040-2045","40--44","Lower Secondary",20
+"SSP1","Zambia","2045-2050","40--44","Lower Secondary",18
+"SSP1","Zambia","2015-2020","45--49","Lower Secondary",11
+"SSP1","Zambia","2020-2025","45--49","Lower Secondary",10
+"SSP1","Zambia","2025-2030","45--49","Lower Secondary",9
+"SSP1","Zambia","2030-2035","45--49","Lower Secondary",5
+"SSP1","Zambia","2035-2040","45--49","Lower Secondary",4
+"SSP1","Zambia","2040-2045","45--49","Lower Secondary",3
+"SSP1","Zambia","2045-2050","45--49","Lower Secondary",3
+"SSP1","Zambia","2015-2020","15--19","Upper Secondary",3
+"SSP1","Zambia","2020-2025","15--19","Upper Secondary",0
+"SSP1","Zambia","2025-2030","15--19","Upper Secondary",0
+"SSP1","Zambia","2030-2035","15--19","Upper Secondary",0
+"SSP1","Zambia","2035-2040","15--19","Upper Secondary",0
+"SSP1","Zambia","2040-2045","15--19","Upper Secondary",0
+"SSP1","Zambia","2045-2050","15--19","Upper Secondary",0
+"SSP1","Zambia","2015-2020","20--24","Upper Secondary",149
+"SSP1","Zambia","2020-2025","20--24","Upper Secondary",141
+"SSP1","Zambia","2025-2030","20--24","Upper Secondary",131
+"SSP1","Zambia","2030-2035","20--24","Upper Secondary",126
+"SSP1","Zambia","2035-2040","20--24","Upper Secondary",121
+"SSP1","Zambia","2040-2045","20--24","Upper Secondary",114
+"SSP1","Zambia","2045-2050","20--24","Upper Secondary",108
+"SSP1","Zambia","2015-2020","25--29","Upper Secondary",162
+"SSP1","Zambia","2020-2025","25--29","Upper Secondary",151
+"SSP1","Zambia","2025-2030","25--29","Upper Secondary",141
+"SSP1","Zambia","2030-2035","25--29","Upper Secondary",135
+"SSP1","Zambia","2035-2040","25--29","Upper Secondary",136
+"SSP1","Zambia","2040-2045","25--29","Upper Secondary",141
+"SSP1","Zambia","2045-2050","25--29","Upper Secondary",136
+"SSP1","Zambia","2015-2020","30--34","Upper Secondary",126
+"SSP1","Zambia","2020-2025","30--34","Upper Secondary",117
+"SSP1","Zambia","2025-2030","30--34","Upper Secondary",109
+"SSP1","Zambia","2030-2035","30--34","Upper Secondary",104
+"SSP1","Zambia","2035-2040","30--34","Upper Secondary",103
+"SSP1","Zambia","2040-2045","30--34","Upper Secondary",91
+"SSP1","Zambia","2045-2050","30--34","Upper Secondary",82
+"SSP1","Zambia","2015-2020","35--39","Upper Secondary",92
+"SSP1","Zambia","2020-2025","35--39","Upper Secondary",85
+"SSP1","Zambia","2025-2030","35--39","Upper Secondary",79
+"SSP1","Zambia","2030-2035","35--39","Upper Secondary",76
+"SSP1","Zambia","2035-2040","35--39","Upper Secondary",61
+"SSP1","Zambia","2040-2045","35--39","Upper Secondary",50
+"SSP1","Zambia","2045-2050","35--39","Upper Secondary",45
+"SSP1","Zambia","2015-2020","40--44","Upper Secondary",46
+"SSP1","Zambia","2020-2025","40--44","Upper Secondary",42
+"SSP1","Zambia","2025-2030","40--44","Upper Secondary",40
+"SSP1","Zambia","2030-2035","40--44","Upper Secondary",32
+"SSP1","Zambia","2035-2040","40--44","Upper Secondary",26
+"SSP1","Zambia","2040-2045","40--44","Upper Secondary",23
+"SSP1","Zambia","2045-2050","40--44","Upper Secondary",20
+"SSP1","Zambia","2015-2020","45--49","Upper Secondary",11
+"SSP1","Zambia","2020-2025","45--49","Upper Secondary",11
+"SSP1","Zambia","2025-2030","45--49","Upper Secondary",10
+"SSP1","Zambia","2030-2035","45--49","Upper Secondary",6
+"SSP1","Zambia","2035-2040","45--49","Upper Secondary",5
+"SSP1","Zambia","2040-2045","45--49","Upper Secondary",4
+"SSP1","Zambia","2045-2050","45--49","Upper Secondary",3
+"SSP1","Zambia","2015-2020","15--19","Post Secondary",0
+"SSP1","Zambia","2020-2025","15--19","Post Secondary",0
+"SSP1","Zambia","2025-2030","15--19","Post Secondary",0
+"SSP1","Zambia","2030-2035","15--19","Post Secondary",0
+"SSP1","Zambia","2035-2040","15--19","Post Secondary",0
+"SSP1","Zambia","2040-2045","15--19","Post Secondary",0
+"SSP1","Zambia","2045-2050","15--19","Post Secondary",0
+"SSP1","Zambia","2015-2020","20--24","Post Secondary",64
+"SSP1","Zambia","2020-2025","20--24","Post Secondary",55
+"SSP1","Zambia","2025-2030","20--24","Post Secondary",49
+"SSP1","Zambia","2030-2035","20--24","Post Secondary",44
+"SSP1","Zambia","2035-2040","20--24","Post Secondary",41
+"SSP1","Zambia","2040-2045","20--24","Post Secondary",38
+"SSP1","Zambia","2045-2050","20--24","Post Secondary",35
+"SSP1","Zambia","2015-2020","25--29","Post Secondary",144
+"SSP1","Zambia","2020-2025","25--29","Post Secondary",137
+"SSP1","Zambia","2025-2030","25--29","Post Secondary",127
+"SSP1","Zambia","2030-2035","25--29","Post Secondary",122
+"SSP1","Zambia","2035-2040","25--29","Post Secondary",123
+"SSP1","Zambia","2040-2045","25--29","Post Secondary",120
+"SSP1","Zambia","2045-2050","25--29","Post Secondary",116
+"SSP1","Zambia","2015-2020","30--34","Post Secondary",134
+"SSP1","Zambia","2020-2025","30--34","Post Secondary",125
+"SSP1","Zambia","2025-2030","30--34","Post Secondary",114
+"SSP1","Zambia","2030-2035","30--34","Post Secondary",108
+"SSP1","Zambia","2035-2040","30--34","Post Secondary",106
+"SSP1","Zambia","2040-2045","30--34","Post Secondary",105
+"SSP1","Zambia","2045-2050","30--34","Post Secondary",100
+"SSP1","Zambia","2015-2020","35--39","Post Secondary",104
+"SSP1","Zambia","2020-2025","35--39","Post Secondary",89
+"SSP1","Zambia","2025-2030","35--39","Post Secondary",81
+"SSP1","Zambia","2030-2035","35--39","Post Secondary",77
+"SSP1","Zambia","2035-2040","35--39","Post Secondary",67
+"SSP1","Zambia","2040-2045","35--39","Post Secondary",57
+"SSP1","Zambia","2045-2050","35--39","Post Secondary",52
+"SSP1","Zambia","2015-2020","40--44","Post Secondary",59
+"SSP1","Zambia","2020-2025","40--44","Post Secondary",49
+"SSP1","Zambia","2025-2030","40--44","Post Secondary",45
+"SSP1","Zambia","2030-2035","40--44","Post Secondary",40
+"SSP1","Zambia","2035-2040","40--44","Post Secondary",32
+"SSP1","Zambia","2040-2045","40--44","Post Secondary",28
+"SSP1","Zambia","2045-2050","40--44","Post Secondary",25
+"SSP1","Zambia","2015-2020","45--49","Post Secondary",15
+"SSP1","Zambia","2020-2025","45--49","Post Secondary",12
+"SSP1","Zambia","2025-2030","45--49","Post Secondary",11
+"SSP1","Zambia","2030-2035","45--49","Post Secondary",8
+"SSP1","Zambia","2035-2040","45--49","Post Secondary",7
+"SSP1","Zambia","2040-2045","45--49","Post Secondary",6
+"SSP1","Zambia","2045-2050","45--49","Post Secondary",5
+"SSP3","Zambia","2015-2020","15--19","No Education",154
+"SSP3","Zambia","2020-2025","15--19","No Education",148
+"SSP3","Zambia","2025-2030","15--19","No Education",137
+"SSP3","Zambia","2030-2035","15--19","No Education",120
+"SSP3","Zambia","2035-2040","15--19","No Education",103
+"SSP3","Zambia","2040-2045","15--19","No Education",87
+"SSP3","Zambia","2045-2050","15--19","No Education",73
+"SSP3","Zambia","2015-2020","20--24","No Education",431
+"SSP3","Zambia","2020-2025","20--24","No Education",449
+"SSP3","Zambia","2025-2030","20--24","No Education",464
+"SSP3","Zambia","2030-2035","20--24","No Education",454
+"SSP3","Zambia","2035-2040","20--24","No Education",429
+"SSP3","Zambia","2040-2045","20--24","No Education",396
+"SSP3","Zambia","2045-2050","20--24","No Education",362
+"SSP3","Zambia","2015-2020","25--29","No Education",394
+"SSP3","Zambia","2020-2025","25--29","No Education",403
+"SSP3","Zambia","2025-2030","25--29","No Education",412
+"SSP3","Zambia","2030-2035","25--29","No Education",397
+"SSP3","Zambia","2035-2040","25--29","No Education",368
+"SSP3","Zambia","2040-2045","25--29","No Education",333
+"SSP3","Zambia","2045-2050","25--29","No Education",298
+"SSP3","Zambia","2015-2020","30--34","No Education",275
+"SSP3","Zambia","2020-2025","30--34","No Education",279
+"SSP3","Zambia","2025-2030","30--34","No Education",251
+"SSP3","Zambia","2030-2035","30--34","No Education",229
+"SSP3","Zambia","2035-2040","30--34","No Education",202
+"SSP3","Zambia","2040-2045","30--34","No Education",175
+"SSP3","Zambia","2045-2050","30--34","No Education",151
+"SSP3","Zambia","2015-2020","35--39","No Education",179
+"SSP3","Zambia","2020-2025","35--39","No Education",166
+"SSP3","Zambia","2025-2030","35--39","No Education",152
+"SSP3","Zambia","2030-2035","35--39","No Education",135
+"SSP3","Zambia","2035-2040","35--39","No Education",117
+"SSP3","Zambia","2040-2045","35--39","No Education",99
+"SSP3","Zambia","2045-2050","35--39","No Education",84
+"SSP3","Zambia","2015-2020","40--44","No Education",81
+"SSP3","Zambia","2020-2025","40--44","No Education",73
+"SSP3","Zambia","2025-2030","40--44","No Education",66
+"SSP3","Zambia","2030-2035","40--44","No Education",58
+"SSP3","Zambia","2035-2040","40--44","No Education",50
+"SSP3","Zambia","2040-2045","40--44","No Education",41
+"SSP3","Zambia","2045-2050","40--44","No Education",34
+"SSP3","Zambia","2015-2020","45--49","No Education",21
+"SSP3","Zambia","2020-2025","45--49","No Education",17
+"SSP3","Zambia","2025-2030","45--49","No Education",14
+"SSP3","Zambia","2030-2035","45--49","No Education",12
+"SSP3","Zambia","2035-2040","45--49","No Education",9
+"SSP3","Zambia","2040-2045","45--49","No Education",7
+"SSP3","Zambia","2045-2050","45--49","No Education",5
+"SSP3","Zambia","2015-2020","15--19","Incomplete Primary",143
+"SSP3","Zambia","2020-2025","15--19","Incomplete Primary",138
+"SSP3","Zambia","2025-2030","15--19","Incomplete Primary",129
+"SSP3","Zambia","2030-2035","15--19","Incomplete Primary",114
+"SSP3","Zambia","2035-2040","15--19","Incomplete Primary",98
+"SSP3","Zambia","2040-2045","15--19","Incomplete Primary",83
+"SSP3","Zambia","2045-2050","15--19","Incomplete Primary",70
+"SSP3","Zambia","2015-2020","20--24","Incomplete Primary",400
+"SSP3","Zambia","2020-2025","20--24","Incomplete Primary",417
+"SSP3","Zambia","2025-2030","20--24","Incomplete Primary",436
+"SSP3","Zambia","2030-2035","20--24","Incomplete Primary",429
+"SSP3","Zambia","2035-2040","20--24","Incomplete Primary",408
+"SSP3","Zambia","2040-2045","20--24","Incomplete Primary",379
+"SSP3","Zambia","2045-2050","20--24","Incomplete Primary",349
+"SSP3","Zambia","2015-2020","25--29","Incomplete Primary",366
+"SSP3","Zambia","2020-2025","25--29","Incomplete Primary",374
+"SSP3","Zambia","2025-2030","25--29","Incomplete Primary",387
+"SSP3","Zambia","2030-2035","25--29","Incomplete Primary",375
+"SSP3","Zambia","2035-2040","25--29","Incomplete Primary",350
+"SSP3","Zambia","2040-2045","25--29","Incomplete Primary",319
+"SSP3","Zambia","2045-2050","25--29","Incomplete Primary",287
+"SSP3","Zambia","2015-2020","30--34","Incomplete Primary",256
+"SSP3","Zambia","2020-2025","30--34","Incomplete Primary",261
+"SSP3","Zambia","2025-2030","30--34","Incomplete Primary",235
+"SSP3","Zambia","2030-2035","30--34","Incomplete Primary",216
+"SSP3","Zambia","2035-2040","30--34","Incomplete Primary",192
+"SSP3","Zambia","2040-2045","30--34","Incomplete Primary",168
+"SSP3","Zambia","2045-2050","30--34","Incomplete Primary",145
+"SSP3","Zambia","2015-2020","35--39","Incomplete Primary",167
+"SSP3","Zambia","2020-2025","35--39","Incomplete Primary",159
+"SSP3","Zambia","2025-2030","35--39","Incomplete Primary",142
+"SSP3","Zambia","2030-2035","35--39","Incomplete Primary",128
+"SSP3","Zambia","2035-2040","35--39","Incomplete Primary",111
+"SSP3","Zambia","2040-2045","35--39","Incomplete Primary",95
+"SSP3","Zambia","2045-2050","35--39","Incomplete Primary",81
+"SSP3","Zambia","2015-2020","40--44","Incomplete Primary",75
+"SSP3","Zambia","2020-2025","40--44","Incomplete Primary",69
+"SSP3","Zambia","2025-2030","40--44","Incomplete Primary",62
+"SSP3","Zambia","2030-2035","40--44","Incomplete Primary",55
+"SSP3","Zambia","2035-2040","40--44","Incomplete Primary",47
+"SSP3","Zambia","2040-2045","40--44","Incomplete Primary",40
+"SSP3","Zambia","2045-2050","40--44","Incomplete Primary",33
+"SSP3","Zambia","2015-2020","45--49","Incomplete Primary",19
+"SSP3","Zambia","2020-2025","45--49","Incomplete Primary",16
+"SSP3","Zambia","2025-2030","45--49","Incomplete Primary",13
+"SSP3","Zambia","2030-2035","45--49","Incomplete Primary",11
+"SSP3","Zambia","2035-2040","45--49","Incomplete Primary",9
+"SSP3","Zambia","2040-2045","45--49","Incomplete Primary",7
+"SSP3","Zambia","2045-2050","45--49","Incomplete Primary",5
+"SSP3","Zambia","2015-2020","15--19","Primary",117
+"SSP3","Zambia","2020-2025","15--19","Primary",115
+"SSP3","Zambia","2025-2030","15--19","Primary",109
+"SSP3","Zambia","2030-2035","15--19","Primary",98
+"SSP3","Zambia","2035-2040","15--19","Primary",85
+"SSP3","Zambia","2040-2045","15--19","Primary",74
+"SSP3","Zambia","2045-2050","15--19","Primary",64
+"SSP3","Zambia","2015-2020","20--24","Primary",327
+"SSP3","Zambia","2020-2025","20--24","Primary",339
+"SSP3","Zambia","2025-2030","20--24","Primary",362
+"SSP3","Zambia","2030-2035","20--24","Primary",368
+"SSP3","Zambia","2035-2040","20--24","Primary",358
+"SSP3","Zambia","2040-2045","20--24","Primary",339
+"SSP3","Zambia","2045-2050","20--24","Primary",319
+"SSP3","Zambia","2015-2020","25--29","Primary",299
+"SSP3","Zambia","2020-2025","25--29","Primary",305
+"SSP3","Zambia","2025-2030","25--29","Primary",317
+"SSP3","Zambia","2030-2035","25--29","Primary",322
+"SSP3","Zambia","2035-2040","25--29","Primary",307
+"SSP3","Zambia","2040-2045","25--29","Primary",286
+"SSP3","Zambia","2045-2050","25--29","Primary",263
+"SSP3","Zambia","2015-2020","30--34","Primary",209
+"SSP3","Zambia","2020-2025","30--34","Primary",214
+"SSP3","Zambia","2025-2030","30--34","Primary",213
+"SSP3","Zambia","2030-2035","30--34","Primary",186
+"SSP3","Zambia","2035-2040","30--34","Primary",169
+"SSP3","Zambia","2040-2045","30--34","Primary",150
+"SSP3","Zambia","2045-2050","30--34","Primary",133
+"SSP3","Zambia","2015-2020","35--39","Primary",136
+"SSP3","Zambia","2020-2025","35--39","Primary",139
+"SSP3","Zambia","2025-2030","35--39","Primary",120
+"SSP3","Zambia","2030-2035","35--39","Primary",110
+"SSP3","Zambia","2035-2040","35--39","Primary",98
+"SSP3","Zambia","2040-2045","35--39","Primary",85
+"SSP3","Zambia","2045-2050","35--39","Primary",74
+"SSP3","Zambia","2015-2020","40--44","Primary",61
+"SSP3","Zambia","2020-2025","40--44","Primary",62
+"SSP3","Zambia","2025-2030","40--44","Primary",52
+"SSP3","Zambia","2030-2035","40--44","Primary",47
+"SSP3","Zambia","2035-2040","40--44","Primary",41
+"SSP3","Zambia","2040-2045","40--44","Primary",35
+"SSP3","Zambia","2045-2050","40--44","Primary",30
+"SSP3","Zambia","2015-2020","45--49","Primary",16
+"SSP3","Zambia","2020-2025","45--49","Primary",15
+"SSP3","Zambia","2025-2030","45--49","Primary",11
+"SSP3","Zambia","2030-2035","45--49","Primary",9
+"SSP3","Zambia","2035-2040","45--49","Primary",8
+"SSP3","Zambia","2040-2045","45--49","Primary",6
+"SSP3","Zambia","2045-2050","45--49","Primary",4
+"SSP3","Zambia","2015-2020","15--19","Lower Secondary",67
+"SSP3","Zambia","2020-2025","15--19","Lower Secondary",67
+"SSP3","Zambia","2025-2030","15--19","Lower Secondary",64
+"SSP3","Zambia","2030-2035","15--19","Lower Secondary",58
+"SSP3","Zambia","2035-2040","15--19","Lower Secondary",51
+"SSP3","Zambia","2040-2045","15--19","Lower Secondary",45
+"SSP3","Zambia","2045-2050","15--19","Lower Secondary",40
+"SSP3","Zambia","2015-2020","20--24","Lower Secondary",240
+"SSP3","Zambia","2020-2025","20--24","Lower Secondary",253
+"SSP3","Zambia","2025-2030","20--24","Lower Secondary",264
+"SSP3","Zambia","2030-2035","20--24","Lower Secondary",281
+"SSP3","Zambia","2035-2040","20--24","Lower Secondary",286
+"SSP3","Zambia","2040-2045","20--24","Lower Secondary",279
+"SSP3","Zambia","2045-2050","20--24","Lower Secondary",269
+"SSP3","Zambia","2015-2020","25--29","Lower Secondary",231
+"SSP3","Zambia","2020-2025","25--29","Lower Secondary",241
+"SSP3","Zambia","2025-2030","25--29","Lower Secondary",247
+"SSP3","Zambia","2030-2035","25--29","Lower Secondary",255
+"SSP3","Zambia","2035-2040","25--29","Lower Secondary",269
+"SSP3","Zambia","2040-2045","25--29","Lower Secondary",259
+"SSP3","Zambia","2045-2050","25--29","Lower Secondary",245
+"SSP3","Zambia","2015-2020","30--34","Lower Secondary",163
+"SSP3","Zambia","2020-2025","30--34","Lower Secondary",171
+"SSP3","Zambia","2025-2030","30--34","Lower Secondary",175
+"SSP3","Zambia","2030-2035","30--34","Lower Secondary",180
+"SSP3","Zambia","2035-2040","30--34","Lower Secondary",150
+"SSP3","Zambia","2040-2045","30--34","Lower Secondary",138
+"SSP3","Zambia","2045-2050","30--34","Lower Secondary",125
+"SSP3","Zambia","2015-2020","35--39","Lower Secondary",110
+"SSP3","Zambia","2020-2025","35--39","Lower Secondary",115
+"SSP3","Zambia","2025-2030","35--39","Lower Secondary",117
+"SSP3","Zambia","2030-2035","35--39","Lower Secondary",100
+"SSP3","Zambia","2035-2040","35--39","Lower Secondary",87
+"SSP3","Zambia","2040-2045","35--39","Lower Secondary",79
+"SSP3","Zambia","2045-2050","35--39","Lower Secondary",70
+"SSP3","Zambia","2015-2020","40--44","Lower Secondary",50
+"SSP3","Zambia","2020-2025","40--44","Lower Secondary",53
+"SSP3","Zambia","2025-2030","40--44","Lower Secondary",54
+"SSP3","Zambia","2030-2035","40--44","Lower Secondary",42
+"SSP3","Zambia","2035-2040","40--44","Lower Secondary",38
+"SSP3","Zambia","2040-2045","40--44","Lower Secondary",33
+"SSP3","Zambia","2045-2050","40--44","Lower Secondary",29
+"SSP3","Zambia","2015-2020","45--49","Lower Secondary",13
+"SSP3","Zambia","2020-2025","45--49","Lower Secondary",13
+"SSP3","Zambia","2025-2030","45--49","Lower Secondary",13
+"SSP3","Zambia","2030-2035","45--49","Lower Secondary",8
+"SSP3","Zambia","2035-2040","45--49","Lower Secondary",7
+"SSP3","Zambia","2040-2045","45--49","Lower Secondary",6
+"SSP3","Zambia","2045-2050","45--49","Lower Secondary",4
+"SSP3","Zambia","2015-2020","15--19","Upper Secondary",3
+"SSP3","Zambia","2020-2025","15--19","Upper Secondary",0
+"SSP3","Zambia","2025-2030","15--19","Upper Secondary",0
+"SSP3","Zambia","2030-2035","15--19","Upper Secondary",0
+"SSP3","Zambia","2035-2040","15--19","Upper Secondary",0
+"SSP3","Zambia","2040-2045","15--19","Upper Secondary",0
+"SSP3","Zambia","2045-2050","15--19","Upper Secondary",0
+"SSP3","Zambia","2015-2020","20--24","Upper Secondary",172
+"SSP3","Zambia","2020-2025","20--24","Upper Secondary",184
+"SSP3","Zambia","2025-2030","20--24","Upper Secondary",190
+"SSP3","Zambia","2030-2035","20--24","Upper Secondary",194
+"SSP3","Zambia","2035-2040","20--24","Upper Secondary",193
+"SSP3","Zambia","2040-2045","20--24","Upper Secondary",187
+"SSP3","Zambia","2045-2050","20--24","Upper Secondary",180
+"SSP3","Zambia","2015-2020","25--29","Upper Secondary",187
+"SSP3","Zambia","2020-2025","25--29","Upper Secondary",197
+"SSP3","Zambia","2025-2030","25--29","Upper Secondary",203
+"SSP3","Zambia","2030-2035","25--29","Upper Secondary",208
+"SSP3","Zambia","2035-2040","25--29","Upper Secondary",218
+"SSP3","Zambia","2040-2045","25--29","Upper Secondary",230
+"SSP3","Zambia","2045-2050","25--29","Upper Secondary",226
+"SSP3","Zambia","2015-2020","30--34","Upper Secondary",145
+"SSP3","Zambia","2020-2025","30--34","Upper Secondary",152
+"SSP3","Zambia","2025-2030","30--34","Upper Secondary",157
+"SSP3","Zambia","2030-2035","30--34","Upper Secondary",161
+"SSP3","Zambia","2035-2040","30--34","Upper Secondary",164
+"SSP3","Zambia","2040-2045","30--34","Upper Secondary",148
+"SSP3","Zambia","2045-2050","30--34","Upper Secondary",136
+"SSP3","Zambia","2015-2020","35--39","Upper Secondary",106
+"SSP3","Zambia","2020-2025","35--39","Upper Secondary",111
+"SSP3","Zambia","2025-2030","35--39","Upper Secondary",115
+"SSP3","Zambia","2030-2035","35--39","Upper Secondary",117
+"SSP3","Zambia","2035-2040","35--39","Upper Secondary",97
+"SSP3","Zambia","2040-2045","35--39","Upper Secondary",82
+"SSP3","Zambia","2045-2050","35--39","Upper Secondary",74
+"SSP3","Zambia","2015-2020","40--44","Upper Secondary",53
+"SSP3","Zambia","2020-2025","40--44","Upper Secondary",55
+"SSP3","Zambia","2025-2030","40--44","Upper Secondary",57
+"SSP3","Zambia","2030-2035","40--44","Upper Secondary",49
+"SSP3","Zambia","2035-2040","40--44","Upper Secondary",41
+"SSP3","Zambia","2040-2045","40--44","Upper Secondary",37
+"SSP3","Zambia","2045-2050","40--44","Upper Secondary",33
+"SSP3","Zambia","2015-2020","45--49","Upper Secondary",13
+"SSP3","Zambia","2020-2025","45--49","Upper Secondary",14
+"SSP3","Zambia","2025-2030","45--49","Upper Secondary",14
+"SSP3","Zambia","2030-2035","45--49","Upper Secondary",9
+"SSP3","Zambia","2035-2040","45--49","Upper Secondary",8
+"SSP3","Zambia","2040-2045","45--49","Upper Secondary",7
+"SSP3","Zambia","2045-2050","45--49","Upper Secondary",6
+"SSP3","Zambia","2015-2020","15--19","Post Secondary",0
+"SSP3","Zambia","2020-2025","15--19","Post Secondary",0
+"SSP3","Zambia","2025-2030","15--19","Post Secondary",0
+"SSP3","Zambia","2030-2035","15--19","Post Secondary",0
+"SSP3","Zambia","2035-2040","15--19","Post Secondary",0
+"SSP3","Zambia","2040-2045","15--19","Post Secondary",0
+"SSP3","Zambia","2045-2050","15--19","Post Secondary",0
+"SSP3","Zambia","2015-2020","20--24","Post Secondary",74
+"SSP3","Zambia","2020-2025","20--24","Post Secondary",72
+"SSP3","Zambia","2025-2030","20--24","Post Secondary",71
+"SSP3","Zambia","2030-2035","20--24","Post Secondary",68
+"SSP3","Zambia","2035-2040","20--24","Post Secondary",65
+"SSP3","Zambia","2040-2045","20--24","Post Secondary",61
+"SSP3","Zambia","2045-2050","20--24","Post Secondary",58
+"SSP3","Zambia","2015-2020","25--29","Post Secondary",166
+"SSP3","Zambia","2020-2025","25--29","Post Secondary",180
+"SSP3","Zambia","2025-2030","25--29","Post Secondary",183
+"SSP3","Zambia","2030-2035","25--29","Post Secondary",189
+"SSP3","Zambia","2035-2040","25--29","Post Secondary",197
+"SSP3","Zambia","2040-2045","25--29","Post Secondary",197
+"SSP3","Zambia","2045-2050","25--29","Post Secondary",192
+"SSP3","Zambia","2015-2020","30--34","Post Secondary",155
+"SSP3","Zambia","2020-2025","30--34","Post Secondary",163
+"SSP3","Zambia","2025-2030","30--34","Post Secondary",165
+"SSP3","Zambia","2030-2035","30--34","Post Secondary",167
+"SSP3","Zambia","2035-2040","30--34","Post Secondary",170
+"SSP3","Zambia","2040-2045","30--34","Post Secondary",171
+"SSP3","Zambia","2045-2050","30--34","Post Secondary",165
+"SSP3","Zambia","2015-2020","35--39","Post Secondary",120
+"SSP3","Zambia","2020-2025","35--39","Post Secondary",116
+"SSP3","Zambia","2025-2030","35--39","Post Secondary",117
+"SSP3","Zambia","2030-2035","35--39","Post Secondary",118
+"SSP3","Zambia","2035-2040","35--39","Post Secondary",107
+"SSP3","Zambia","2040-2045","35--39","Post Secondary",93
+"SSP3","Zambia","2045-2050","35--39","Post Secondary",86
+"SSP3","Zambia","2015-2020","40--44","Post Secondary",68
+"SSP3","Zambia","2020-2025","40--44","Post Secondary",64
+"SSP3","Zambia","2025-2030","40--44","Post Secondary",65
+"SSP3","Zambia","2030-2035","40--44","Post Secondary",61
+"SSP3","Zambia","2035-2040","40--44","Post Secondary",51
+"SSP3","Zambia","2040-2045","40--44","Post Secondary",46
+"SSP3","Zambia","2045-2050","40--44","Post Secondary",41
+"SSP3","Zambia","2015-2020","45--49","Post Secondary",17
+"SSP3","Zambia","2020-2025","45--49","Post Secondary",15
+"SSP3","Zambia","2025-2030","45--49","Post Secondary",15
+"SSP3","Zambia","2030-2035","45--49","Post Secondary",12
+"SSP3","Zambia","2035-2040","45--49","Post Secondary",11
+"SSP3","Zambia","2040-2045","45--49","Post Secondary",9
+"SSP3","Zambia","2045-2050","45--49","Post Secondary",8

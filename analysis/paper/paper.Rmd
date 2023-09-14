@@ -1,0 +1,1411 @@
+---
+title: "Achieving universal energy access while reducing energy demand? Evidence from energy-specific population projections"
+author: 
+- Camille Belmin$^1$$^2$$^3$
+- Peter-Paul Pichler$^1$ 
+- Guillaume Marois $^3$$^4$
+- Shonali Pachauri$^3$
+- Helga Weisz$^1$$^2$
+output: 
+#html_document
+  # bookdown::word_document2:
+  # fig_caption: yes
+  # toc: false
+  #'': default
+    bookdown::pdf_document2:
+      toc: no
+      fig_caption: yes
+      keep_tex: true
+      latex_engine: xelatex
+      citation_package: natbib
+   #   reference_docx: "../templates/template.docx" # Insert path for the DOCX file
+header-includes: \usepackage{caption} \usepackage{booktabs} \usepackage{xcolor} \usepackage{longtable}
+  \usepackage{float} \usepackage{rotating} \floatplacement{figure}{H} \usepackage{lineno} \usepackage{pdfpages}
+  \linenumbers   
+bibliography: paper_msm.bib
+always_allow_html: true
+link-citations: true
+#csl: "../templates/journal-of-archaeological-science.csl" # Insert path for the bib-style
+---
+
+$^1$ Potsdam Institute for Climate Impact Research, Germany\
+$^2$ Humboldt University Berlin, Germany\
+$^3$ International Institute for Applied Systems Analysis, Wittgenstein Centre (IIASA, OeAW, University of Vienna), Austria\
+$^4$ Asian Demographic Research Institute of the Shanghai University, China
+
+```{r setup, echo = FALSE, message = F, include = F}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  echo = FALSE,
+  comment = "#>",
+  fig.path = "../figures/",
+  dpi = 300
+)
+library(tidyverse)
+library(here)
+#library(gt)
+library(readr)
+library(janitor)
+library(haven) # to read .dta files
+library(RColorBrewer)
+library(patchwork)
+library(stargazer)
+library(knitr)
+library(kableExtra)
+library(miceadds)
+#library(ggdist)
+
+source.all(here("R"))
+
+res_path = here("analysis", "data", "derived_data", "output/")
+
+#experiment = "28"
+experiment = "52"
+
+full_output_wc_zambia = read.csv(here("analysis", "data", "raw_data", "Full_output_zambia.csv"))
+
+#pop_zambia = 15879370 # population size zambia in 2015. Source: United Nations Population Division. 
+# NB in WIC data it is 16099500
+
+# this is the average of SSP1 and SSP2 in 2020 in the WIC data
+pop_zambia = 18584450
+
+# Map between age group string and num ####
+age_group_map = read.csv(here("analysis", "data", "raw_data", "age_group_correspondance.csv")) %>%
+  rename(age = age_group_char) %>% 
+  mutate(age = as.character(age)) %>% 
+  # create the age group cat 95+ 
+  mutate(age = ifelse(age == "95--99", "95+", age)) %>% 
+  filter(!(age == "100"))
+
+
+```
+
+```{r}
+base_pop_size = read.csv(here("analysis", "data", "derived_data", "base_pop.csv")) %>% nrow()
+
+data_regression_size = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% nrow()
+
+```
+
+# Abstract {.unnumbered}
+
+In a climate- constrained world, understanding the energy required to achieve universal access to modern energy is critical. This requires making assumptions on future population trajectories, but the extent of energy access can affect these. Yet, this feedback has never been accounted for in energy models. Access to modern energy leads to fertility declines as it reduces child mortality, improves health, increases women's access to information, education and employment. In this paper, we assess the household energy requirements to expand energy access while considering the relationship between energy access and fertility, using Zambia as a case study. To do so, we built a microsimulation model to project population, accounting for how fertility depends on access to modern energy and education. We used these population projections to then estimate household energy demand of the Zambian population until 2070, under different scenarios. We find that in 2070, while electricity consumption is higher in a universal access scenario compared to a baseline scenario, total energy demand is 29% lower, partly due to a strong decline in the use of inefficient traditional cooking fuels. We also find that reduced population growth due to universal energy access contributes to lowering the energy demand by 55% by 2050, compared to a more limited expansion in energy access, and this contribution increases over time. Although the challenge of achieving universal access to modern energy seems daunting, our results suggest that this could have co-benefits with achieving climate goals. Our study also reveals that accounting for the energy-population nexus in energy models will scale down the currently assumed energy needs to ensure a decent life for all.
+
+
+\newpage
+
+# Introduction {#intro}
+
+Access to modern energy provides services that are essential to fulfill basic human needs [@gea_global_2012; @mccollum_connecting_2018]. Yet, in 2020, around 733 million had no access to electricity and 2.4 billion people had no access to clean cooking energy [@iea_tracking_2022]. Assessing the energy requirements to achieve this goal is necessary to accurately assess the share of the global carbon budget that needs to be allocated to emerging economies to fulfill the basic needs of their populations.
+
+Projecting the energy requirements to eradicate energy poverty requires making assumptions on future population pathways. Traditionally, energy modelers have attempted to answer this question using existing population projections, like the UN population projections [@unfpa_world_2019], or the Shared Socio-economic Pathways for populations projections [@kc_human_2017]. However, for a given pathway, the population projection may be inconsistent with the improvements in energy access, resulting in an over or underestimation of population size, and consequently energy demand.
+
+This is particularly relevant because energy access, in addition to female education, has been shown to have a large effect on fertility decline [@grimm_does_2015 ; @grogan_household_2016 ; @potter_fertility_2002 ; @peters_rural_2010; @fujii_fertility_2020; @harbison_rural_1985]. Particularly for women, access to modern energy leads to less time spent on household chores[@das_virtuous_2020; @wickramasinghe_energy_2011; @oxfam_energy_2017], lower child mortality[@adaji_understanding_2019; @ezzati_indoor_2005], better health [@das_virtuous_2020; @iea_weo-2016_2016; @who_who_2014], access to information [@oxfam_energy_2017; @das_virtuous_2020] and education [@winther_womens_2017], all of which contribute to lowering fertility.
+
+Previous empirical studies have quantified the effects of expanded electricity access [@grimm_does_2015 ; @grogan_household_2016 ; @potter_fertility_2002] and access to modern cooking fuels [@belmin_fertility_2022] on fertility, in various countries. For example, @belmin_fertility_2022 found that, across 42 countries, achieving universal access to electricity by 2040, coupled with increasing educational attainment, would result in a total fertility rate 19% lower than in a business-as-usual scenario. However, the subsequent implications of this lower fertility for population size, a necessary input to determine energy demand, has not been estimated. Population scenarios that are consistent with the SSP framework are based on assumptions of future developments in educational attainment [@kc_human_2017]. However, these make no assumptions about how energy access would develop concurrently or how this might affect fertility and consequently, population size.
+
+Here, we estimate the energy requirements to eradicate energy poverty in Zambia, while considering the negative effect that access to modern energy has on fertility and population dynamics. In this work we define energy poverty as a lack of access to electricity and clean cooking fuels in line with the objectives of SDG 7. To project future population pathways and energy demand in Zambia, we developed a modeling framework in two parts. The first part is a microsimulation model (MSM) that projects population size in Zambia until 2070, accounting for energy access, education, and urbanization. This model endogenously accounts for the relationship between energy access and fertility. The second part of the modeling framework is an energy calculator that estimates the population's energy demand using disaggregated data on per capita energy consumption and using population projections from the MSM (Figure \@ref(fig:model-overview)). To assess the impact of different pathways on population size and energy demand, we constructed three scenarios with different assumptions about the evolution of access to electricity, access to modern cooking fuels, education, and urbanization. In this study, we define modern energy for cooking as any energy derived from electricity, liquefied petroleum gas (LPG), natural gas and biogas. All forms of traditional biomass are excluded, namely firewood, charcoal, agricultural crops, animal dung as well as coal and kerosene. Although coal and kerosene do not need to be collected, we excluded these from the basket of modern fuels because of their negative health effects. 
+
+
+
+
+We chose Zambia as a case study because of its demographic characteristics, the status of access to modern energy in the country, as well as the availability of data. Zambia is a high-fertility country with most of its population living in rural areas. In 2022 the Total Fertility Rate (TFR), which can be interpreted as the average number of children per women, was 4.24 [@unfpa_world_2022]. The patterns of energy access vary greatly from urban to rural areas. In 2017, 75% of the urban population had access to electricity, while only one tenth of the rural population had access to electricity [@luzi_zambia_2019]. Zambia's population is highly dependent on charcoal for cooking, particularly in urban areas where it is used by 60.7% of the population. In rural areas, firewood is used by most households (83.6%), followed by charcoal (14.2%). Electricity is the main type of modern energy used for cooking in Zambia (32.5% of urban and 1.9% of rural households use electricity as a main cooking fuel)[@luzi_zambia_2019]. The heavy dependence of Zambia's electricity sector on hydro-power, also makes electricity supply vulnerable to climate variability and droughts, and has caused electricity outages in 2012 and subsequently, a decline in the use of electricity for cooking [@samboko_load_2016].
+
+In the next section, we present the methodology and modeling framework used. This includes a comprehensive description of the MSM of population projection, the regression models necessary to predict at each time step the probability of a woman to give birth, and the assumptions about mortality, urbanization, education, and energy access under each scenario. In this section, we also introduce the second part of the modeling framework, the energy calculator, which is used to estimate energy demand using the population projections from the MSM as input. In the following section, we then present our results on population projections and energy demand under the different scenarios. We finally conclude the paper with a discussion of the contribution of population to lowering the energy requirements to reach universal access to modern energy, and the importance of incorporating the feedback between energy access and population dynamics in energy models.
+
+# Methods and data
+
+## Overview {#overview}
+
+The modeling framework has two components: (i) a microsimulation model of population projection that determines at each time step, the size and the distribution of the population by place of residence (rural or urban), education level, access to electricity and modern cooking fuels, and (ii) an energy calculator that estimates the population's energy demand using disaggregated data on per capita energy consumption and the population projections from the MSM (Figure \@ref(fig:model-overview)). The analysis is carried out for four scenarios. Each scenario is composed of assumptions on mortality, educational attainment, energy access and urbanization pathways created using the Shared Socio-economic Pathways framework (Table \@ref(tab:table-scenario)).
+
+```{r model-overview, include=TRUE, out.width="100%", fig.align="center", fig.cap="Overview of the modeling framework in two steps: the microsimulation model of population population projection and the energy calculator."}
+
+knitr::include_graphics(here("git_ignore_new", "overview_model.png"))
+
+```
+
+
+## Microsimulation model of population projection
+
+To estimate the energy needs of the Zambian population under different scenarios, while taking into account the effect of energy access on population dynamics, we first built a dynamic microsimulation model (MSM) to project the population, which we run from 2020 to 2070 in five-year time steps. Note that the first year of simulation results is 2020 because this is the first time-step of the simulation, but the base population is for 2015, and the input data for the scenario start from 2015. The MSM starts with a base population and treats each individual independently. Random experiments are used to simulate the life events of each individual according to some probabilities of occurence of life events. The events we simulate in this study are giving birth, death, getting access to electricity, getting access to modern cooking fuels, transitioning to a higher education level, and moving to an urban area. These random experiments, or Monte Carlo processes, work as follows: a random number between 0 and 1 is drawn and compared to the probability of the life event to occur (e.g., giving birth). If the random number is lower than the probability, the event occurs, otherwise it does not. 
+
+The probability of surviving, moving to an urban area, transitioning to a higher education level, and getting access to modern energy are directly derived from the input data (see Sections \@ref(scenario) and \@ref(scenario)). In contrast, the probability that a woman gives birth is derived endogenously at each time step, and depends on her age, access to modern energy, level of education, and whether she lives in a rural or urban area and the year (Figure \@ref(fig:model-overview)). Microsimulation models allow to easily run population projections where demographic rates depend on a large number of states [@van_imhoff_microsimulation_1998]. Here, fertility depends on five dimensions. With a traditional multi-state cohort component model of population projection, this large number of dimensions would make the estimation of fertility unmanageable.
+
+### Base population
+
+We used the 2018 Demographic and Health Survey data of Zambia to construct the base population. More specifically, we used the *Person Recode* of the DHS data [@icf_demographic_2004], in which all members of interviewed households are included in the sample. This allowed for obtaining data on individuals of both sex and all ages. From the DHS data we extracted the following variables: age, sex, number of education years, whether the individual lives in a rural or urban area, whether they have access to electricity and modern cooking fuels, and for children under 18, the number of years of education of the mother and finally the individual survey weight. From the variable number of education years, we created six categorical variables: *No education*, *Incomplete primary education*, *Completed primary education*, *Lower secondary education*, *Upper secondary education*, and *Post secondary education*). Observations with missing values on these variables were excluded, which resulted in a final sample size of `r base_pop_size` individuals. <!--In Supplementary Figure XX and XX, we compared the age and education distribution of the base population with data from the Wittengstein Center for Demography and Human Capital [@lutz_demographic_2018]. (**TODO**). -->
+
+To ensure representativeness of the base population in terms of education, we calibrated the base population using age-specific, education-specific population distribution data for the year 2015 from the Wittgenstein Center for Demography and Human Capital (WIC)[@lutz_demographic_2018]. Education level is a central variable in the model. However, the DHS data is not a survey specifically meant to create a sample representative of the education distribution in a country. Therefore, our calibration consists of re-weighting the DHS survey weights to ensure that the re-weighted age-education distribution in the base population matches that of the WIC dataset. This also allows avoiding any discontinuity between the education distribution of the base year population and the education distribution in the first time step in our projections. Unfortunately, we could not calibrate the population also in terms of energy access. While the DHS data allows for determining energy access by education, age, and urbanization for the sample, this could only be compared to national energy access indicators distinguishing between rural and urban regions but not the other demographic variables like age or education. Note that even though the base population is calibrated for 2015, and the input for the scenario start from 2015, the first year for the result is the year 2020 as it is the first time-step of the simulation.
+
+
+
+### Fertility
+
+In our model, the probability that a woman will give birth is endogenously determined at each time step and for each woman of fertile age (between 15 and 49 years old). We used a logistic regression to estimate the parameters allowing us to predict the probability for a woman to give birth, depending on her age group (five-year), level of education, whether her household has access to electricity, to modern cooking fuels and whether she lives in a rural or urban area. The dependent variable is whether the women gave birth in the last year. The data used for the regression is a pool of four Individual Recode files from the DHS data for Zambia, for the years 2002, 2007, 2013 and 2018. This resulted in a sample consisting in `r data_regression_size` women. In the regression, we added a parameter corresponding to the year in which the data was collected, allowing us to account for the fact that fertility may follow a secular trend. We also added interaction terms between age group and (i) whether the household has access to electricity, and (ii) whether the primary fuel used for cooking by the household is modern. The results of the model are displayed in Table 1 and the logistic regression model takes the form:
+
+```{=tex}
+\begin{equation}
+\begin{split}
+\log\left[ \frac { P( \operatorname{birth} = \operatorname{1} ) }{ 1 - P( \operatorname{birth} = \operatorname{1} ) } \right] = \alpha + \sum_{i=1}^{6} \beta_{i} Agecat_{i} + 
+\sum_{j=1}^{5} \gamma_{j} Educcat_{j} + \delta Urban + \\
+\theta Elec +  \sum_{k=1}^{5} \theta_{k} Elec \times Agecat_{k} + 
+\mu  MCF + \sum_{l=1}^{5} \mu_{l} MCF \times Agecat_{l} + \eta Year + \epsilon
+\end{split}
+\end{equation}
+```
+where $P( \operatorname{birth} = \operatorname{1} )$ is the probability that a women gave birth in the past year, $Agecat_{1..6}$ the five-year age group to which the woman belonged at the time of the survey, $Educcat_{1..5}$ the education group to which the woman belongs, $Elec$, $MCF$ and $Urban$ are dummy variables taking the value 1 if the woman has access to electricity, modern cooking fuels, or lives in an urban area, respectively, and $Year$ is the year of the survey. $\alpha$ is the coefficient for the reference category, which corresponds to age group 15-19, for those with no education, no access to electricity, no access to modern cooking fuel and living in rural areas.
+
+```{r}
+
+
+data = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% na.omit() %>% 
+  mutate(year_sq = year*year)
+
+
+model_glm_urban <- glm(birth1 ~ age_group + educ_level + elec*age_group + modern_cooking_fuel*age_group + urban + year, #+ year ,#+ year*agecat,
+                     family="binomial",
+                     data=data)
+
+
+```
+
+```{r glm-model-results, results = "asis"}
+stargazer(model_glm_urban, 
+            dep.var.labels = "Gave birth in the past year (Yes/No)",
+          single.row = TRUE,
+          font.size= "small",  
+           covariate.labels = c(
+             "Age group 20-24", "Age group 25-29","Age group 30-34", "Age group 35-39", "Age group 40-44", "Age group 45-49",
+  "Educ group: Incomplete primary",
+  "Educ group: Primary",
+  "Educ group: Lower secondary",
+  "Educ group: Upper secondary",
+  "Educ group: Post secondary",
+ "Having access to electricity",
+   "Having  access to modern cooking fuels",
+  "Living in urban area",
+"Year",
+"Age group 20-24 X Elec", "Age group 25-29 X Elec","Age group 30-34 X Elec", "Age group 35-39 X Elec",
+"Age group 40-44 X Elec", "Age group 45-49 X Elec",
+"Age group 20-24 X MCF", "Age group 25-29 X MCF","Age group 30-34 X MCF", "Age group 35-39 X MCF", 
+"Age group 40-44 X MCF", "Age group 45-49 X MCF",
+"Intercept / Reference category"
+),
+  style = "ajps",
+  header = F,
+  type = "latex",
+  label = "tab:table-result1", 
+  #label =  knitr::opts_current$get("label"), #"tab:table-result1",,
+title = "Results of a logistic regression model that predicts the probability for a woman aged 15-49 to have given birth in the past year.", 
+notes.append = F,
+ notes = 
+    c("P-values: 0.1 > * > 0.05 > ** > 0.01 > ***"))
+
+
+```
+
+Having any level of education other than *No education*, having access to electricity, having access to modern cooking fuels, and living in an urban area all have a negative effect on the probability of giving birth (Table 1). The age categories are also all significant, with age groups 20-24 and 25-29 having the strongest positive effect on the probability of giving birth, relative to the reference age group of 15-19. Age also interacts with access to energy in a significant way. In particular, the effect of access to both electricity and modern cooking fuels seem to have a particularly strong effect on the reference age group as well as for the age group 20-24. <!-- with $\beta_1$ representing the marginal effect of modern energy access on fertility. It shows the change in fertility in a region arising from a 1 percentage point increase in modern energy access the same year. The model controls for region fixed effects $\alpha2_{i}$ to account for unobserved heterogeneity between the regions. To account for the clustering of observations, all standard errors are clustered at regional level.-->
+
+<!--In Supplementary analysis, we conducted robustness tests to explore to what extend adding more control variables to the model affects the estimated effect size. (**TODO**)-->
+
+```{r table-scenario, echo = F, include = T, fig.align="left", results = "asis"}
+
+table_scenario = read.csv(here("analysis", "paper", "scenario_table.csv"))
+
+table_scenario %>%  kable(format = "html",col.names = gsub("[.]", " ", names(table_scenario)),caption = "Description of scenario narratives and their assumptions.") %>%
+  kable_styling(latex_options = "striped") %>%
+  row_spec(0, bold = T) %>% 
+   column_spec(1, bold = TRUE, width = "3cm") %>%  
+  column_spec(2, width = "7cm") %>% 
+  column_spec(3, width = "2cm") %>% 
+  column_spec(4, width = "2cm") %>% 
+  column_spec(5, width = "2cm") %>% 
+  column_spec(6, width = "4cm") %>% 
+  column_spec(6, width = "4cm") 
+
+```
+
+
+
+### Scenario {#scenario}
+
+We create four scenarios that make different assumptions about mortality, educational attainment, urbanization, and access to modern energy (Table \@ref(tab:table-scenario) and Figure \@ref(fig:input)). The scenarios are based on the Shared Socio-economic Pathways framework (SSP) [@riahi_shared_2017]. Among the different SSP scenarios, we used SSP1, which corresponds to a world shifting to a more sustainable pathway with low mitigation and adaptation challenges, and SSP2, which represents a middle-of-the-road scenario. The assumptions about future mortality, educational attainment, urbanization, and access to modern energy come from existing pathways found in the literature that follow the SSP framework. In this paper, we do not consider international migration and domestic migration is reflected in the different urbanization projections for SSP1 and SSP2.The first scenario is called *SSP1_EA* (SSP1 with Energy Access) and represents a future with good progress in development, including progress in energy access, especially in urban areas. The second scenario, *SSP2_EA* (SSP2 with energy access), represents a mid-road scenario with limited progress in development and slow progress in energy access. The third scenario, *SSP1_univ*, like *SSP1_EA*, represents a trajectory with good progress in development, but additionally assumes universal access to electricity and modern cooking fuels by 2040. The fourth and final scenario, *SSP1_univ_elec*, is based on *SSP1_univ*, but in addition assumes that traditional fuels are completely replaced by electricity (see TODO section for details). The assumptions used to construct these scenarios are described in detail below. 
+
+
+*Mortality, education and urbanization assumptions*
+
+```{r, message = F, warning= F}
+# Color palette with viridis colors (see https://www.thinkingondata.com/something-about-viridis-library/)
+# to have more control on colors
+# color_pal = c("#440154FF", "#20A387FF", "#FDE725FF")
+color_pal = c("#440154FF", "#20A387FF", "#FDE725FF","#31688e")
+
+# 1. Education figure: show e.g. % of people older than 25 with lower secondary education or more 
+
+# Here its the df with education scenario without transition proba
+educ_sc = read.csv(here("analysis", "data", "derived_data", "education_scenarios_without_edu_trans.csv")) %>% 
+  filter(!(scenario%in% c("SSP3", "Universal"))) %>% 
+  filter(age == "20--24") %>% 
+  select(scenario, year, sex, t_4, t_5, t_6) %>% 
+  mutate(t_cumm = t_4 + t_5+t_6) %>% 
+select(-t_4, -t_5, -t_6) %>% 
+  # make average of male and female 
+  pivot_wider(names_from = "sex", values_from = t_cumm, names_prefix = "t_cumm_") %>% 
+  mutate(t_cumm_both_sex = (t_cumm_1+t_cumm_2 )/2) %>% 
+  # change scenario names
+    mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                              scenario == "SSP2" ~ "SSP2_EA", 
+                              scenario == "Universal" ~ "SSP1_univ")) %>% 
+  bind_rows(filter(., scenario == "SSP1_EA") %>% mutate(., scenario = "SSP1_univ")) %>% 
+  mutate(scenario = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA",
+                                        "SSP1_univ"))
+
+
+plot_educ = ggplot(data = educ_sc, aes(x = year, y = t_cumm_both_sex, color = scenario))+
+  geom_line(position = position_dodge(width = 1))+
+ # geom_point(aes(shapre = scenario))+
+  theme_bw()+
+  labs(x = "Years", y = "Population aged 20-24 \n with at least some \n secondary education (%)")+
+     scale_x_continuous(breaks = c(2015,2040, 2070))+
+  scale_color_manual(guide = "none",values = color_pal)+
+  theme(text = element_text(size=9))
+
+
+# 2. Mortality: use directly life expectancy data from WIC
+
+le_zambia = read.csv(here("analysis", "data", "raw_data", "wcde_data_life_expectancy_zambia.csv"), skip = 8) %>% 
+  janitor::clean_names() %>% 
+  filter(!(scenario == "SSP3")) %>% 
+  pivot_wider(names_from = "sex", values_from = "years", names_prefix = "le_") %>% 
+  janitor::clean_names() %>% 
+  mutate(le_both = (le_male + le_female)/2) %>% 
+    # add period min and max
+  mutate(period_min = substr(period, start = 1, stop = 4), 
+         period_max = substr(period, start = 6, stop = 9)) %>% 
+  mutate(across(c(period_min, period_max), as.numeric)) %>% 
+  # change scenario names
+    mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                              scenario == "SSP2" ~ "SSP2_EA", 
+                              scenario == "Universal" ~ "SSP1_univ")) %>% 
+    # add SSP1_univ
+  bind_rows(filter(., scenario == "SSP1_EA") %>% mutate(., scenario = "SSP1_univ")) %>%   mutate(scenario = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA",
+                                        "SSP1_univ"))
+
+
+plot_le= ggplot(data = le_zambia, aes(x = period_min, y = le_both, color = scenario))+
+  geom_line(position = position_dodge(width = 1))+
+ # geom_point(aes(shape = scenario))+
+  theme_bw()+
+  labs(x = "Years", y = "Life expectancy at birth")+
+  scale_x_continuous(breaks = c(2015,2040, 2070))+
+  scale_color_manual(guide = "none", values = color_pal)+
+  theme(text = element_text(size=9))
+
+
+# 3. Urbanisation 
+
+urban_sc_ssp = readxl::read_xlsx(here("analysis","data","raw_data","urbproj_all.xlsx"), sheet ="data") %>%
+  filter(Region == "ZMB",
+         Scenario %in% c("SSP1_v9_131230","SSP2_v9_131230")) %>% 
+  mutate(scenario = ifelse(Scenario == "SSP2_v9_131230","SSP2_EA","SSP1_EA")) %>% 
+  select(-Model, - Region, - Unit, -Variable, -Scenario) %>% 
+      pivot_longer(cols = -scenario, names_to = "year", values_to = "urban_pop")  %>% 
+  mutate(year = as.numeric(year)) %>% 
+  # add SSP1_univ
+  bind_rows(filter(., scenario == "SSP1_EA") %>% mutate(., scenario = "SSP1_univ")) %>%   mutate(scenario = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA",
+                                        "SSP1_univ"))
+
+plot_urban= ggplot(data = urban_sc_ssp, aes(x = year, y = urban_pop, color = scenario))+
+    geom_line(position = position_dodge(width = 1))+
+  theme_bw()+
+  labs(x = "Years", y = "Urban population (%)")+
+     scale_x_continuous(breaks = c(2015,2040, 2070))+
+  scale_color_manual(guide = "none", values = color_pal)+
+  theme(text = element_text(size=9))
+
+
+# 4. % elec. with different linetype of urban and rural
+
+elec_sc = read_csv(here("analysis", "data", "derived_data", "elec_scenario.csv"))%>% 
+  filter(!(scenario == "SSP3")) %>% 
+  mutate(urban_name = ifelse(urban == 1, "Urban", "Rural"))%>% 
+  # change scenario names
+    mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                              scenario == "SSP2" ~ "SSP2_EA", 
+                              scenario == "Universal" ~ "SSP1_univ")) %>% 
+  mutate(scenario = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA",
+                                        "SSP1_univ")) %>% 
+  group_by(scenario, period_min) %>% summarize(elec_proj = mean(elec_proj))
+
+plot_elec = ggplot(data = elec_sc, aes(x=period_min,y = elec_proj, color = scenario))+#, linetype = urban_name))+
+    geom_line(position = position_dodge(width = 1))+
+  theme_bw()+
+  scale_linetype_manual(guide = "none", values = c(2,3))+
+  scale_color_manual(name = "Scenario",values = color_pal)+
+     scale_x_continuous(breaks = c(2015,2040, 2070))+
+  #scale_shape_discrete(guide = "none")+
+  labs(x = "Year", y = "Population with \n electricity access (%)")+
+  theme(text = element_text(size=9))
+
+  
+# 5. % mcf. with different linetype of urban and rural
+mcf_sc = read_csv(here("analysis", "data", "derived_data", "mcf_scenario.csv"))%>% 
+  filter(!(scenario == "SSP3"))%>% 
+  mutate(urban_name = ifelse(urban == 1, "Urban", "Rural"))%>% 
+  # change scenario names
+    mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                              scenario == "SSP2" ~ "SSP2_EA", 
+                              scenario == "Universal" ~ "SSP1_univ")) %>% 
+  mutate(scenario = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA",
+                                        "SSP1_univ")) %>% 
+  group_by(scenario, period_min) %>% summarize(mcf_proj = mean(mcf_proj))
+
+plot_mcf = ggplot(data = mcf_sc, aes(x=period_min,y = mcf_proj, color = scenario))+#, linetype = urban_name))+
+   geom_line(position = position_dodge(width = 1))+
+  theme_bw()+
+  scale_linetype_manual(guide = "none", values = c(2,3))+
+  scale_color_manual(name = "Scenario",values = color_pal)+
+   scale_x_continuous(breaks = c(2015,2040, 2070))+
+  labs(x = "Year", y = "Population with access \n to modern cooking fuels (%)")+
+  theme(text = element_text(size=9))
+
+# 6. % dirty fuels in mcf
+
+df_displace = data.frame(year = seq(2015, 2070,5), 
+                         p_displace = c(c(0,0, 25, 50, 75, 100), rep(100,6)))
+
+plot_displace = ggplot(data = df_displace, aes(x = year, y = p_displace))+
+  geom_line(color = color_pal[4])+
+  theme_bw()+
+ scale_x_continuous(breaks = c(2015,2040, 2070))+
+  labs(x = "Year", y = "Dirty fuels displaced by\n electricity in \n SSP1_univ_elec (%)")
+
+```
+
+
+
+The mortality, and educational attainment data were taken directly from the WIC open data repository [@lutz_demographic_2018]. The WIC has developed a set of population dynamics and characteristics scenarios that are consistent with the Shared Socio-economic Pathways narratives [@riahi_shared_2017]. We also used urbanization assumptions that follow the SSP framework from the study of @jiang_global_2017. 
+
+
+A few details are important to note about the mortality and education assumptions. The mortality assumptions are provided by the WIC as survival probabilities. For each scenario, this probability depends on the age group and education level of the individual at the beginning of the period. Following @marois_microsimulation_2021, the probability of survival for children under the age of 15 depends on the mother's education level [@fuchs_education_2010]. The education projections are represented in the WIC data as proportions of the population being in a given education group: *No education*, *Incomplete primary education*, *Completed primary education*, *Lower secondary education*, *Upper secondary education*, *Post secondary education*. Our microsimulation model also uses the same education categories. In order to use the WIC education projections as the education assumptions in our model, at each time step we reassign an education category to each individual so that the education distribution of the simulated population matches the education distribution of the WIC projection (Supplementary Figure 3 and 4).
+
+
+```{r input, fig.cap = "Background changes in education (a), life expectancy (b), access to electricity (c), access to modern cooking fuels (d) and urbanization (e) as input of the microsimulation model. In the case of education, life expectancy, and urbanization, the path for the SSP1_univ scenario is the same as for SSP1_EA, which is why the yellow and green lines overlap in plots a, b, and e (but they were slightly dodged for visibility). On plot (c) and (d), the distinction between rural and urban is not represented but it is taken into account in the model.", message = F, warning = F}
+
+
+
+plot_educ + plot_le + plot_elec + plot_mcf+ plot_urban + 
+  
+    plot_annotation(tag_levels = 'a') +
+  plot_layout(guides = "collect") &
+
+   theme(legend.position="bottom") 
+
+
+```
+
+*Energy access assumptions*
+
+The energy access assumptions we used correspond to future trajectories of the proportion of people having access to electricity and having access to modern cooking fuels. These trajectories are differentiated by rural and urban areas, to account for the important difference in energy access levels and shifts over time between rural and urban areas.
+
+The first two energy access trajectories, used in the scenarios *SSP1_EA* and *SSP2_EA*, are consistent with energy access projection by @poblete-cazenave_global_2021 for the SSP1 and SSP2 pathways for the period from 2020 to 2050. These scenarios were developed for the entire region of sub-Saharan Africa, without any distinction at the individual country level. To apply these scenarios to Zambia, we considered the absolute percentage increase in access to electricity (respectively modern cooking fuels) between 2020 and 2030 in sub-Saharan Africa and applied this to the initial level of electricity (resp. modern cooking fuels) access in Zambia, that we determined from the DHS data of 2018. This way we obtained projected values of energy access for Zambia in 2040 and 2050. To obtain energy access values for 2060 and 2070, we assumed the absolute percentage increase between 2040 and 2050 is perpetuated.
+
+The third and last energy access pathway we constructed is used in the scenario *SSP1_univ*, which normatively assumes universal access to both electricity and modern cooking fuels by 2040 with a linear increase in the proportion of the population having access to both forms of energy. After 2040 and until 2070, energy access remains universal. Although this scenario requires rapid percentage increases in access levels that are higher than the historical trends, in particular in rural areas where access to both forms of energy is currently very low, this normative scenario shows what would happen if the Sustainable Development Goals were achieved by 2040.
+
+We then derived, from these trajectories, the probability for an individual to get access to electricity, and to get access to modern cooking fuels. Although, in reality, a household might use multiple cooking fuels at the same time or revert back to the use of firewood after using mostly modern fuels, in our model the transition can only occur in one direction: from not having access to having access. The formula for the transition probability is as follows:
+
+$$p_{e} = \frac{elec_{t+5} - elec_{t}}{1 - elec_{t}}/ $$
+
+with $p_{e}$ the probability of getting access to electricity, $elec_{t+5}$ the proportion of the population having access to electricity in time step $t+5$ and $1 - elec_{t}$ the proportion of the population not having access to electricity in time step $t$. A similar equation defines the probability of getting access to modern cooking fuels.
+
+<!--The combination of the assumptions for mortality, educational attainment, urbanization and modern energy access constitutes scenarios *SSP1_EA*, *SSP2_EA* and *SSP1_univ*, as shown in Table \@ref(tab:table-scenario).--> 
+
+*Scenario for completely electrifying clean cooking*
+
+In low- to middle-income countries, most households do not use only one type of cooking fuel, but often use multiple fuels, a phenomenon known as fuel stacking [@masera_linear_2000 ; @price_stacked_2021]. This is a way of securing households against shocks (e.g., electricity outages, LPG shortages). This phenomenon is also represented in the data we use to estimate energy consumption (see section \@ref(energyuse)). Households categorized as having access to modern cooking fuels can still have significant charcoal and firewood consumption (Figure \@ref(fig:energy-use), first and third columns), with the associated health and well-being costs.
+
+For this reason, we created an additional scenario we refer to as *SSP1_univ_elec*. This second normative scenario reflects a situation in which, in addition to the entire population getting access to electricity and modern cooking fuels as in *SSP1_univ*, all traditional fuel use is displaced by electricity by 2040, in line with the rapid up-scaling of electric capacity occurring concurrently in the country. To create this scenario, we used the same mortality, education, urbanization and energy access assumptions as in *SSP1_univ*, but we added a new assumption on energy consumption. To do so, we modified the energy consumption data we derived from @baltruszewicz_final_2021 by converting traditional fuels into the equivalent electricity use, applying conversion efficiency factors of the respective fuels. For example, if 10 GJ per capita of charcoal is the estimated energy consumption for a particular population group, and the conversion efficiency of an electric stove is 75% while that of a traditional firewood stove is 12%, we estimated that 10\*12/75 = 1.6 GJ per capita of electricity is needed to replace the charcoal use. We sourced the conversion efficiencies from @dagnachew_scenario_2020 (Table 1 in the original paper) and from the Global Energy Assessment [@gea_global_2012].
+
+We assumed a linear rate of displacement of traditional fuels by electricity for the period from 2020 to 2040. In other words, we assumed that in 2020, 0% of traditional fuels are displaced, 25% is displaced in 2025, 50% in 2030, 75% in 2035 and 100% in 2040. After 2040, we assume that households keep using only electricity for cooking.
+
+
+## Energy consumption calculator {#energyuse}
+
+The MSM estimates, for three scenarios, the population counts at each time step, broken down by education level, electricity and modern cooking fuel access as well as urbanization level. To derive the energy demand of the simulated population at each time step, we multiplied the number of people in any given category by the average per capita energy consumption of this category. We derived the latter from the study of @baltruszewicz_final_2021. The study combines the 2015 Living Condition Measurement Survey (LCMS) for Zambia [@central_statistical_office_of_zambia_world_2015] with a multi-regional input-output model to derive the energy footprint of all households surveyed. Since the household survey contains information about the education level, energy access, location of residence (urban or rural areas), we used this information to calculate the average energy consumption per capita, for households grouped along these variables. 
+
+We carried out two pre-processing steps to estimate the average energy consumption for each population group. First, we re-categorized the variables from the LCMS to match those used in the microsimulation model. The original LCMS contains two variables regarding cooking: the main type of energy used for cooking and the main device used for cooking. We first re-categorized these two variables into two categories - modern and traditional (see Supplementary Table 1 to see the full list of fuels and devices and the re-categorization). Then we assumed that a household uses modern cooking fuels if it uses either a modern fuel or a modern stove. In total, we created four population sub-groups of energy access by combining access to modern cooking fuel (or not) and access to electricity (or not). The second variable that we re-categorized is education. In the LCMS, the education categories are specific to Zambia, so we re-categorized them into *No education*, *Primary education*, *Junior secondary education*, *Senior secondary education* and *Post-secondary education* (see Supplementary Table 2 to see the full list of education levels and the re-categorization). In the data there was only one category for primary education. This is in contrast to the WIC data categorization which has two categories for this level. This resulted in five education groups.
+
+In a second pre-processing step, we combined some categories to increase their sample size. Ideally, considering the distinct average per capita energy consumption for 40 sub-groups, corresponding to the combination of 5 education levels, 2 residence locations and 4 energy access groups would have allowed for capturing more of the population heterogeneity in energy consumption. Unfortunately, splitting the data along all 40 categories resulted in samples sizes that were at times too small and combinations that are not very common (e.g., having access to modern cooking fuels but no access to electricity in rural areas for those with post-secondary education) (Supplementary Figure 1). To ensure an adequate sample size, some categories were merged. The categories *No education* and *Primary education* were combined. Then we grouped together all cases corresponding having at the same time *No access to electricity* and *Access to modern cooking fuels* because these cases are very rare across urban and rural areas and across all education levels. This resulted in only one per capita energy consumption value for this category. The estimates of energy consumption per capita for each category considered are presented in Figure \@ref(fig:energy-use).
+
+
+
+```{r energy-use, fig.cap = "Energy footprints for different combination of categories in the energy-extended LCMS dataset (Baltruszewicz et al.,2021)"}
+
+ef_by_edu_urban_energy_combined  = read_csv(file = here("analysis", "data", "derived_data", "ef_by_edu_urban_energy.csv")) %>% 
+  mutate(name_meta_education = fct_relevel(name_meta_education, "Low educ.", "Junior sec.", "Senior sec.", "Post sec."))
+
+# All fuels together
+ggplot(data = ef_by_edu_urban_energy_combined, aes(x = name_meta_education, y =cap_GJ_average, fill = fuel ))+ 
+  geom_bar(stat = "identity", position = "stack")+ 
+ # geom_errorbar(aes(ymin = cap_GJ_average-0.95*cap_GJ_se, ymax = cap_GJ_average+0.95*cap_GJ_se, color = fuel), width =0.2)+
+  facet_grid(rows = vars(rururb), cols = vars(name_energy))+
+  scale_fill_brewer(name = "Energy carrier", palette ="Set2")+
+  theme_bw()+
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          legend.position = "bottom")+
+  labs(x = "", y = "Final energy (GJ/capita/year)")
+
+```
+
+
+
+## Implementation
+
+The model was implemented in R and follows an Object-Oriented programming style, since microsimulation models operate at the individual level. Each individual in the population is an instance of a class. At each time step and for each individual, the following events were simulated successively through Monte Carlo processes: changing education level, moving to an urban area, getting access to electricity, getting access to modern cooking fuels, death, and reproduction.
+
+```{=html}
+<!--Since the outcome of the life events, and the model highly depends on randomness, we replicate the model for different
+
+"MSM are based on a Monte Carlo process (section 3.3.3). The simulation is therefore
+stochastic, and the model results depend on what random number was drawn
+from the uniform distribution. In order to reduce the uncertainty caused
+by this stochastic process, we used the Monte Carlo method and ran each simulation
+10 times, each time with a dfferent random seed. The results of the dfferent
+runs are averaged and the standard errors appear shaded on result graphs."-->
+```
+## Validation
+
+To validate the microsimulation model, we first verified that the population distribution by education category for the age groups affected by the education transition (from 15 to 30 years old) matched the input data (section \@ref(scenario)). We found that for both scenario SSP1 and SSP2, the model reproduces the educational and age distribution of the WIC projections for the population between 15 and 30 years old, for the entire period from 2020 to 2070 (Supplementary Figure 3 and 4, which shows only the period from 2030 to 2050 for clarity).
+
+Second, we ran a simulation of the microsimulation model in which we replaced the fertility module by the age-specific fertility rate projections from the WIC data. We then compared our population projections for SSP1_EA and SSP2_EA with the population projections for the SSP1 and SSP2 scenarios from WIC. We found that our model reproduced the trajectories derived from the WIC macro model (Supplementary Figure 5). However, there are small differences, especially for SSP1 after 2050. This may be because we did not include migration in our model while the projection from WIC do, or because of unavoidable differences in the implementation of the models, one being a micro-level model and the other a macro-level model. However, the similar trends validate the implementation of the microsimulation model. 
+
+
+
+\newpage
+
+# Results
+
+## Population
+
+```{r}
+
+###########
+# Load all files
+##########
+
+# An experiment can consist of different scenarios (e.g. SSP1, SSP2) and then different iterations using different random seeds to capture the stochastic variability of the model.
+
+#######################
+# Data population 
+
+files_pop = filename_pop = list.files(res_path, 
+                              pattern = paste0("st_population_", 
+                                               experiment, "_"))
+# dataframe with the results from one experiement (different scenarios, different seeds)
+data_pop <- files_pop %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_population = data.frame(filename = files_pop) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_pop = nrow(read_rds(file.path(res_path, files_pop[1])))
+
+
+
+# Add iteration, experiment, sampling fraction to the pop data
+df_data_pop = data.frame(exp = rep(grid_population$exp, each=rows_pop),
+                    scenario = rep(grid_population$scenario, each=rows_pop),
+                    iteration = rep(grid_population$iteration, each=rows_pop),
+                    seed = rep(grid_population$seed, each=rows_pop)) %>% 
+  bind_cols(data_pop) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration),
+         mcf_access = strtoi(mcf_access),
+         elec_access = strtoi(elec_access)) %>% 
+  select(-seed) %>% 
+  # change scenario names 
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA"))
+
+# Determine the Initial size pop and add it to the sim_param parameter
+df_pop_init = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sum(Freq)) %>% 
+  ungroup() %>% 
+  filter(timestep == 1) %>% 
+  select(scenario,population_init = population, iteration) 
+
+#######################
+# Sim parameters 
+
+# load sim_param file
+files_params = filename_params = list.files(res_path, 
+                              pattern = paste0("sim_params_", 
+                                               experiment, "_"))
+data_params <- files_params %>%
+  # read in all the files, appending the path before the filename
+  map(~ readRDS(file.path(res_path, .))) %>% # NB: this should be read_rds in the next round
+  #  map(~ read_csv(file.path(res_path, .))) %>% # NB: this should be read_rds in the next round
+  reduce(rbind) %>%
+  # add column for iteration
+  mutate(iteration = str_split_fixed(run_id, pattern = "_", n = 4)[,3])  %>% 
+  rename(scenario = scenario_name) %>% 
+  mutate(iteration = strtoi(iteration)) %>% 
+    # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  left_join(df_pop_init, by = c("scenario", "iteration")) %>% 
+  # Add sampling fraction 
+  mutate(sampling_fraction = pop_zambia/population_init)
+
+# Add the  sampling fraction to  df_data_pop
+df_data_pop = df_data_pop %>% 
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+#######################
+# Data births
+
+files_births = filename_births = list.files(res_path, 
+                              pattern = paste0("st_birth_", 
+                                               experiment, "_"))
+data_births <- files_births %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_births = data.frame(filename = files_births) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_births = nrow(read_rds(file.path(res_path, files_births[1])))
+
+# Add iteration, experiment, sampling fraction to the birth data
+df_data_births = data.frame(exp = rep(grid_births$exp, each=rows_births),
+                    scenario = rep(grid_births$scenario, each=rows_births),
+                    iteration = rep(grid_births$iteration, each=rows_births),
+                    seed = rep(grid_births$seed, each=rows_births)) %>% 
+  bind_cols(data_births) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration)) %>% 
+  select(-seed) %>% 
+    # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  # Add the sampling fraction
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+#######################
+# Data deaths
+
+files_deaths = filename_deaths = list.files(res_path, 
+                              pattern = paste0("st_death_", 
+                                               experiment, "_"))
+data_deaths <- files_deaths %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_deaths = data.frame(filename = files_deaths) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_births = nrow(read_rds(file.path(res_path, files_deaths[1])))
+
+# Add iteration, experiment, sampling fraction to the death data
+df_data_deaths = data.frame(exp = rep(grid_deaths$exp, each=rows_births),
+                    scenario = rep(grid_deaths$scenario, each=rows_births),
+                    iteration = rep(grid_deaths$iteration, each=rows_births),
+                    seed = rep(grid_deaths$seed, each=rows_births)) %>% 
+  bind_cols(data_deaths) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration)) %>% 
+  select(-seed) %>% 
+      # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  # Add the sampling fraction
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+```
+
+```{r}
+
+# Different ways to represent the different iteration
+# opt 1: with different lines without distinction 
+# opt 2: with smooth 
+# opt 3: with geom_ribbon. here you need to calculate the min and max and explicitly give it to aes 
+
+color_pal = c("#440154FF", "#20A387FF", "#FDE725FF","#31688e")
+###################
+## Population 
+
+# Data frame with population size
+df_pop = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup() %>% unique() %>% 
+  mutate(scenario_name = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA",
+                                        "SSP1_univ"))
+
+#######
+# Plots
+#######
+
+# Pop plot with simple lines to represent iterations
+# plot_pop_lines = df_pop %>% 
+#   ggplot(aes(x=(timestep-1)*5+2015, y= population)) +
+#   geom_line(aes(color=scenario, group=interaction(scenario,iteration)), alpha=0.5) +
+#   scale_color_viridis_d(name = "Scenario") +
+#   scale_fill_viridis_d(guide = "none") +
+#   theme_minimal()+ 
+#   labs(x = "", y = "Population")
+
+
+plot_pop_smooth = 
+  ggplot()+
+  geom_smooth(data = df_pop, aes(x=(timestep-1)*5+2020, y = population, 
+                                 color = scenario_name, fill = scenario_name),
+              method = "loess", se=T, size = 0.5) +
+  scale_color_manual(name = "Scenario", values = color_pal) +
+  scale_fill_manual(guide = "none", values = color_pal) +
+  theme_minimal()+ 
+    theme(axis.text.x = element_text(angle = 45))+
+  labs(x = "", y = "Population")
+
+## Metrics for the text 
+mean_pop_2070 = df_pop %>% filter(timestep == 11) %>% group_by(scenario) %>%
+  summarize(mean_pop = mean(population)) %>% ungroup()
+
+pop_2070_SSP1 = mean_pop_2070 %>% deframe() %>% getElement("SSP1_EA") %>% round()
+pop_2070_SSP1_mil = round(pop_2070_SSP1/1e6,1) # in million
+pop_2070_SSP2 = mean_pop_2070 %>% deframe() %>% getElement("SSP2_EA") %>% round()
+pop_2070_SSP2_mil = round(pop_2070_SSP2/1e6,1) # in million
+pop_2070_univ = mean_pop_2070 %>% deframe() %>% getElement("SSP1_univ") %>% round()
+pop_2070_univ_mil = round(pop_2070_univ/1e6,1) # in million
+
+p_diff_pop_SSP1_univ = percentage_difference(pop_2070_SSP1, pop_2070_univ) %>% round()
+p_diff_pop_SSP2_univ = percentage_difference(pop_2070_SSP2, pop_2070_univ) %>% round()
+
+# Metrics for 2050 (for the discussion)
+
+mean_pop_2050 = df_pop %>% filter(timestep == 7) %>% group_by(scenario) %>%
+  summarize(mean_pop = mean(population)) %>% ungroup()
+
+pop_2050_univ = mean_pop_2050 %>% deframe() %>% getElement("SSP1_univ") %>% round()
+pop_2050_univ_mil = round(pop_2050_univ/1e6,1) # in million
+
+```
+
+```{r}
+#############
+# Population growth
+
+df_pop_growth = df_pop %>% 
+  group_by(scenario, iteration) %>% 
+  mutate(population_lag = lag(population,1)) %>% 
+  mutate(pop_growth = 100*(population-population_lag)/(population_lag*5)) # to get annual growth rate divide by 5
+
+# From WC projections
+df_pop_growth_wc = read.csv(here("analysis", "data", "raw_data", "wcde_data_pop_growth_zambia.csv"), skip = 8) %>% 
+  clean_names() %>% 
+ mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1 - IIASA", 
+                              scenario == "SSP2" ~ "SSP2 - IIASA"))  %>% 
+ # select( period, population , scenario_name = scenario) %>% 
+  mutate(year_min = str_sub(period, start = 1, end = 4), 
+         year_max = str_sub(period, start = 6, end = 10)) %>% 
+  mutate(year_max = as.numeric(year_max), 
+         year_min = as.numeric(year_min), 
+         rate = rate/5) # to get annual rates
+
+
+mean_pop_growth_2070 = df_pop_growth %>% filter(timestep == 11) %>% group_by(scenario) %>%
+  summarize(mean_pop = mean(pop_growth)) %>% ungroup() 
+
+pop_growth_2020_all =  df_pop_growth %>% filter(timestep == 2) %>% group_by(scenario) %>%
+  summarize(mean_pop = mean(pop_growth)) %>% ungroup() 
+
+
+pop_growth_2070_SSP1 = mean_pop_growth_2070 %>% deframe() %>% getElement("SSP1_EA") %>% round(2)
+pop_growth_2070_SSP2 = mean_pop_growth_2070 %>% deframe() %>% getElement("SSP2_EA") %>% round(2)
+pop_growth_2070_univ = mean_pop_growth_2070 %>% deframe() %>% getElement("SSP1_univ") %>% round(2)
+
+pop_growth_2070_wic_ssp1 = df_pop_growth_wc %>% filter(year_min == 2070, scenario == "SSP1 - IIASA") %>% select(rate) %>% 
+  pull()
+
+plot_pop_growth_smooth = 
+  ggplot()+
+  geom_smooth(data = df_pop_growth, aes(x=(timestep-1)*5+2020, y = pop_growth, 
+                                 color = scenario_name, fill = scenario_name),
+              method = "loess", se=T, size = 0.5) +
+#  geom_line(data = df_pop_growth_wc %>% filter(scenario == "SSP1 - IIASA") %>% filter(year_min > 2020),aes(x = year_min, y = rate), color = "red")+
+  scale_color_manual(name = "Scenario", values = color_pal) +
+  scale_fill_manual(guide = "none", values = color_pal) +
+  theme_minimal()+ 
+    theme(axis.text.x = element_text(angle = 45))+
+  labs(x = "", y = " Annual population growth (%)")
+
+
+
+```
+
+```{r}
+
+##########
+# TFR
+##########
+
+# data frame with number of births. In this df the sex is the sex of the child. age group is age group of the mother. 
+# NB: now the age group 3 (10-14) has recorded births because the stat_births records get_age_group(agt) while the condition is on ts_age_group
+df_births = df_data_births %>% 
+  group_by(scenario, iteration,age_group,  timestep) %>% 
+  summarise(births = sampling_fraction*sum(Freq)) %>% 
+  ungroup() %>% 
+  unique()
+
+
+# Number of women in each fertile age cat 
+df_pop_age_women = df_data_pop %>% 
+ group_by(scenario, age_group, iteration, sex, timestep) %>% 
+  summarise(female_pop = sampling_fraction * sum(Freq)) %>% 
+  ungroup() %>% 
+  unique() %>% 
+  filter(sex == 2, age_group %in% 4:10) %>% 
+  select(-sex)
+
+# Number of births in each fertile age cat
+df_births_age = df_births %>% 
+  filter(age_group %in% 4:10)
+
+df_asfr = df_pop_age_women %>% 
+  left_join(df_births_age, by = c("scenario", "age_group", "iteration", "timestep")) %>% 
+  mutate(asfr = births/female_pop)
+
+df_tfr = df_asfr %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarize(tfr = sum(asfr)) %>% 
+  ungroup() %>% 
+    mutate(year =(timestep-1)*5+2015) %>% 
+  mutate(scenario_name = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA",
+                                        "SSP1_univ"))
+
+
+
+
+# TFR plot with ribbons 
+
+dat_ribbon_tfr = df_tfr %>% pivot_wider(names_from = iteration, values_from = tfr, names_prefix = "tfr_") %>% 
+  rowwise() %>% 
+  mutate(tfr_min = min(c(tfr_1, tfr_2, tfr_3)), 
+         tfr_max = max(tfr_1, tfr_2, tfr_3), 
+         tfr_mean = mean(c(tfr_1, tfr_2, tfr_3)))
+
+
+# TFR plot with geom smooth 
+
+plot_tfr_smooth = 
+  ggplot()+
+  geom_smooth(data = df_tfr, aes(x=(timestep-1)*5+2020, y = tfr, 
+                                 color = scenario_name, fill = scenario_name),
+              method = "loess", se=T, size = 0.5) +
+  scale_color_manual(name = "Scenario", values = color_pal) +
+  scale_fill_manual(guide = "none",  values = color_pal) +
+
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(x = "", y = "Total Fertility Rate")
+
+# For the text 
+
+mean_ferti_2070 = df_tfr %>% filter(timestep == 11) %>% group_by(scenario) %>%
+  summarize(mean_tfr = mean(tfr)) %>% ungroup()
+
+ferti_2070_SSP1_EA = mean_ferti_2070 %>% deframe() %>% getElement("SSP1_EA") %>% round()
+
+ferti_2070_SSP2_EA = mean_ferti_2070 %>% deframe() %>% getElement("SSP2_EA") %>% round()
+
+ferti_2070_SSP1_univ = mean_ferti_2070 %>% deframe() %>% getElement("SSP1_univ") %>% round()
+
+
+mean_ferti_2040 =  df_tfr %>% filter(timestep == 5) %>% group_by(scenario) %>%
+  summarize(mean_tfr = mean(tfr)) %>% ungroup()
+
+ferti_2040_SSP1_univ = mean_ferti_2070 %>% deframe() %>% getElement("SSP1_univ") %>% round()
+
+
+```
+
+<!--The size of the population in 2070 is `r p_diff_pop_SSP2_univ`% lower in the *SSP1_univ* scenario than in the baseline scenario (*SSP2_EA*) and `r p_diff_pop_SSP1_univ`% lower than in the *SSP1_EA* scenario. -->
+
+We estimate that the population of Zambia in 2070 ranges from `r pop_2070_univ_mil` to `r pop_2070_SSP2_mil` to million, depending on the scenario. In scenarios where the entire population gains access to modern energy and secondary education by 2040 (*SSP1_univ*), we estimate that the population in 2070 is `r p_diff_pop_SSP2_univ`% lower than in the baseline scenario (*SSP2_EA*) and `r p_diff_pop_SSP1_univ`% lower than in the scenario where the entire population attains secondary education but access to modern energy remains limited (*SSP1_EA*) (Figure \@ref(fig:population), panel a). This is consistent with the reduction in fertility (\@ref(fig:population), panel c), which drops to `r ferti_2070_SSP1_univ` in 2070 in the *SSP1_univ* scenario, but only to `r ferti_2070_SSP2_EA` in the *SSP2_EA* scenario. In other words, achieving universal access to modern energy reduces the population substantially compared to a more moderate expansion of energy access (*SSP1_EA*), holding all other modeling parameters (education and urbanization) constant.
+
+
+
+We estimate that the population of Zambia in 2070 ranges from `r pop_2070_univ_mil` to `r pop_2070_SSP2_mil` to million, depending on the scenario. In scenarios where the entire population gains access to modern energy and secondary education by 2040 (*SSP1_univ*), we estimate that the population in 2070 is `r p_diff_pop_SSP2_univ`% lower than in the baseline scenario (*SSP2_EA*) and `r p_diff_pop_SSP1_univ`% lower than in the scenario where the entire population attains secondary education but access to modern energy remains limited (*SSP1_EA*) (Figure \@ref(fig:population), panel a). In other words, achieving universal access to modern energy reduces the population substantially compared to a more moderate expansion of energy access (*SSP1_EA*), holding all other modeling parameters (education and urbanization) constant.
+
+
+The difference in population size is explained by the difference in fertility rates between the three scenarios (Figure \@ref(fig:population), panel b)). In the *SSP1_univ* scenario, the total fertility rate declines almost exponentially until 2040 to reach `r ferti_2040_SSP1_univ`. This corresponds to the rapid achievement of universal access to modern energy by 2040 and universal secondary education by 2030 (Figure \@ref(input)). The decline in fertility then slows and the TFR falls to `r ferti_2070_SSP1_univ` in 2070. The decline in the TFR is less dramatic for *SSP1_EA* and *SSP2_EA*. The TFR drops to `r ferti_2070_SSP2_EA` in the *SSP2_EA* scenario and to `r ferti_2070_SSP1_EA` in *SSP1_EA*, corresponding to the replacement rate. 
+
+The population growth rate declines in all scenarios, from about 3% in 2025 to `r pop_growth_2070_SSP2`% in 2070 under *SSP2_EA* and to `r pop_growth_2070_SSP1`% under *SSP1_EA* (Figure \@ref(fig:population), panel c). The population growth rate declines to `r pop_growth_2070_univ`% in 2070 under *SSP1_univ*, which is similar to the value projected by WIC under SSP1 (`r pop_growth_2070_wic_ssp1`%).
+
+<!--Question: bring up SSP1 from Lutz or not, in the text (not graph)?-->
+
+```{r population, fig.dim=c(8,4),out.width = "100%", fig.cap = "Evolution of the population size (a), total fertility rates (c)  and annual population growth (c) in three scenarios."}
+
+plot_pop_smooth+ plot_tfr_smooth + plot_pop_growth_smooth + 
+  plot_annotation(tag_levels = 'a') +
+   plot_layout(guides = "collect") &
+   theme(legend.position="bottom") 
+
+```
+
+## Energy demand
+
+```{r}
+############
+# Dataframe with population by education metagroup, energy access and rururb
+
+df_pop_educ_rurub_energy = df_data_pop %>% 
+  filter(!(edu_group == 7)) %>% 
+  # create column energy that summarizes energy access
+  mutate(energy = case_when(elec_access == 1 & mcf_access == 1 ~ "elec1_CC1", 
+                            elec_access == 1 & mcf_access == 0 ~ "elec1_CC0", 
+                            elec_access == 0 & mcf_access == 1 ~ "elec0_CC1", 
+                            elec_access == 0 & mcf_access == 0 ~ "elec0_CC0")) %>% 
+  # meta_education to match the categorization in the energy footprint data
+  mutate(meta_education = case_when(edu_group %in% 1:3 ~ "low_education", 
+                                    edu_group == 4 ~ "junior_secondary",
+                                    edu_group == 5 ~ "senior_secondary",  
+                                    edu_group == 6 ~ "post_secondary")) %>% 
+  group_by(iteration,timestep, scenario,urban, energy,meta_education) %>%
+  summarize(pop_educ_rururb_energy = sampling_fraction * sum(Freq)) %>% 
+  ungroup() %>% unique() 
+
+##########
+# Energy use per capita by education metagroup, energy access and rururb calculated from Marta's data
+ef_by_edu_urban_energy = read.csv(file = here("analysis", "data", "derived_data", "ef_by_edu_urban_energy.csv")) %>% 
+    mutate(urban = ifelse(rururb == "Urban",1,0 )) 
+
+ef_pc = ef_by_edu_urban_energy %>% 
+  group_by(meta_education, rururb, energy) %>% 
+  summarize(sum = sum(cap_GJ_average)) %>% 
+  ungroup()
+
+# average consumption per capita (in GJ) in Zambia, in marta's data 
+# mean(ef_pc$sum) # 11 GJ per capita per year 
+
+# Merge the two dataframe to obtain energy demand in education metagroup, energy access and rururb group, by fuel
+energy_demand_educ_rurub_energy = df_pop_educ_rurub_energy %>% 
+  left_join(ef_by_edu_urban_energy %>% select(fuel, cap_GJ_average, cap_GJ_se, cap_GJ_sd, urban,energy, meta_education),
+            by = c("meta_education", "urban", "energy")) %>% 
+  mutate(energy_demand_by_edu_energy_rururb_fuel = pop_educ_rururb_energy*cap_GJ_average) %>% 
+  mutate(fuel_name = case_when(fuel == "firewood"~"Firewood", 
+                               fuel == "gas" ~ "Gas", 
+                               fuel == "coal" ~"Coal", 
+                                fuel == "charcoal" ~ "Charcoal",
+                                fuel == "diesel_home" ~ "Diesel",
+                                fuel == "electricity" ~ "Electricity",
+                                fuel == "paraffin" ~ "Paraffin",
+                                fuel == "kerosene" ~ "Kerosene")) %>% 
+  mutate(urban_name = ifelse(urban == 0, "Rural", "Urban")) %>% 
+  mutate(fuel_type = case_when(fuel_name == "Firewood"~"Traditional", 
+                               fuel_name == "Gas" ~ "Modern", 
+                               fuel_name == "Coal" ~"Traditional", 
+                                fuel_name == "Charcoal" ~ "Traditional",
+                                fuel_name == "Diesel" ~ "Modern",
+                                fuel_name == "Electricity" ~ "Modern",
+                                fuel_name == "Paraffin" ~ "Traditional",
+                                fuel_name == "Kerosene" ~ "Traditional"))
+
+#####
+# Energy consumption in the SSP1_univ_elec scenario, i.e. 
+# scenario with universal modern energy access with electricity for cooking displacement
+
+# Load ef with progressive displace of dirty fuels by electricity
+ef_by_edu_urban_energy_by_year = read.csv(file = here("analysis", "data", "derived_data", "ef_by_edu_urban_energy_by_year.csv")) %>% 
+    mutate(urban = ifelse(rururb == "Urban",1,0 )) 
+
+# Merge the two dataframe to obtain energy demand in education metagroup, energy access and rururb group, by fuel
+# for the univ-elec scenario
+energy_demand_educ_rurub_energy_univ_elec = df_pop_educ_rurub_energy %>% 
+  filter(scenario == "SSP1_univ") %>% 
+  mutate(scenario = "SSP1_univ_elec") %>% 
+  mutate(year = (timestep-1)*5+2020) %>% 
+  left_join(ef_by_edu_urban_energy_by_year %>% select(fuel, cap_GJ_average,  urban,energy, meta_education, year),
+            by = c("meta_education", "urban", "energy", "year")) %>% 
+  mutate(energy_demand_by_edu_energy_rururb_fuel = pop_educ_rururb_energy*cap_GJ_average) %>% 
+  mutate(fuel_name = case_when(fuel == "firewood"~"Firewood", 
+                               fuel == "gas" ~ "Gas", 
+                               fuel == "coal" ~"Coal", 
+                                fuel == "charcoal" ~ "Charcoal",
+                                fuel == "diesel_home" ~ "Diesel",
+                                fuel == "electricity" ~ "Electricity",
+                                fuel == "paraffin" ~ "Paraffin",
+                                fuel == "kerosene" ~ "Kerosene")) %>% 
+  mutate(urban_name = ifelse(urban == 0, "Rural", "Urban")) %>% 
+  mutate(fuel_type = case_when(fuel_name == "Firewood"~"Traditional", 
+                               fuel_name == "Gas" ~ "Modern", 
+                               fuel_name == "Coal" ~"Traditional", 
+                                fuel_name == "Charcoal" ~ "Traditional",
+                                fuel_name == "Diesel" ~ "Modern",
+                                fuel_name == "Electricity" ~ "Modern",
+                                fuel_name == "Paraffin" ~ "Traditional",
+                                fuel_name == "Kerosene" ~ "Traditional"))
+
+
+# Merge the two dataframes
+energy_demand_educ_rurub_energy_all = energy_demand_educ_rurub_energy %>%  
+    mutate(year = (timestep-1)*5+2020) %>% 
+  bind_rows(energy_demand_educ_rurub_energy_univ_elec)
+
+
+#####################
+# Aggregate all education group, all energy access and rurub by tradi/modern fuel type
+# to obtain TRADI energy demand and MODERN energy demand for the 4 scenarios. In PJ
+
+df_energy_demand_tradi_modern_all = energy_demand_educ_rurub_energy_all %>% 
+  group_by(iteration, timestep, scenario, fuel_type) %>% 
+  summarize(energy_demand = sum(energy_demand_by_edu_energy_rururb_fuel)/1e6) %>% # in PJ
+  ungroup() %>% 
+  mutate(scenario_name = forcats::fct_relevel(scenario,
+                                          "SSP2_EA",
+                                          "SSP1_EA",
+                                        "SSP1_univ", "SSP1_univ_elec")) %>%
+  group_by(timestep, scenario_name, fuel_type) %>% 
+  # average over iterations
+  summarize(energy_demand_mean = mean(energy_demand)) %>% ungroup()
+
+##########################
+## Energy demand, all fuels together, all categories together, in PJ
+# by scenario and timestep
+
+df_energy_demand_pre = energy_demand_educ_rurub_energy_all %>% 
+  group_by(iteration, timestep, scenario) %>% 
+  summarize(energy_demand_total = sum(energy_demand_by_edu_energy_rururb_fuel)/1e6) %>% # in PJ
+  ungroup() %>% 
+  mutate(scenario_name = forcats::fct_relevel(scenario,
+                                          "SSP2_EA",
+                                          "SSP1_EA",
+                                        "SSP1_univ", "SSP1_univ_elec"))
+
+df_energy_demand = df_energy_demand_pre %>%
+  group_by(timestep, scenario_name) %>% 
+  # average over iterations
+  summarize(energy_demand_total_mean = mean(energy_demand_total)) %>% ungroup()
+
+
+###########################
+## Electricity demand, all categories together, in PJ
+# by scenario and timestep
+
+elec_demand_all = energy_demand_educ_rurub_energy_all %>% 
+  filter(fuel == "electricity") %>% 
+   mutate(scenario_name = forcats::fct_relevel(scenario,
+                                          "SSP2_EA",
+                                          "SSP1_EA",
+                                        "SSP1_univ", "SSP1_univ_elec")) %>% 
+  group_by(iteration, timestep, scenario_name) %>% 
+  summarize(elec_demand = sum(energy_demand_by_edu_energy_rururb_fuel)/1e6) %>% # in PJ
+  ungroup() %>% 
+  group_by( timestep, scenario_name) %>% 
+  # average over iterations
+  summarize(elec_demand_mean = mean(elec_demand)) %>% ungroup()
+
+
+
+```
+
+```{r}
+
+pal_tradi_modern = c( "paleturquoise3", "orange4")
+
+plot_total_energy_demand_tradi_modern = 
+  ggplot(data = df_energy_demand_tradi_modern_all, 
+         aes(x=(timestep-1)*5+2020, y= energy_demand_mean,color = fuel_type, fill = fuel_type))+ 
+  geom_area(alpha = 0.8)+
+  facet_wrap(~scenario_name)+
+  scale_color_manual(guide = "none", values = pal_tradi_modern) +
+  scale_fill_manual(name = "Fuel type", values = pal_tradi_modern) +
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(x = "Year", y = "Total energy demand (PJ)")
+
+```
+
+```{r}
+########
+# Metrics for the text of total energy demand (tradi and modern fuels together)
+########
+
+
+# Get metrics for stylized fact - in PJ
+energy_SSP1_2070 = df_energy_demand  %>% filter(timestep == 11, scenario_name == "SSP1_EA") %>% pull() %>% round()
+
+energy_SSP2_2070 =  df_energy_demand  %>% filter(timestep == 11, scenario_name == "SSP2_EA") %>% pull() %>% round()
+
+energy_universal_2070 = df_energy_demand  %>% filter(timestep == 11, scenario_name == "SSP1_univ") %>% pull()%>% round()
+
+energy_universal_elec_2070 =  df_energy_demand  %>% filter(timestep == 11, scenario_name == "SSP1_univ_elec") %>% pull() %>% round()
+
+# Percentage diff between SSP2 and Universal in 2070
+p_diff_energy_SSP2_univ_2070 =
+  percentage_difference(energy_SSP2_2070,energy_universal_2070) %>% 
+  round() # 29%
+
+# Percentage diff between SSP1 and Universal in 2070
+p_diff_energy_SSP1_univ_2070 = 
+  percentage_difference(energy_SSP1_2070, energy_universal_2070) %>%
+  round() # 11%
+
+# Percentage diff between SSP1 and Universal_elec in 2070
+p_diff_energy_SSP1_univ_elec_2070 =
+  percentage_difference(energy_SSP1_2070, energy_universal_elec_2070) %>% 
+  round() # 68%
+
+# Percentage diff between SSP2 and Universal_elec in 2070
+p_diff_energy_SSP2_univ_elec_2070 =
+  percentage_difference(energy_SSP2_2070, energy_universal_elec_2070) %>% 
+  round() # 84%
+
+
+#####
+# Share tradi/modern 
+
+df_share_tradi_modern = df_energy_demand_tradi_modern_all %>% 
+  pivot_wider(names_from = "fuel_type", values_from = "energy_demand_mean", names_prefix = "energy_demand_") %>% 
+  janitor::clean_names() %>% 
+  mutate(total_energy_demand = energy_demand_modern +  energy_demand_traditional) %>% 
+  mutate(share_tradi = 100*energy_demand_traditional/total_energy_demand)
+
+share_tradi_ssp1_2070 = df_share_tradi_modern %>% filter(timestep == 11, scenario_name == "SSP1_EA") %>% pull() %>% round() #66%
+share_tradi_ssp2_2070 = df_share_tradi_modern %>% filter(timestep == 11, scenario_name == "SSP2_EA") %>% pull() %>% round() #82%
+share_tradi_univ_2070 = df_share_tradi_modern %>% filter(timestep == 11, scenario_name == "SSP1_univ") %>% pull() %>% round() # 59
+
+
+#####
+# Electricity demand - metrics 
+
+# Absolute values  - in PJ
+
+elec_SSP1_2070 = elec_demand_all  %>% filter(timestep == 11, scenario_name == "SSP1_EA") %>% pull() %>% round()
+
+elec_SSP2_2070 = elec_demand_all %>% filter(timestep == 11, scenario_name == "SSP2_EA") %>% pull() %>% round()  
+
+elec_universal_2070 = elec_demand_all %>% filter(timestep == 11, scenario_name == "SSP1_univ") %>% pull() %>% round()  
+
+elec_universal_elec_2070 = elec_demand_all  %>% filter(timestep == 11, scenario_name == "SSP1_univ_elec") %>% pull() %>% round()  
+
+# Rate of increase in electricity consumption
+
+# rate of increase for all scenario between 2020 and 2070
+
+increase_energy  = 
+  df_energy_demand %>% filter(timestep %in% c(1,5)) %>% 
+  group_by(scenario_name) %>% mutate(lag_energy_demand_total_mean = lag(energy_demand_total_mean,1)) %>% 
+  mutate(p_increase = percentage_change(lag_energy_demand_total_mean, 
+                                        energy_demand_total_mean), 
+         increase =energy_demand_total_mean/lag_energy_demand_total_mean, 
+         decrease = lag_energy_demand_total_mean/energy_demand_total_mean)
+
+
+# increase_elec_2020_2040_ssp2 : 2
+# increase_elec_2020_2040_ssp1 : 3
+# increase_elec_2020_2040_univ : 7
+# increase_elec_2020_2040_univ_elec: 10
+
+########################
+## Rate of increase in elec consumption 
+
+
+increase_elec_2040 = elec_demand_all %>% filter(timestep %in% c(1,5)) %>% 
+  group_by(scenario_name) %>% mutate(lag_elec_demand_mean = lag(elec_demand_mean,1)) %>% 
+  mutate(p_increase = percentage_change(lag_elec_demand_mean, 
+                                        elec_demand_mean), 
+         increase = elec_demand_mean/lag_elec_demand_mean)
+# then compare with IEA africa energyoutlook. 
+
+# increase_elec_2020_2040_ssp1 : XX
+# increase_elec_2020_2040_ssp1 : almost 3-fold 
+# increase_elec_2020_2040_ssp1 : XX
+# increase_elec_2020_2040_univ_elec: 10-fold
+
+increase_elec_2070 = elec_demand_all %>% filter(timestep %in% c(1,11)) %>% 
+  group_by(scenario_name) %>% mutate(lag_elec_demand_mean = lag(elec_demand_mean,1)) %>% 
+  mutate(p_increase = percentage_change(lag_elec_demand_mean, 
+                                        elec_demand_mean), 
+         increase = elec_demand_mean/lag_elec_demand_mean)
+
+# increase_elec_2020_2070_ssp1 : 12 
+# increase_elec_2020_2070_ssp2 : 8
+# increase_elec_2020_2070_unív : 13
+# increase_elec_2020_2070_univ_elec: 17
+
+```
+
+We estimate that the total household final energy demand of the Zambian population in 2070 ranges from  to `r energy_universal_elec_2070` to `r energy_SSP2_2070` PJ. Under the *SSP1_univ* scenario, energy demand is estimated to be `r p_diff_energy_SSP2_univ_2070`% lower than under the *SSP2_EA* and `r p_diff_energy_SSP1_univ_2070`% lower than under the *SSP1_EA*. The energy demand reduction is dramatic in the *SSP1_univ_elec* scenario, with demand being `r p_diff_energy_SSP2_univ_elec_2070`% and `r p_diff_energy_SSP1_univ_elec_2070`% lower than under the *SSP2_EA* and *SSP1_EA* scenarios, respectively.
+
+In contrast to total energy demand, electricity demand is estimated to increase in all scenarios. In the baseline scenario, electricity demand in 2070 is estimated to be 8-fold higher than in 2020, reaching `r elec_SSP2_2070` PJ. Under both *SSP1_EA* and *SSP1_univ*, demand in 2070 is about 12-fold higher than in 2020, and it is 17 times higher in the *SSP1_univ_elec* scenario, reaching `r elec_universal_elec_2070` PJ (Figure \@ref(fig:elec)). This implies the need for a significant development of the country's installed power generation capacity.
+
+The increase in electricity demand in our model is consistent with model results from the International Energy Agency's Africa Energy Outlook 2019. They projected electricity demand in sub-Saharan Africa (excluding South Africa) to 2040 under a "Stated Policy" scenario, which simulates a situation in which all current energy policies are implemented, and an "Africa Case" scenario, which reflects a situation with more ambitious goals for sustainability and economic development. They estimate that electricity demand would increase by a factor of 4 compared to 2018 levels under their Stated Policy scenario, and by a factor of 8 under their Africa Case scenario. These magnitudes are similar to our estimates. By 2040, we estimate that electricity demand could be as little as twice the 2020 level or as much as 10 times the 2020 level, depending on the scenario considered (Figure \@ref(fig:elec)).
+
+The share of traditional energy in the energy demand also varies strongly in the different scenarios, and in 2070 it ranges from `r share_tradi_ssp2_2070`% to `r share_tradi_univ_2070` %. In the *SSP2_EA* scenario, in 2070 `r share_tradi_ssp2_2070`% of the energy demand is traditional energy, the majority of it being firewood and charcoal. In the *SSP1_EA* scenario, `r share_tradi_ssp1_2070`% comes from traditional energy, and only `r share_tradi_univ_2070`% in the *SSP1_univ* scenario. It can be surprising that in this scenario, still more than half of the energy demand comes from traditional energy. This is explained by the fact that households use multiple fuels, and even when they get access to one source of modern energy, they continue to use some traditional energy on the side (Figure \@ref(fig:energy-use)). When all cooking facilities are replaced by electricity (*SSP1_univ_elec*), all the energy demand is comprised of modern energy from 2040 onward. The share of traditional energy in total household energy demand experiences a small drop around 2035 under *SSP1_univ* and around 2055 under *SSP1_EA*. This coincides with the timing when universal access to modern cooking fuels is achieved, which happens in 2040 under *SSP1_univ*, and in 2055 under *SSP1_EA* (Figure \@ref(fig:input)).
+
+```{r, fig.cap = "Traditional and modern energy demand in the four scenarios. Traditional energy includes firewood, charcoal, coal, kerosene and paraffin. Modern energy includes electricity, gas, LPG, diesel."}
+
+plot_total_energy_demand_tradi_modern
+```
+
+```{r elec, fig.cap = "Electricity demand demand in the four scenarios."}
+elec_demand_all %>% 
+  ggplot()+
+  geom_smooth(aes(x=(timestep-1)*5+2020, y = elec_demand_mean, 
+                                 color = scenario_name, fill = scenario_name),
+              method = "loess", se=T, size = 0.5) +
+  scale_color_manual(name = "Scenario", values = color_pal) +
+  scale_fill_manual(guide = "none", values = color_pal) +
+  theme_minimal()+ 
+  labs(x = "", y = "Electricity demand (PJ)")
+
+
+```
+
+## Decomposing energy demand change by population composition and size effects
+
+```{r}
+
+# Population in the SSP1_EA scenario 
+df_pop_ssp1 = df_pop %>% filter(scenario %in% c("SSP1_EA")) %>%  select(-scenario)
+
+# Distribution of the population by group in the SSP1_univ scenario 
+df_pop_distrib_by_group_univ = df_pop_educ_rurub_energy %>% 
+  filter(scenario == "SSP1_univ") %>%  select(-scenario) %>% 
+  rename(pop_educ_rururb_energy_univ = pop_educ_rururb_energy) %>% 
+  left_join(df_pop %>% filter(scenario %in% c("SSP1_univ")) %>% select(-scenario), 
+            by = c("iteration", "timestep")) %>% 
+  mutate(distrib = pop_educ_rururb_energy_univ/population)
+
+# check that it sums to 1 
+tmp = df_pop_distrib_by_group_univ %>% 
+  group_by( timestep, iteration) %>%
+  summarize(sum = sum(distrib)) # OK 
+
+# Add the population in SSP1_EA and calculate the size of pop in each group in the hypothetical scenario 
+df_pop_hypo = df_pop_distrib_by_group_univ %>% 
+  left_join(df_pop_ssp1 %>% rename(population_ssp1 = population), by = c("iteration", "timestep")) %>% 
+  mutate(pop_educ_rururb_energy_hypo = distrib * population_ssp1)
+
+df_energy_demand_hypo_by_fuel = df_pop_hypo %>% 
+ left_join(ef_by_edu_urban_energy %>% select(fuel, cap_GJ_average, cap_GJ_se, cap_GJ_sd, urban,energy, meta_education),
+            by = c("meta_education", "urban", "energy")) %>% 
+  mutate(energy_demand_by_edu_energy_rururb_fuel_hypo = pop_educ_rururb_energy_hypo*cap_GJ_average) %>% 
+  mutate(fuel_name = case_when(fuel == "firewood"~"Firewood", 
+                               fuel == "gas" ~ "Gas", 
+                               fuel == "coal" ~"Coal", 
+                                fuel == "charcoal" ~ "Charcoal",
+                                fuel == "diesel_home" ~ "Diesel",
+                                fuel == "electricity" ~ "Electricity",
+                                fuel == "paraffin" ~ "Paraffin",
+                                fuel == "kerosene" ~ "Kerosene")) %>% 
+  mutate(urban_name = ifelse(urban == 0, "Rural", "Urban")) %>% 
+  mutate(fuel_type = case_when(fuel_name == "Firewood"~"Traditional", 
+                               fuel_name == "Gas" ~ "Modern", 
+                               fuel_name == "Coal" ~"Traditional", 
+                                fuel_name == "Charcoal" ~ "Traditional",
+                                fuel_name == "Diesel" ~ "Modern",
+                                fuel_name == "Electricity" ~ "Modern",
+                                fuel_name == "Paraffin" ~ "Modern",
+                                fuel_name == "Kerosene" ~ "Traditional"))
+
+# Aggregate all fuels, meta edu group, energy access groups and urban rural together
+df_energy_demand_hypo = df_energy_demand_hypo_by_fuel %>% 
+  group_by(iteration, timestep) %>% 
+  summarize(energy_demand = sum(energy_demand_by_edu_energy_rururb_fuel_hypo)/1e6) %>% # in TJ
+  ungroup() %>% 
+  mutate(scenario = "Hypothetical")
+
+# Merge with the other energy demand to prepare the plot
+df_energy_demand_all = df_energy_demand_pre %>%
+  select(-scenario) %>% rename(scenario = scenario_name, energy_demand = energy_demand_total) %>% 
+  bind_rows(df_energy_demand_hypo) %>% na.omit() %>% 
+  group_by(timestep, scenario) %>% 
+  summarize(energy_demand = mean(energy_demand) ) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = scenario, values_from = energy_demand, names_prefix = "energy_demand_") 
+
+#write.csv(df_energy_demand_all, here("pdat_figure4_pop_contrib.csv"), row.names = F)
+
+color_pal = c("#440154FF", "#20A387FF", "#FDE725FF")
+color_pal_2 = c("#ffc077","darkslategray2") 
+
+hypo_2055 = df_energy_demand_all %>% filter(timestep == 9) %>% getElement("energy_demand_Hypothetical")
+hypo_2060 = df_energy_demand_all %>% filter(timestep == 10) %>% getElement("energy_demand_Hypothetical")
+
+plot_pop_contrib =
+  ggplot(data = df_energy_demand_all, 
+         aes(x = (timestep-1)*5+2020))+
+   geom_line(aes(y = energy_demand_SSP1_EA), color = color_pal[2], size = 1.3)+ 
+   geom_line(aes(y = energy_demand_Hypothetical, linetype = ifelse(timestep > 9, "2","1")),
+             color = "darkgrey", size = 0.5)+ 
+   geom_line(aes(y = energy_demand_SSP1_univ), color = color_pal[3], size = 1.3) +
+  ######
+  # RIBBONs
+   geom_ribbon(aes(ymin = energy_demand_SSP1_univ, ymax =ifelse(timestep<9, energy_demand_Hypothetical,energy_demand_SSP1_EA)),
+             #  fill = color_pal[3], alpha = 0.3)+
+               fill = color_pal_2[1], alpha = 0.3)+
+  
+   geom_ribbon(aes(ymin = energy_demand_Hypothetical, 
+                   ymax =ifelse(timestep<9, energy_demand_SSP1_EA,energy_demand_Hypothetical)),
+               #fill = color_pal[2], alpha = 0.3)+
+                fill = color_pal_2[2], alpha = 0.3)+
+  ######
+  geom_segment(aes(x = 2060, y = hypo_2055,yend = hypo_2060, xend = 2065, linetype = "2"),
+               color = "darkgrey", alpha = 0.3, size = 0.4)+
+   scale_linetype_discrete(guide = "none")+
+ geom_segment(aes(x = 2027, y = 4e2,yend = 4e2, xend = 2040),
+           color = color_pal[2], alpha = 0.3, size = 0.4)+
+geom_segment(aes(x = 2038, y = 3.3e2,yend = 3.3e2, xend = 2047),
+         color = color_pal[3], alpha = 0.3, size = 0.4)+
+ geom_label(label="SSP1_univ",  x=2050, y=3.3e2,label.padding = unit(0.55, "lines"),
+           label.size = 0.35,size =3.5, color ="grey39" ,fill=color_pal[3], alpha = 0.5 )+
+ geom_label(label="SSP1_EA",  x=2030, y=4e2,label.padding = unit(0.55, "lines"),
+           label.size = 0.35, size =3.5,color = "grey39",  fill=color_pal[2], alpha = 0.5 )+
+
+   theme_minimal()+
+   labs(x = "Year", y = "Energy demand (TJ)")
+
+
+```
+
+```{r}
+ 
+ # Metric for text
+# timestep 4: 2030
+  
+energy_univ_2030 = df_energy_demand_all %>% filter(timestep == 4) %>% select(energy_demand_SSP1_univ) %>%  deframe()
+energy_ssp1_2030 = df_energy_demand_all %>% filter(timestep == 4) %>% select(energy_demand_SSP1_EA) %>%  deframe()
+energy_hypo_2030 = df_energy_demand_all %>% filter(timestep == 4) %>% select(energy_demand_Hypothetical) %>%  deframe()
+
+contrib_pop_2030 =  round((energy_hypo_2030 - energy_univ_2030 )*100/ (energy_ssp1_2030- energy_univ_2030)) # 23%
+
+# timestep 8: 2050
+  
+energy_univ_2050 = df_energy_demand_all %>% filter(timestep == 8) %>% select(energy_demand_SSP1_univ) %>%  deframe()
+energy_ssp1_2050 = df_energy_demand_all %>% filter(timestep == 8) %>% select(energy_demand_SSP1_EA) %>%  deframe()
+energy_hypo_2050 = df_energy_demand_all %>% filter(timestep == 8) %>% select(energy_demand_Hypothetical) %>%  deframe()
+
+
+contrib_pop_2050 = round((energy_hypo_2050 - energy_univ_2050 )*100/ (energy_ssp1_2050- energy_univ_2050)) # 54%
+
+```
+
+The objective of this study is to quantify how projected energy demand in Zambia differs when the feedback between energy access and demographic change is taken into account compared to a case where it is not. To do so, we decomposed the growth in energy demand into the two factors that influence it: population composition and population size. First, we considered the impact on energy demand of the scenario-driven increase in the share of the population with higher education, living in urban areas, and having access to modern energy. This change in population composition affects energy consumption patterns, since energy consumption per capita differs between groups (Figure \@ref(fig:energy-use)). Second, we considered the effect of changes in population size, which directly affects energy demand.
+
+To distinguish the "population size effect" from the "composition-efficiency effect", we decomposed the change in energy demand between SSP1_EA and SSP1_univ, the two scenarios that differ only in terms of the energy access pathway, and which is faster under SSP1_univ. However, since the education, urbanization and mortality trajectories are identical under these two scenarios, we were able to factor out the "population size effect" alone.
+
+To decompose the change in energy demand, we calculated energy demand for a hypothetical scenario in which the proportion of the population in each education, energy access, and urbanization group in each time step is kept as in SSP1_univ, but the population size is as in SSP1_EA. This simulates a situation where energy access improves, but the effect of this improvement on population size is not considered. Figure \@ref(fig:energy-contrib) shows the results of this decomposition in both relative (panel a) and absolute (panel b) terms. The blue in the graph represents the composition-efficiency effect and the orange represents the population size effect.
+
+We estimate that the "composition efficiency" effect due to expanded energy access contributes `r contrib_pop_2030`% of the reduction in energy demand between *SSP1_EA* and *SSP1_univ* in 2030, and `r contrib_pop_2050`% in 2050 (Figure \@ref(fig:energy-contrib)). After 2060, this effect contributes 100% to the total change in energy demand. In other words, if the demographic feedback is not taken into account, the energy demand under *SSP1_univ* would be higher than under *SSP1_EA* from 2060 onwards (Figure \@ref(fig:energy-contrib), panel b). Thus, the orange area represents the estimated magnitude of the overestimation of energy demand when the demographic feedback from expanded access to modern energy is not considered.
+
+```{r}
+
+
+df_contrib_rel = df_energy_demand_all %>% 
+  select(timestep, 
+         baseline = energy_demand_SSP1_EA,
+         universal = energy_demand_SSP1_univ,
+         hypothetical = energy_demand_Hypothetical) %>% 
+  mutate(savings_total = baseline-universal,
+         savings_share_ea = (baseline - hypothetical)/savings_total, # proportion of reduction due to EA
+         savings_share_pop = (hypothetical - universal)/savings_total,
+         savings_ea = savings_total*savings_share_ea,
+         savings_pop = savings_total*savings_share_pop)
+
+# df_contrib_rel2 = df_contrib_rel %>% 
+#   select(timestep, Efficiency = savings_ea, Population = savings_pop) %>% 
+#   pivot_longer(-timestep, names_to = "Contribution", values_to = "saving_TJ") %>% 
+#   mutate(Contribution = fct_relevel(Contribution, levels = c("Population", "Efficiency") ))
+# 
+
+# test 
+df_contrib_rel2 = df_contrib_rel %>% 
+  select(timestep, Efficiency = savings_ea, Population = savings_pop) %>% 
+  pivot_longer(-timestep, names_to = "Effect", values_to = "saving_TJ") %>% 
+  mutate(Effect = ifelse(Effect == "Efficiency", "Population composition and Efficiency", "Population size" )) %>% 
+
+
+  mutate(Effect = fct_relevel(Effect,"Population size", "Population composition and Efficiency" ))
+
+
+
+
+plot_contrib_relative = df_contrib_rel2 %>% 
+  ggplot(aes(x=(timestep-1)*5+2020,y=saving_TJ)) +
+  geom_area(aes(fill=Effect), alpha = 0.3, position = "stack") +
+  geom_line(data=df_contrib_rel, aes(y=savings_ea+savings_pop), size = 0.4) +
+    #scale_fill_manual(values=color_pal[3:2]) +
+  scale_fill_manual(values=color_pal_2) +
+
+#  lims(y=c(-15000,80000)) +
+  theme_minimal()+
+  labs(x = "Year", y = "Energy savings (TJ)")
+
+
+```
+
+```{r energy-contrib, fig.cap = "Decomposition of the difference in energy demand in absolute (a) and relative terms (b) between the SSP1_univ scenario (yellow) and the SSP1_EA scenario (green). The orange area corresponds to share of the difference in energy demand due to the population size effect (itself due to expanded energy access). The blue area represents the share of the energy demand difference that is due to the composition-efficiency effect. "}
+
+ plot_pop_contrib + plot_contrib_relative +
+   plot_annotation(tag_levels = 'a') +
+   plot_layout(guides = "collect") &
+   theme(legend.position="bottom") 
+
+```
+
+# Discussion and conclusions
+
+Achieving universal energy access is more urgent than ever. It is a necessary condition for improvements in well-being, health, education, gender equality and climate resilience, and recent studies have also shown its significant impact on reproductive health and fertility patterns. In this article, we quantified the energy demand associated with achieving universal energy access, taking into account the fact that modern energy access spurs fertility decline.
+
+Our results suggest that improvements in living conditions and well-being can be achieved at low energy and carbon costs, and even result in energy and emissions savings. Although electricity demand is higher when the entire population of Zambia has access to modern energy compared to the baseline, household energy demand from all fuels is `r p_diff_energy_SSP2_univ_2070`% lower. In terms of greenhouse gas emissions, this translates into a 53% reduction by 2050 and a 165% reduction when combined with electrification of cookstoves (Supplementary Method 1, Supplementary Tables 3-6 and Supplementary Figure 2). Implementing policies to achieve universal access to modern energy is a solution that would maximize improvements in well-being while significantly reducing emissions. If combined with climate policies that encourage the deployment of renewable energy, this would further reduce emissions [@dagnachew_trade-offs_2018]. This would also allow for the decarbonization of sectors other than the residential sector, which are expected to grow as the population develops.
+
+The specificity of this study is that it quantifies the contribution of the population effect to the observed reduction in energy demand. Typically, studies that aim to quantify the energy required to achieve universal energy access do not explicitly include the impact of energy access on population growth [@dagnachew_trade-offs_2018 ; @kikstra_decent_2021 ; @rao_energy_2019]. Instead, population projections such as the medium variant of the UN projection or the SSP2 scenario developed by the WIC[@kc_human_2017] are used. The population size projected for Zambia in 2070 for the SSP2 scenario from the WIC is 47.1 million people, which is `r round(percentage_difference(47.1, pop_2070_univ_mil))`% higher than the population size we found in the *SSP1_univ* scenario (`r pop_2070_univ_mil` million). Our results suggest that the estimated energy requirements for a decent life could be significantly lower if a population scenario consistent with achieving universal energy access were used. The same is true for the associated carbon and investment costs of eradicating energy poverty.
+
+This study makes a significant contribution by being the first of its kind to use a population projection model that endogenizes the effect of energy access on fertility. However, there are a number of limitations that should be kept in mind when interpreting our results, and that are opportunities for future improvements. First, in the model, energy is not a predictor of mortality. This could lead to a small overestimation of the population size in scenarios with rapid improvements in energy access, as child mortality in particular declines with expansion of modern energy access [@adaji_understanding_2019]. However, as mortality depends on education, and modern energy access is correlated with education, this is unlikely to affect significantly the results.
+
+Second, in our model, energy per capita is static for each education/modern energy access/urbanization category, whereas in reality energy consumption per wealth segment may change over time. For example, energy consumption could increase in wealthier categories due to increased demand for air conditioning as part of climate change adaptation. Energy consumption could also decrease in less affluent groups if economic and social inequalities increase. Especially since the direction of such changes is unclear, a better representation of the dynamics of energy consumption over time would be needed to better quantify the energy requirements for universal access to modern energy. A third notable limitation is the way in which the cooking energy transition is represented. Although we know that energy-poor households tend to accumulate different fuels rather than switch from one fuel to another (fuel stacking), our model does not represent this characteristic of household energy transitions.
+
+More efforts are needed to incorporate the relationship between access to energy services and decent living standards and population dynamics into energy models [@kikstra_decent_2021]. Such models can reveal novel mitigation solutions that are simultaneously beneficial to achieving other SDGs, such as SDG 7 on energy access, SDG 3 on good health, or SDG 5 on gender equality. While the challenge of rapidly achieving universal access to modern energy may seem daunting, shedding light on the additional climate co-benefits of achieving this goal could help further encourage investments aimed at achieving reliable access to modern energy for all.
+
+# References {.unnumbered}
+
+
+
+::: {#refs}
+:::

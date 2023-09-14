@@ -1,0 +1,53 @@
+Source: Wittgenstein Centre for Demography and Global Human Capital (2018). Wittgenstein Centre Data Explorer Version 2.0
+Available at: www.wittgensteincentre.org/dataexplorer 
+
+""
+"Population Size (000's)"
+"De facto population in a country or region, classified by sex and by five-year age groups. Available in all scenarios and at all geographical scales. Figures are presented in thousands. <br><br> Source for 1950 to 2015: <a href=""http://esa.un.org/wpp/documentation/WPP%202010%20publications.htm"">UN Population Division, World Population Prospects 2017</a>"
+"Medium (SSP2)"
+" "
+"Area","Year","Age","Population"
+"Zambia",2015,"All",16099.5
+"Zambia",2020,"All",18783.5
+"Zambia",2015,"0--4",2750.4
+"Zambia",2020,"0--4",3167.6
+"Zambia",2015,"5--9",2414
+"Zambia",2020,"5--9",2700.5
+"Zambia",2015,"10--14",2141.8
+"Zambia",2020,"10--14",2391
+"Zambia",2015,"15--19",1814
+"Zambia",2020,"15--19",2121.7
+"Zambia",2015,"20--24",1499.4
+"Zambia",2020,"20--24",1789.9
+"Zambia",2015,"25--29",1257.8
+"Zambia",2020,"25--29",1470.9
+"Zambia",2015,"30--34",1051.2
+"Zambia",2020,"30--34",1228.3
+"Zambia",2015,"35--39",860.6
+"Zambia",2020,"35--39",1017.2
+"Zambia",2015,"40--44",654.5
+"Zambia",2020,"40--44",825.3
+"Zambia",2015,"45--49",465.2
+"Zambia",2020,"45--49",623.7
+"Zambia",2015,"50--54",340.1
+"Zambia",2020,"50--54",439.8
+"Zambia",2015,"55--59",252.3
+"Zambia",2020,"55--59",318.3
+"Zambia",2015,"60--64",195.2
+"Zambia",2020,"60--64",232.1
+"Zambia",2015,"65--69",154.5
+"Zambia",2020,"65--69",173.1
+"Zambia",2015,"70--74",114.8
+"Zambia",2020,"70--74",128.4
+"Zambia",2015,"75--79",74.8
+"Zambia",2020,"75--79",85.5
+"Zambia",2015,"80--84",39.4
+"Zambia",2020,"80--84",46.5
+"Zambia",2015,"85--89",15
+"Zambia",2020,"85--89",18.4
+"Zambia",2015,"90--94",3.7
+"Zambia",2020,"90--94",4.7
+"Zambia",2015,"95--99",0.5
+"Zambia",2020,"95--99",0.7
+"Zambia",2015,"100+",0
+"Zambia",2020,"100+",0.1

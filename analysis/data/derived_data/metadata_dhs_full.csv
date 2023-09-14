@@ -1,0 +1,207 @@
+"","SurveyId","survey_year","country_name","country_code_2","zip_file_name","FileSize","file_name","country_code","world_region","country_income_group","country_code_num","n_wave"
+"1","AM2000DHS","2000","Armenia","AM","AMIR42SV.ZIP",3854080,"AMIR42SV.rds","ARM","Europe & Central Asia","Upper middle income",51,4
+"2","AM2005DHS","2005","Armenia","AM","AMIR54sv.zip",4270257,"AMIR54sv.rds","ARM","Europe & Central Asia","Upper middle income",51,4
+"3","AM2010DHS","2010","Armenia","AM","AMIR61SV.ZIP",2926342,"AMIR61SV.rds","ARM","Europe & Central Asia","Upper middle income",51,4
+"4","AM2016DHS","2016","Armenia","AM","AMIR72SV.ZIP",4606337,"AMIR72SV.rds","ARM","Europe & Central Asia","Upper middle income",51,4
+"5","BD1994DHS","1994","Bangladesh","BD","BDIR31SV.ZIP",3252474,"BDIR31SV.rds","BGD","South Asia","Lower middle income",50,7
+"6","BD1997DHS","1997","Bangladesh","BD","BDIR3ASV.ZIP",3854125,"BDIR3ASV.rds","BGD","South Asia","Lower middle income",50,7
+"7","BD2000DHS","2000","Bangladesh","BD","BDIR41SV.ZIP",5656638,"BDIR41SV.rds","BGD","South Asia","Lower middle income",50,7
+"8","BD2004DHS","2004","Bangladesh","BD","BDIR4JSV.ZIP",6260658,"BDIR4JSV.rds","BGD","South Asia","Lower middle income",50,7
+"9","BD2007DHS","2007","Bangladesh","BD","BDIR51SV.ZIP",6502396,"BDIR51SV.rds","BGD","South Asia","Lower middle income",50,7
+"10","BD2011DHS","2011","Bangladesh","BD","BDIR61SV.ZIP",9480488,"BDIR61SV.rds","BGD","South Asia","Lower middle income",50,7
+"11","BD2014DHS","2014","Bangladesh","BD","BDIR72SV.ZIP",9707545,"BDIR72SV.rds","BGD","South Asia","Lower middle income",50,7
+"12","BJ1996DHS","1996","Benin","BJ","BJIR31SV.ZIP",2857117,"BJIR31SV.rds","BEN","Sub-Saharan Africa ","Low income",204,5
+"13","BJ2001DHS","2001","Benin","BJ","BJIR41SV.ZIP",3590018,"BJIR41SV.rds","BEN","Sub-Saharan Africa ","Low income",204,5
+"14","BJ2006DHS","2006","Benin","BJ","BJIR51SV.ZIP",13391528,"BJIR51SV.rds","BEN","Sub-Saharan Africa ","Low income",204,5
+"15","BJ2012DHS","2012","Benin","BJ","BJIR61SV.ZIP",10653911,"BJIR61SV.rds","BEN","Sub-Saharan Africa ","Low income",204,5
+"16","BJ2017DHS","2017","Benin","BJ","BJIR71SV.ZIP",12415609,"BJIR71SV.rds","BEN","Sub-Saharan Africa ","Low income",204,5
+"17","BO1998DHS","1998","Bolivia","BO","BOIR3BSV.ZIP",4552687,"BOIR3BSV.rds","BOL","Latin America & Caribbean ","Lower middle income",68,3
+"18","BO2003DHS","2003","Bolivia","BO","BOIR41SV.ZIP",10865492,"BOIR41SV.rds","BOL","Latin America & Caribbean ","Lower middle income",68,3
+"19","BO2008DHS","2008","Bolivia","BO","BOIR51SV.ZIP",11246835,"BOIR51SV.rds","BOL","Latin America & Caribbean ","Lower middle income",68,3
+"20","BF2003DHS","2003","Burkina Faso","BF","BFIR43SV.ZIP",8461183,"BFIR43SV.rds","BFA","Sub-Saharan Africa ","Low income",854,2
+"21","BF2010DHS","2010","Burkina Faso","BF","BFIR62SV.ZIP",10807593,"BFIR62SV.rds","BFA","Sub-Saharan Africa ","Low income",854,2
+"22","BU2010DHS","2010","Burundi","BI","BUIR61SV.ZIP",5707003,"BUIR61SV.rds","BDI","Sub-Saharan Africa ","Low income",108,2
+"23","BU2016DHS","2016","Burundi","BI","BUIR70SV.ZIP",11835709,"BUIR70SV.rds","BDI","Sub-Saharan Africa ","Low income",108,2
+"24","KH2000DHS","2000","Cambodia","KH","KHIR42sv.zip",7553626,"KHIR42sv.rds","KHM","East Asia & Pacific","Lower middle income",116,4
+"25","KH2005DHS","2005","Cambodia","KH","KHIR51sv.zip",10911004,"KHIR51sv.rds","KHM","East Asia & Pacific","Lower middle income",116,4
+"26","KH2010DHS","2010","Cambodia","KH","KHIR61SV.ZIP",10007984,"KHIR61SV.rds","KHM","East Asia & Pacific","Lower middle income",116,4
+"27","KH2014DHS","2014","Cambodia","KH","KHIR73SV.ZIP",10704290,"KHIR73SV.rds","KHM","East Asia & Pacific","Lower middle income",116,4
+"28","CM1991DHS","1991","Cameroon","CM","CMIR22SV.ZIP",1680477,"CMIR22SV.rds","CMR","Sub-Saharan Africa ","Lower middle income",120,3
+"29","CM2004DHS","2004","Cameroon","CM","CMIR44sv.zip",7277127,"CMIR44sv.rds","CMR","Sub-Saharan Africa ","Lower middle income",120,3
+"30","CM2011DHS","2011","Cameroon","CM","CMIR61SV.ZIP",10099454,"CMIR61SV.rds","CMR","Sub-Saharan Africa ","Lower middle income",120,3
+"31","CO1986DHS","1986","Colombia","CO","COIR01SV.ZIP",1116533,"COIR01SV.rds","COL","Latin America & Caribbean ","Upper middle income",170,7
+"32","CO1990DHS","1990","Colombia","CO","COIR22sv.zip",3218408,"COIR22sv.rds","COL","Latin America & Caribbean ","Upper middle income",170,7
+"33","CO1995DHS","1995","Colombia","CO","COIR31SV.ZIP",5473310,"COIR31SV.rds","COL","Latin America & Caribbean ","Upper middle income",170,7
+"34","CO2000DHS","2000","Colombia","CO","COIR41SV.ZIP",6253744,"COIR41SV.rds","COL","Latin America & Caribbean ","Upper middle income",170,7
+"35","CO2005DHS","2005","Colombia","CO","COIR53SV.ZIP",26786086,"COIR53SV.rds","COL","Latin America & Caribbean ","Upper middle income",170,7
+"36","CO2010DHS","2010","Colombia","CO","COIR61SV.ZIP",32711081,"COIR61SV.rds","COL","Latin America & Caribbean ","Upper middle income",170,7
+"37","CO2015DHS","2015","Colombia","CO","COIR72SV.ZIP",27679661,"COIR72SV.rds","COL","Latin America & Caribbean ","Upper middle income",170,7
+"38","CD2007DHS","2007","Congo Democratic Republic","CD","CDIR51SV.ZIP",6764092,"CDIR51SV.rds","COD","Sub-Saharan Africa ","Low income",180,2
+"39","CD2013DHS","2013","Congo Democratic Republic","CD","CDIR61SV.ZIP",11832635,"CDIR61SV.rds","COD","Sub-Saharan Africa ","Low income",180,2
+"40","CI1994DHS","1994","Cote d'Ivoire","CI","CIIR35SV.ZIP",3593032,"CIIR35SV.rds","CIV","Sub-Saharan Africa ","Lower middle income",384,2
+"41","CI2012DHS","2012","Cote d'Ivoire","CI","CIIR62SV.ZIP",7032726,"CIIR62SV.rds","CIV","Sub-Saharan Africa ","Lower middle income",384,2
+"42","EG1995DHS","1995","Egypt","EG","EGIR33SV.ZIP",7242725,"EGIR33SV.rds","EGY","Middle East & North Africa","Lower middle income",818,6
+"43","EG2000DHS","2000","Egypt","EG","EGIR42SV.ZIP",12064427,"EGIR42SV.rds","EGY","Middle East & North Africa","Lower middle income",818,6
+"44","EG2003DHS","2003","Egypt","EG","EGIR4ASV.ZIP",5788218,"EGIR4ASV.rds","EGY","Middle East & North Africa","Lower middle income",818,6
+"45","EG2005DHS","2005","Egypt","EG","EGIR51SV.ZIP",13961880,"EGIR51SV.rds","EGY","Middle East & North Africa","Lower middle income",818,6
+"46","EG2008DHS","2008","Egypt","EG","EGIR5ASV.ZIP",11937396,"EGIR5ASV.rds","EGY","Middle East & North Africa","Lower middle income",818,6
+"47","EG2014DHS","2014","Egypt","EG","EGIR61SV.ZIP",14762060,"EGIR61SV.rds","EGY","Middle East & North Africa","Lower middle income",818,6
+"48","ET2000DHS","2000","Ethiopia","ET","ETIR41SV.ZIP",8367236,"ETIR41SV.rds","ETH","Sub-Saharan Africa ","Low income",231,4
+"49","ET2005DHS","2005","Ethiopia","ET","ETIR51sv.zip",10163094,"ETIR51sv.rds","ETH","Sub-Saharan Africa ","Low income",231,4
+"50","ET2011DHS","2011","Ethiopia","ET","ETIR61SV.ZIP",10528688,"ETIR61SV.rds","ETH","Sub-Saharan Africa ","Low income",231,4
+"51","ET2016DHS","2016","Ethiopia","ET","ETIR71SV.ZIP",11398817,"ETIR71SV.rds","ETH","Sub-Saharan Africa ","Low income",231,4
+"52","GH1988DHS","1988","Ghana","GH","GHIR02SV.ZIP",1419080,"GHIR02SV.rds","GHA","Sub-Saharan Africa ","Lower middle income",288,6
+"53","GH1993DHS","1993","Ghana","GH","GHIR31SV.ZIP",2027300,"GHIR31SV.rds","GHA","Sub-Saharan Africa ","Lower middle income",288,6
+"54","GH1998DHS","1998","Ghana","GH","GHIR41SV.ZIP",3015065,"GHIR41SV.rds","GHA","Sub-Saharan Africa ","Lower middle income",288,6
+"55","GH2003DHS","2003","Ghana","GH","GHIR4BSV.ZIP",3747245,"GHIR4BSV.rds","GHA","Sub-Saharan Africa ","Lower middle income",288,6
+"56","GH2008DHS","2008","Ghana","GH","GHIR5ASV.ZIP",3694011,"GHIR5ASV.rds","GHA","Sub-Saharan Africa ","Lower middle income",288,6
+"57","GH2014DHS","2014","Ghana","GH","GHIR72SV.ZIP",6313874,"GHIR72SV.rds","GHA","Sub-Saharan Africa ","Lower middle income",288,6
+"58","GU1987DHS","1987","Guatemala","GT","GUIR01SV.ZIP",1521507,"GUIR01SV.rds","GTM","Latin America & Caribbean ","Upper middle income",320,4
+"59","GU1995DHS","1995","Guatemala","GT","GUIR34SV.ZIP",6815862,"GUIR34SV.rds","GTM","Latin America & Caribbean ","Upper middle income",320,4
+"60","GU1999DHS","1999","Guatemala","GT","GUIR41SV.ZIP",3105287,"GUIR41SV.rds","GTM","Latin America & Caribbean ","Upper middle income",320,4
+"61","GU2015DHS","2015","Guatemala","GT","GUIR71SV.ZIP",17682403,"GUIR71SV.rds","GTM","Latin America & Caribbean ","Upper middle income",320,4
+"62","GN2005DHS","2005","Guinea","GN","GNIR52sv.zip",5239451,"GNIR52sv.rds","GIN","Sub-Saharan Africa ","Low income",324,2
+"63","GN2012DHS","2012","Guinea","GN","GNIR62SV.ZIP",5863918,"GNIR62SV.rds","GIN","Sub-Saharan Africa ","Low income",324,2
+"64","HT2000DHS","2000","Haiti","HT","HTIR42SV.ZIP",6791234,"HTIR42SV.rds","HTI","Latin America & Caribbean ","Low income",332,4
+"65","HT2006DHS","2006","Haiti","HT","HTIR52SV.ZIP",6695568,"HTIR52SV.rds","HTI","Latin America & Caribbean ","Low income",332,4
+"66","HT2012DHS","2012","Haiti","HT","HTIR61SV.ZIP",7459913,"HTIR61SV.rds","HTI","Latin America & Caribbean ","Low income",332,4
+"67","HT2016DHS","2016","Haiti","HT","HTIR71SV.ZIP",9611637,"HTIR71SV.rds","HTI","Latin America & Caribbean ","Low income",332,4
+"68","HN2005DHS","2005","Honduras","HN","HNIR52SV.ZIP",13043956,"HNIR52SV.rds","HND","Latin America & Caribbean ","Lower middle income",340,2
+"69","HN2011DHS","2011","Honduras","HN","HNIR62SV.ZIP",14032417,"HNIR62SV.rds","HND","Latin America & Caribbean ","Lower middle income",340,2
+"70","IA1993DHS","1993","India","IN","IAIR23SV.ZIP",33202480,"IAIR23SV.rds","IND","South Asia","Lower middle income",356,3
+"71","IA1999DHS","1999","India","IN","IAIR42SV.ZIP",34989375,"IAIR42SV.rds","IND","South Asia","Lower middle income",356,3
+"72","IA2006DHS","2006","India","IN","IAIR52SV.ZIP",81702788,"IAIR52SV.rds","IND","South Asia","Lower middle income",356,3
+"73","ID1994DHS","1994","Indonesia","ID","IDIR31SV.ZIP",12188538,"IDIR31SV.rds","IDN","East Asia & Pacific","Lower middle income",360,6
+"74","ID1997DHS","1997","Indonesia","ID","IDIR3ASV.ZIP",11181294,"IDIR3ASV.rds","IDN","East Asia & Pacific","Lower middle income",360,6
+"75","ID2003DHS","2003","Indonesia","ID","IDIR42SV.ZIP",16736392,"IDIR42SV.rds","IDN","East Asia & Pacific","Lower middle income",360,6
+"76","ID2007DHS","2007","Indonesia","ID","IDIR51sv.zip",19224662,"IDIR51sv.rds","IDN","East Asia & Pacific","Lower middle income",360,6
+"77","ID2012DHS","2012","Indonesia","ID","IDIR63SV.ZIP",23305875,"IDIR63SV.rds","IDN","East Asia & Pacific","Lower middle income",360,6
+"78","ID2017DHS","2017","Indonesia","ID","IDIR71SV.ZIP",27509230,"IDIR71SV.rds","IDN","East Asia & Pacific","Lower middle income",360,6
+"79","JO1997DHS","1997","Jordan","JO","JOIR31SV.ZIP",3863930,"JOIR31SV.rds","JOR","Middle East & North Africa","Upper middle income",400,5
+"80","JO2007DHS","2007","Jordan","JO","JOIR51SV.ZIP",7963250,"JOIR51SV.rds","JOR","Middle East & North Africa","Upper middle income",400,5
+"81","JO2009DHS","2009","Jordan","JO","JOIR61SV.ZIP",4751846,"JOIR61SV.rds","JOR","Middle East & North Africa","Upper middle income",400,5
+"82","JO2012DHS","2012","Jordan","JO","JOIR6CSV.ZIP",9074926,"JOIR6CSV.rds","JOR","Middle East & North Africa","Upper middle income",400,5
+"83","JO2017DHS","2017","Jordan","JO","JOIR73SV.ZIP",10284870,"JOIR73SV.rds","JOR","Middle East & North Africa","Upper middle income",400,5
+"84","KE1989DHS","1989","Kenya","KE","KEIR03SV.ZIP",1952520,"KEIR03SV.rds","KEN","Sub-Saharan Africa ","Lower middle income",404,6
+"85","KE1993DHS","1993","Kenya","KE","KEIR33SV.ZIP",3988304,"KEIR33SV.rds","KEN","Sub-Saharan Africa ","Lower middle income",404,6
+"86","KE1998DHS","1998","Kenya","KE","KEIR3ASV.ZIP",4188715,"KEIR3ASV.rds","KEN","Sub-Saharan Africa ","Lower middle income",404,6
+"87","KE2003DHS","2003","Kenya","KE","KEIR42SV.ZIP",5883339,"KEIR42SV.rds","KEN","Sub-Saharan Africa ","Lower middle income",404,6
+"88","KE2008DHS","2008","Kenya","KE","KEIR52SV.ZIP",6418049,"KEIR52SV.rds","KEN","Sub-Saharan Africa ","Lower middle income",404,6
+"89","KE2014DHS","2014","Kenya","KE","KEIR72SV.ZIP",18182086,"KEIR72SV.rds","KEN","Sub-Saharan Africa ","Lower middle income",404,6
+"90","LS2004DHS","2004","Lesotho","LS","LSIR41SV.ZIP",4484884,"LSIR41SV.rds","LSO","Sub-Saharan Africa ","Lower middle income",426,3
+"91","LS2009DHS","2009","Lesotho","LS","LSIR61SV.ZIP",5308593,"LSIR61SV.rds","LSO","Sub-Saharan Africa ","Lower middle income",426,3
+"92","LS2014DHS","2014","Lesotho","LS","LSIR71SV.ZIP",4501748,"LSIR71SV.rds","LSO","Sub-Saharan Africa ","Lower middle income",426,3
+"93","LB2007DHS","2007","Liberia","LB","LBIR51SV.ZIP",5031784,"LBIR51SV.rds","LBN","Middle East & North Africa","Upper middle income",422,2
+"94","LB2013DHS","2013","Liberia","LB","LBIR6ASV.ZIP",5759972,"LBIR6ASV.rds","LBN","Middle East & North Africa","Upper middle income",422,2
+"95","MD1992DHS","1992","Madagascar","MG","MDIR21SV.ZIP",2934937,"MDIR21SV.rds","MDG","Sub-Saharan Africa ","Low income",450,4
+"96","MD1997DHS","1997","Madagascar","MG","MDIR31SV.ZIP",3163113,"MDIR31SV.rds","MDG","Sub-Saharan Africa ","Low income",450,4
+"97","MD2004DHS","2004","Madagascar","MG","MDIR42SV.ZIP",5739221,"MDIR42SV.rds","MDG","Sub-Saharan Africa ","Low income",450,4
+"98","MD2008DHS","2008","Madagascar","MG","MDIR51SV.ZIP",10368265,"MDIR51SV.rds","MDG","Sub-Saharan Africa ","Low income",450,4
+"99","MW1992DHS","1992","Malawi","MW","MWIR22SV.ZIP",3489840,"MWIR22SV.rds","MWI","Sub-Saharan Africa ","Low income",454,5
+"100","MW2000DHS","2000","Malawi","MW","MWIR41SV.ZIP",8970715,"MWIR41SV.rds","MWI","Sub-Saharan Africa ","Low income",454,5
+"101","MW2004DHS","2004","Malawi","MW","MWIR4ESV.ZIP",9748320,"MWIR4ESV.rds","MWI","Sub-Saharan Africa ","Low income",454,5
+"102","MW2010DHS","2010","Malawi","MW","MWIR61SV.ZIP",15231499,"MWIR61SV.rds","MWI","Sub-Saharan Africa ","Low income",454,5
+"103","MW2015DHS","2015","Malawi","MW","MWIR7ASV.ZIP",16318293,"MWIR7ASV.rds","MWI","Sub-Saharan Africa ","Low income",454,5
+"104","MV2009DHS","2009","Maldives","MV","MVIR52SV.ZIP",4344867,"MVIR52SV.rds","MDV","South Asia","Upper middle income",462,2
+"105","MV2016DHS","2016","Maldives","MV","MVIR71SV.ZIP",5060734,"MVIR71SV.rds","MDV","South Asia","Upper middle income",462,2
+"106","ML1996DHS","1996","Mali","ML","MLIR32SV.ZIP",4440933,"MLIR32SV.rds","MLI","Sub-Saharan Africa ","Low income",466,4
+"107","ML2001DHS","2001","Mali","ML","MLIR41SV.ZIP",7631875,"MLIR41SV.rds","MLI","Sub-Saharan Africa ","Low income",466,4
+"108","ML2006DHS","2006","Mali","ML","MLIR53SV.ZIP",11010097,"MLIR53SV.rds","MLI","Sub-Saharan Africa ","Low income",466,4
+"109","ML2012DHS","2012","Mali","ML","MLIR6ASV.ZIP",7328908,"MLIR6ASV.rds","MLI","Sub-Saharan Africa ","Low income",466,4
+"110","MA1987DHS","1987","Morocco","MA","MAIR01SV.ZIP",2084090,"MAIR01SV.rds","MAR","Middle East & North Africa","Lower middle income",504,3
+"111","MA1992DHS","1992","Morocco","MA","MAIR21SV.ZIP",4616570,"MAIR21SV.rds","MAR","Middle East & North Africa","Lower middle income",504,3
+"112","MA2003DHS","2003","Morocco","MA","MAIR43sv.zip",8967113,"MAIR43sv.rds","MAR","Middle East & North Africa","Lower middle income",504,3
+"113","MZ1997DHS","1997","Mozambique","MZ","MZIR31SV.ZIP",4398769,"MZIR31SV.rds","MOZ","Sub-Saharan Africa ","Low income",508,3
+"114","MZ2003DHS","2003","Mozambique","MZ","MZIR41SV.ZIP",7632853,"MZIR41SV.rds","MOZ","Sub-Saharan Africa ","Low income",508,3
+"115","MZ2011DHS","2011","Mozambique","MZ","MZIR62SV.ZIP",9107589,"MZIR62SV.rds","MOZ","Sub-Saharan Africa ","Low income",508,3
+"116","NM2000DHS","2000","Namibia",NA,"NMIR41SV.ZIP",3463308,"NMIR41SV.rds","NAM","Sub-Saharan Africa ","Upper middle income",516,3
+"117","NM2006DHS","2006","Namibia",NA,"NMIR51sv.zip",6435100,"NMIR51sv.rds","NAM","Sub-Saharan Africa ","Upper middle income",516,3
+"118","NM2013DHS","2013","Namibia",NA,"NMIR61SV.ZIP",5789152,"NMIR61SV.rds","NAM","Sub-Saharan Africa ","Upper middle income",516,3
+"119","NP1996DHS","1996","Nepal","NP","NPIR31SV.ZIP",4128790,"NPIR31SV.rds","NPL","South Asia","Low income",524,3
+"120","NP2001DHS","2001","Nepal","NP","NPIR41SV.ZIP",4703710,"NPIR41SV.rds","NPL","South Asia","Low income",524,3
+"121","NP2006DHS","2006","Nepal","NP","NPIR51sv.zip",7888299,"NPIR51sv.rds","NPL","South Asia","Low income",524,3
+"122","NC1998DHS","1998","Nicaragua","NI","NCIR31SV.ZIP",6403485,"NCIR31SV.rds","NIC","Latin America & Caribbean ","Lower middle income",558,2
+"123","NC2001DHS","2001","Nicaragua","NI","NCIR41SV.ZIP",7593675,"NCIR41SV.rds","NIC","Latin America & Caribbean ","Lower middle income",558,2
+"124","NI1992DHS","1992","Niger","NE","NIIR22SV.ZIP",4081026,"NIIR22SV.rds","NER","Sub-Saharan Africa ","Low income",562,4
+"125","NI1998DHS","1998","Niger","NE","NIIR31SV.ZIP",3175746,"NIIR31SV.rds","NER","Sub-Saharan Africa ","Low income",562,4
+"126","NI2006DHS","2006","Niger","NE","NIIR51sv.zip",6479339,"NIIR51sv.rds","NER","Sub-Saharan Africa ","Low income",562,4
+"127","NI2012DHS","2012","Niger","NE","NIIR61SV.ZIP",8312382,"NIIR61SV.rds","NER","Sub-Saharan Africa ","Low income",562,4
+"128","NG2003DHS","2003","Nigeria","NG","NGIR4BSV.ZIP",4209565,"NGIR4BSV.rds","NGA","Sub-Saharan Africa ","Lower middle income",566,3
+"129","NG2008DHS","2008","Nigeria","NG","NGIR53SV.ZIP",21960973,"NGIR53SV.rds","NGA","Sub-Saharan Africa ","Lower middle income",566,3
+"130","NG2013DHS","2013","Nigeria","NG","NGIR6ASV.ZIP",26327344,"NGIR6ASV.rds","NGA","Sub-Saharan Africa ","Lower middle income",566,3
+"131","PK1991DHS","1991","Pakistan","PK","PKIR21SV.ZIP",3879290,"PKIR21SV.rds","PAK","South Asia","Lower middle income",586,4
+"132","PK2006DHS","2006","Pakistan","PK","PKIR52sv.zip",5415319,"PKIR52sv.rds","PAK","South Asia","Lower middle income",586,4
+"133","PK2012DHS","2012","Pakistan","PK","PKIR61SV.ZIP",8843349,"PKIR61SV.rds","PAK","South Asia","Lower middle income",586,4
+"134","PK2017DHS","2017","Pakistan","PK","PKIR71SV.ZIP",12022811,"PKIR71SV.rds","PAK","South Asia","Lower middle income",586,4
+"135","PE1996DHS","1996","Peru","PE","PEIR31SV.ZIP",14251729,"PEIR31SV.rds","PER","Latin America & Caribbean ","Upper middle income",604,8
+"136","PE2000DHS","2000","Peru","PE","PEIR41SV.ZIP",16359076,"PEIR41SV.rds","PER","Latin America & Caribbean ","Upper middle income",604,8
+"137","PE2004DHS","2004","Peru","PE","PEIR51SV.ZIP",27791615,"PEIR51SV.rds","PER","Latin America & Caribbean ","Upper middle income",604,8
+"138","PE2007DHS","2007","Peru","PE","PEIR5ASV.ZIP",27791615,"PEIR5ASV.rds","PER","Latin America & Caribbean ","Upper middle income",604,8
+"139","PE2009DHS","2009","Peru","PE","PEIR5ISV.ZIP",17956861,"PEIR5ISV.rds","PER","Latin America & Caribbean ","Upper middle income",604,8
+"140","PE2010DHS","2010","Peru","PE","PEIR61SV.ZIP",14358774,"PEIR61SV.rds","PER","Latin America & Caribbean ","Upper middle income",604,8
+"141","PE2011DHS","2011","Peru","PE","PEIR6ASV.ZIP",15208811,"PEIR6ASV.rds","PER","Latin America & Caribbean ","Upper middle income",604,8
+"142","PE2012DHS","2012","Peru","PE","PEIR6ISV.ZIP",16193470,"PEIR6ISV.rds","PER","Latin America & Caribbean ","Upper middle income",604,8
+"143","PH2003DHS","2003","Philippines","PH","PHIR41SV.ZIP",6002298,"PHIR41SV.rds","PHL","East Asia & Pacific","Lower middle income",608,4
+"144","PH2008DHS","2008","Philippines","PH","PHIR52SV.ZIP",6697895,"PHIR52SV.rds","PHL","East Asia & Pacific","Lower middle income",608,4
+"145","PH2013DHS","2013","Philippines","PH","PHIR61SV.ZIP",8242938,"PHIR61SV.rds","PHL","East Asia & Pacific","Lower middle income",608,4
+"146","PH2017DHS","2017","Philippines","PH","PHIR70SV.ZIP",14620620,"PHIR70SV.rds","PHL","East Asia & Pacific","Lower middle income",608,4
+"147","RW2008DHS","2008","Rwanda","RW","RWIR5ASV.ZIP",2572744,"RWIR5ASV.rds","RWA","Sub-Saharan Africa ","Low income",646,3
+"148","RW2010DHS","2010","Rwanda","RW","RWIR61SV.ZIP",7805463,"RWIR61SV.rds","RWA","Sub-Saharan Africa ","Low income",646,3
+"149","RW2015DHS","2015","Rwanda","RW","RWIR70SV.ZIP",8381420,"RWIR70SV.rds","RWA","Sub-Saharan Africa ","Low income",646,3
+"150","SN1986DHS","1986","Senegal","SN","SNIR02SV.ZIP",1126147,"SNIR02SV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"151","SN1993DHS","1993","Senegal","SN","SNIR21SV.ZIP",3815841,"SNIR21SV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"152","SN1997DHS","1997","Senegal","SN","SNIR32SV.ZIP",2669722,"SNIR32SV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"153","SN2005DHS","2005","Senegal","SN","SNIR4ASV.ZIP",8747374,"SNIR4ASV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"154","SN2010DHS","2010","Senegal","SN","SNIR61SV.ZIP",9475690,"SNIR61SV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"155","SN2012DHS","2012","Senegal","SN","SNIR6DSV.ZIP",4741186,"SNIR6DSV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"156","SN2014DHS","2014","Senegal","SN","SNIR70SV.zip",14457458,"SNIR70SV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"157","SN2015DHS","2015","Senegal","SN","SNIR7HSV.ZIP",4809243,"SNIR7HSV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"158","SN2016DHS","2016","Senegal","SN","SNIR7ISV.ZIP",13661125,"SNIR7ISV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"159","SN2017DHS","2017","Senegal","SN","SNIR7ZSV.ZIP",11578526,"SNIR7ZSV.rds","SEN","Sub-Saharan Africa ","Lower middle income",686,10
+"160","SL2008DHS","2008","Sierra Leone","SL","SLIR51SV.ZIP",4935954,"SLIR51SV.rds","SLE","Sub-Saharan Africa ","Low income",694,2
+"161","SL2013DHS","2013","Sierra Leone","SL","SLIR61SV.ZIP",10482665,"SLIR61SV.rds","SLE","Sub-Saharan Africa ","Low income",694,2
+"162","ZA1998DHS","1998","South Africa","ZA","ZAIR31SV.ZIP",5043676,"ZAIR31SV.rds","ZAF","Sub-Saharan Africa ","Upper middle income",710,2
+"163","ZA2016DHS","2016","South Africa","ZA","ZAIR71SV.ZIP",5358286,"ZAIR71SV.rds","ZAF","Sub-Saharan Africa ","Upper middle income",710,2
+"164","TJ2012DHS","2012","Tajikistan","TJ","TJIR61SV.ZIP",6844487,"TJIR61SV.rds","TJK","Europe & Central Asia","Low income",762,2
+"165","TJ2017DHS","2017","Tajikistan","TJ","TJIR71SV.ZIP",8236871,"TJIR71SV.rds","TJK","Europe & Central Asia","Low income",762,2
+"166","TZ1992DHS","1992","Tanzania","TZ","TZIR21SV.ZIP",3471863,"TZIR21SV.rds","TZA","Sub-Saharan Africa ","Low income",834,6
+"167","TZ1996DHS","1996","Tanzania","TZ","TZIR3ASV.ZIP",4317636,"TZIR3ASV.rds","TZA","Sub-Saharan Africa ","Low income",834,6
+"168","TZ1999DHS","1999","Tanzania","TZ","TZIR41SV.ZIP",1757975,"TZIR41SV.rds","TZA","Sub-Saharan Africa ","Low income",834,6
+"169","TZ2004DHS","2004","Tanzania","TZ","TZIR4ISV.ZIP",8932064,"TZIR4ISV.rds","TZA","Sub-Saharan Africa ","Low income",834,6
+"170","TZ2010DHS","2010","Tanzania","TZ","TZIR63SV.ZIP",8483343,"TZIR63SV.rds","TZA","Sub-Saharan Africa ","Low income",834,6
+"171","TZ2015DHS","2015","Tanzania","TZ","TZIR7BSV.ZIP",10739942,"TZIR7BSV.rds","TZA","Sub-Saharan Africa ","Low income",834,6
+"172","TL2009DHS","2009","Timor-Leste","TL","TLIR61SV.ZIP",7997132,"TLIR61SV.rds","TLS","East Asia & Pacific","Lower middle income",626,2
+"173","TL2016DHS","2016","Timor-Leste","TL","TLIR71SV.ZIP",8661121,"TLIR71SV.rds","TLS","East Asia & Pacific","Lower middle income",626,2
+"174","TG1998DHS","1998","Togo","TG","TGIR31SV.ZIP",4428280,"TGIR31SV.rds","TGO","Sub-Saharan Africa ","Low income",768,2
+"175","TG2013DHS","2013","Togo","TG","TGIR61SV.ZIP",6475646,"TGIR61SV.rds","TGO","Sub-Saharan Africa ","Low income",768,2
+"176","TR1993DHS","1993","Turkey","TR","TRIR31SV.ZIP",3967324,"TRIR31SV.rds","TUR","Europe & Central Asia","Upper middle income",792,4
+"177","TR2003DHS","2003","Turkey","TR","TRIR4ASV.ZIP",6494325,"TRIR4ASV.rds","TUR","Europe & Central Asia","Upper middle income",792,4
+"178","TR2008DHS","2008","Turkey","TR","TRIR51SV.ZIP",5157948,"TRIR51SV.rds","TUR","Europe & Central Asia","Upper middle income",792,4
+"179","TR2013DHS","2013","Turkey","TR","TRIR61SV.ZIP",6506837,"TRIR61SV.rds","TUR","Europe & Central Asia","Upper middle income",792,4
+"180","UG1995DHS","1995","Uganda","UG","UGIR33SV.ZIP",4129485,"UGIR33SV.rds","UGA","Sub-Saharan Africa ","Low income",800,5
+"181","UG2000DHS","2000","Uganda","UG","UGIR41SV.ZIP",4977776,"UGIR41SV.rds","UGA","Sub-Saharan Africa ","Low income",800,5
+"182","UG2006DHS","2006","Uganda","UG","UGIR52SV.ZIP",6337275,"UGIR52SV.rds","UGA","Sub-Saharan Africa ","Low income",800,5
+"183","UG2011DHS","2011","Uganda","UG","UGIR60SV.ZIP",5867435,"UGIR60SV.rds","UGA","Sub-Saharan Africa ","Low income",800,5
+"184","UG2016DHS","2016","Uganda","UG","UGIR7BSV.ZIP",13585084,"UGIR7BSV.rds","UGA","Sub-Saharan Africa ","Low income",800,5
+"185","VN1997DHS","1997","Vietnam","VN","VNIR31SV.ZIP",2248553,"VNIR31SV.rds","VNM","East Asia & Pacific","Lower middle income",704,2
+"186","VN2002DHS","2002","Vietnam","VN","VNIR41SV.ZIP",2227529,"VNIR41SV.rds","VNM","East Asia & Pacific","Lower middle income",704,2
+"187","ZM1992DHS","1992","Zambia","ZM","ZMIR21SV.ZIP",3295605,"ZMIR21SV.rds","ZMB","Sub-Saharan Africa ","Lower middle income",894,5
+"188","ZM1996DHS","1996","Zambia","ZM","ZMIR31SV.ZIP",3994653,"ZMIR31SV.rds","ZMB","Sub-Saharan Africa ","Lower middle income",894,5
+"189","ZM2002DHS","2002","Zambia","ZM","ZMIR42SV.ZIP",4982310,"ZMIR42SV.rds","ZMB","Sub-Saharan Africa ","Lower middle income",894,5
+"190","ZM2007DHS","2007","Zambia","ZM","ZMIR51SV.ZIP",5429761,"ZMIR51SV.rds","ZMB","Sub-Saharan Africa ","Lower middle income",894,5
+"191","ZM2013DHS","2013","Zambia","ZM","ZMIR61SV.ZIP",12065191,"ZMIR61SV.rds","ZMB","Sub-Saharan Africa ","Lower middle income",894,5
+"192","ZW1994DHS","1994","Zimbabwe","ZW","ZWIR31SV.ZIP",2943476,"ZWIR31SV.rds","ZWE","Sub-Saharan Africa ","Lower middle income",716,5
+"193","ZW1999DHS","1999","Zimbabwe","ZW","ZWIR42SV.ZIP",3823185,"ZWIR42SV.rds","ZWE","Sub-Saharan Africa ","Lower middle income",716,5
+"194","ZW2005DHS","2005","Zimbabwe","ZW","ZWIR52SV.ZIP",7059761,"ZWIR52SV.rds","ZWE","Sub-Saharan Africa ","Lower middle income",716,5
+"195","ZW2010DHS","2010","Zimbabwe","ZW","ZWIR62SV.ZIP",6186286,"ZWIR62SV.rds","ZWE","Sub-Saharan Africa ","Lower middle income",716,5
+"196","ZW2015DHS","2015","Zimbabwe","ZW","ZWIR72SV.ZIP",7852282,"ZWIR72SV.rds","ZWE","Sub-Saharan Africa ","Lower middle income",716,5
+"197","BD2017DHS","2017","Bangladesh","BD","BDIR7RSV.ZIP",10867340,"BDIR7RSV.rds","BGD","South Asia","Lower middle income",NA,NA
+"198","CM2018DHS","2018","Cameroon","CM","CMIR71SV.ZIP",8838740,"CMIR71SV.rds","CMR","Sub-Saharan Africa","Lower middle income",NA,NA
+"199","GA2000DHS","2000","Gabon","GA","GAIR41SV.ZIP",3417486,"GAIR41SV.rds","GAB","Sub-Saharan Africa","Upper middle income",NA,NA
+"200","GN2018DHS","2018","Guinea","GN","GNIR71SV.ZIP",7035684,"GNIR71SV.rds","GIN","Sub-Saharan Africa","Low income",NA,NA
+"201","ML2018DHS","2018","Mali","ML","MLIR7ASV.ZIP",8428752,"MLIR7ASV.rds","MLI","Sub-Saharan Africa","Low income",NA,NA
+"202","NG2018DHS","2018","Nigeria","NG","NGIR7ASV.ZIP",26286005,"NGIR7ASV.rds","NGA","Sub-Saharan Africa","Lower middle income",NA,NA
+"203","SN2018DHS","2018","Senegal","SN","SNIR81SV.ZIP",5432913,"SNIR81SV.rds","SEN","Sub-Saharan Africa","Lower middle income",NA,NA
+"204","SN2019DHS","2019","Senegal","SN","SNIR8ASV.ZIP",4974081,"SNIR8ASV.rds","SEN","Sub-Saharan Africa","Lower middle income",NA,NA
+"205","SL2019DHS","2019","Sierra Leone","SL","SLIR7ASV.ZIP",11022119,"SLIR7ASV.rds","SLE","Sub-Saharan Africa","Low income",NA,NA
+"206","ZM2018DHS","2018","Zambia","ZM","ZMIR71SV.ZIP",10088486,"ZMIR71SV.rds","ZMB","Sub-Saharan Africa","Lower middle income",NA,NA

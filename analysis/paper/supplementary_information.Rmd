@@ -1,0 +1,1129 @@
+---
+title: "Supplementary information"
+subtitle: "Achieving universal energy access while reducing energy demand? Evidence from energy-specific population projections"
+author: 
+- Camille Belmin$^1$$^2$$^3$
+- Peter-Paul Pichler$^1$ 
+- Guillaume Marois $^3$$^4$
+- Shonali Pachauri$^3$
+- Helga Weisz$^1$$^2$
+output: 
+  # bookdown::word_document2:
+  #   fig_caption: yes
+  #   toc: false
+  # '': default
+    bookdown::pdf_document2:
+      toc: yes
+      fig_caption: yes
+      latex_engine: xelatex
+   #   reference_docx: "../templates/template.docx" # Insert path for the DOCX file
+header-includes: \usepackage{caption} \usepackage{booktabs} \usepackage{xcolor} \usepackage{longtable}
+  \usepackage{float} \usepackage{rotating} \floatplacement{figure}{H} \usepackage{lineno} \usepackage{pdfpages}
+  \linenumbers   
+bibliography: paper_msm.bib
+always_allow_html: true
+link-citations: true
+#csl: "../templates/journal-of-archaeological-science.csl" # Insert path for the bib-style
+---
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+\ 
+
+$^1$ Potsdam Institute for Climate Impact Research, Germany\
+$^2$ Humboldt University Berlin, Germany\
+$^3$ International Institute for Applied Systems Analysis, Wittgenstein Centre (IIASA, OeAW, University of Vienna), Austria\
+$^4$ Asian Demographic Research Institute of the Shanghai University, China
+
+```{r setup, echo = FALSE, message = F, include = F}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  echo = FALSE,
+  comment = "#>",
+  fig.path = "../figures/",
+  dpi = 300
+)
+
+library(tidyverse)
+library(here)
+#library(gt)
+library(readr)
+library(janitor)
+library(haven) # to read .dta files
+library(RColorBrewer)
+library(patchwork)
+library(stargazer)
+library(knitr)
+library(kableExtra)
+library(ggdist)
+library(miceadds)
+
+source.all(here("R"))
+
+
+res_path = here("analysis", "data", "derived_data", "output/")
+#experiment = "28"
+experiment = "52"
+
+
+full_output_wc_zambia = read.csv(here("analysis", "data", "raw_data", "Full_output_zambia.csv"))
+
+#pop_zambia = 15879370 # population size zambia in 2015. Source: United Nations Population Division. 
+# NB in WIC data it is 16099500
+
+# this is the average of SSP1 and SSP2 in 2020 in the WIC data
+pop_zambia = 18584450
+
+
+# Map between age group string and num ####
+age_group_map = read.csv(here("analysis", "data", "raw_data", "age_group_correspondance.csv")) %>%
+  rename(age = age_group_char) %>% 
+  mutate(age = as.character(age)) %>% 
+  # create the age group cat 95+ 
+  mutate(age = ifelse(age == "95--99", "95+", age)) %>% 
+  filter(!(age == "100"))
+
+
+```
+
+```{r}
+base_pop_size = read.csv(here("analysis", "data", "derived_data", "base_pop.csv")) %>% nrow()
+
+data_regression_size = readRDS(here("analysis", "data", "derived_data", "data_model_glm.rds")) %>% nrow()
+
+```
+
+```{r}
+
+###########
+# Load all files
+##########
+
+# An experiment can consist of different scenarios (e.g. SSP1, SSP2) and then different iterations using different random seeds to capture the stochastic variability of the model.
+
+#######################
+# Data population 
+
+files_pop = filename_pop = list.files(res_path, 
+                              pattern = paste0("st_population_", 
+                                               experiment, "_"))
+# dataframe with the results from one experiement (different scenarios, different seeds)
+data_pop <- files_pop %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_population = data.frame(filename = files_pop) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_pop = nrow(read_rds(file.path(res_path, files_pop[1])))
+
+# Add iteration, experiment, sampling fraction to the pop data
+df_data_pop = data.frame(exp = rep(grid_population$exp, each=rows_pop),
+                    scenario = rep(grid_population$scenario, each=rows_pop),
+                    iteration = rep(grid_population$iteration, each=rows_pop),
+                    seed = rep(grid_population$seed, each=rows_pop)) %>% 
+  bind_cols(data_pop) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration),
+         mcf_access = strtoi(mcf_access),
+         elec_access = strtoi(elec_access)) %>% 
+  select(-seed) %>% 
+  # change scenario names 
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA"))
+
+# Determine the Initial size pop and add it to the sim_param parameter
+df_pop_init = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sum(Freq)) %>% 
+  ungroup() %>% 
+  filter(timestep == 1) %>% 
+  select(scenario,population_init = population, iteration) 
+
+#######################
+# Sim parameters 
+
+# load sim_param file
+files_params = filename_params = list.files(res_path, 
+                              pattern = paste0("sim_params_", 
+                                               experiment, "_"))
+data_params <- files_params %>%
+  # read in all the files, appending the path before the filename
+  map(~ readRDS(file.path(res_path, .))) %>% # NB: this should be read_rds in the next round
+  #  map(~ read_csv(file.path(res_path, .))) %>% # NB: this should be read_rds in the next round
+  reduce(rbind) %>%
+  # add column for iteration
+  mutate(iteration = str_split_fixed(run_id, pattern = "_", n = 4)[,3])  %>% 
+  rename(scenario = scenario_name) %>% 
+  mutate(iteration = strtoi(iteration)) %>% 
+    # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  left_join(df_pop_init, by = c("scenario", "iteration")) %>% 
+  # Add sampling fraction 
+  mutate(sampling_fraction = pop_zambia/population_init)
+
+# Add the  sampling fraction to  df_data_pop
+df_data_pop = df_data_pop %>% 
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+#######################
+# Data births
+
+files_births = filename_births = list.files(res_path, 
+                              pattern = paste0("st_birth_", 
+                                               experiment, "_"))
+data_births <- files_births %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_births = data.frame(filename = files_births) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_births = nrow(read_rds(file.path(res_path, files_births[1])))
+
+# Add iteration, experiment, sampling fraction to the birth data
+df_data_births = data.frame(exp = rep(grid_births$exp, each=rows_births),
+                    scenario = rep(grid_births$scenario, each=rows_births),
+                    iteration = rep(grid_births$iteration, each=rows_births),
+                    seed = rep(grid_births$seed, each=rows_births)) %>% 
+  bind_cols(data_births) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration)) %>% 
+  select(-seed) %>% 
+    # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  # Add the sampling fraction
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+#######################
+# Data deaths
+
+files_deaths = filename_deaths = list.files(res_path, 
+                              pattern = paste0("st_death_", 
+                                               experiment, "_"))
+data_deaths <- files_deaths %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_deaths = data.frame(filename = files_deaths) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_births = nrow(read_rds(file.path(res_path, files_deaths[1])))
+
+# Add iteration, experiment, sampling fraction to the death data
+df_data_deaths = data.frame(exp = rep(grid_deaths$exp, each=rows_births),
+                    scenario = rep(grid_deaths$scenario, each=rows_births),
+                    iteration = rep(grid_deaths$iteration, each=rows_births),
+                    seed = rep(grid_deaths$seed, each=rows_births)) %>% 
+  bind_cols(data_deaths) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration)) %>% 
+  select(-seed) %>% 
+      # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  # Add the sampling fraction
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+# Useful dataframes
+
+# data frame with population size
+df_pop = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup()
+
+# data frame with population by age group 
+df_pop_age = df_data_pop %>% 
+  group_by(scenario, age_group, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup()
+
+```
+
+
+\newpage
+
+# Supplementary information about data processing
+
+## Supplementary Table 1 {.unnumbered}
+
+```{r cook-table}
+
+cook_table = data.frame(
+  type = c("Traditional energy", "Modern energy", "Traditional stove", "Modern stove"),
+  details = tolower(c("CHARCOAL PURCHASED, CHARCOAL OWN PRODUCED, COLLECTED FIREWOOD, \n 
+                       PURCHASED FIREWOOD, KEROSINE/PARAFFIN, CROP/LIVESTOCK RESIDUES, \n 
+                       COAL", 
+                       "ELECTRICITY, GAS, SOLAR", 
+                       "BRAZIER (MBAULA), BRICK/STONE STAND ON OPEN FIRE, CLAY STOVE (MBAULA), \n 
+                       CROP/LIVESTOCK RESIDUES, METAL STAND ON  OPEN FIRE, VEHICLE TYRE RIM",
+                       "STOVE/COOKER, SOLAR, ELECTRICTIY, GAS, HOT PLATE WITHOUT STAND")))
+
+# Table
+           
+cook_table %>% 
+  kable(col.names = NULL, caption = "Categorization of the variables for the main energy type and the main type of stove used for cooking in the Living Condition Measurement Survey Zambia 2015 dataset.") %>% 
+  column_spec(2, width = "8cm") %>% 
+     kable_styling(latex_options = "HOLD_position")
+
+
+```
+
+\newpage
+
+## Supplementary Table 2 {.unnumbered}
+
+```{r}
+
+educ_categories_table = data.frame(educ_level_lsms = c("Grade 1, Grade 2, Grade 3, Grade 4, Grade 5, Grade 6, Grade 7",
+                                                       "Grade 8, Grade 9", 
+                                                       "Grade 10, Grade 11, Grade 12, 12 A Levels", 
+                                                       "Degree, Certificate, Diploma, Masters Degree, Doctorate", 
+                                                       "NA"), 
+                                   educ_level =
+                                     c("Primary", "Junior secondary", "Senior secondary", "Post secondary", "No education"))
+                                   
+           
+educ_categories_table %>% kable(col.names = c("Education level in the LCMS dataset for Zambia 2015", "Education level in the microsimulation model"), caption = "Categorization of education levels in the LCMS dataset for Zambia 2015 into education levels relevant for the micro-simulation") %>% 
+  column_spec(2, width = "4cm") %>% 
+     kable_styling(latex_options = "HOLD_position")
+                     
+```
+
+\newpage
+
+## Supplementary Figure 1 {.unnumbered}
+
+```{r, fig.cap = "Number of cases in each sub-group of the LCMS dataset for Zambia 2015. The numbers in red show the number of cases for groups with less than 100 cases."}
+
+zambia_ef = read_rds(file = here("analysis", "data", "derived_data", "zambia_ef_clean.rds"))
+
+zambia_ef = zambia_ef %>% 
+  mutate(energy_name = case_when(el_access == "No" & clean_cooking == 0 ~ "No elec \n No CC", 
+                            el_access == "Yes" & clean_cooking == 0 ~ "Elec \n No CC", 
+                            el_access == "No" & clean_cooking == 1 ~ "No elec \n CC", 
+                            el_access == "Yes" & clean_cooking == 1 ~ "Elec \n  CC"), 
+         energy = case_when(el_access == "No" & clean_cooking == 0 ~ "elec0_CC0", 
+                            el_access == "Yes" & clean_cooking == 0 ~ "elec1_CC0", 
+                            el_access == "No" & clean_cooking == 1 ~ "elec0_CC1", 
+                            el_access == "Yes" & clean_cooking == 1 ~ "elec1_CC1")) %>% 
+    mutate(name_edu_group_head = case_when(edu_group_head == "No education" ~ "No education",
+                                         edu_group_head == "primary" ~ "Primary", 
+                                         edu_group_head == "junior_secondary" ~ "Junior Secondary",
+                                         edu_group_head == "senior_secondary" ~ "Senior Secondary", 
+                                         edu_group_head == "post_secondary" ~ "Post Secondary")) %>% 
+  mutate(name_edu_group_head = # relevel the factor so that the quantiles are ordered in descending order
+           fct_relevel(name_edu_group_head, "No education", "Primary", "Junior Secondary", "Senior Secondary", "Post Secondary")) %>% 
+  # make a variable meta_education with regrouping of no education and primary together
+  mutate(meta_education = ifelse(edu_group_head %in% c("No education", "primary") , "low_education", edu_group_head))
+  
+  
+sample_size = zambia_ef %>% 
+  group_by(rururb, name_edu_group_head, energy_name) %>% 
+  summarize(n_cases = n()) %>% 
+  ungroup() %>%
+  na.omit() %>% 
+ mutate(n_cases_print = ifelse(n_cases < 100, n_cases, NA))
+
+ggplot(data = sample_size , aes(x = name_edu_group_head, y = n_cases))+
+  geom_bar(stat = "identity")+
+  geom_text( aes(label = as.character(n_cases_print), y = n_cases + 300), color = "red")+
+  facet_grid(vars(rururb),vars(energy_name))+
+  theme_bw()+ 
+  labs(x = "Education level", y = "Number of cases")+
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+```{r plot-displace, eval = F,  fig.cap = "Background changes in the displacement of traditional fuels by electricity within each energy/education/urban-rural groups in the scenario SSP1_univ_elec, as input of the microsimulation model."}
+
+
+color_pal = c("#440154FF", "#20A387FF", "#FDE725FF","#31688e")
+
+df_displace = data.frame(year = seq(2015, 2070,5), 
+                         p_displace = c(c(0,0, 25, 50, 75, 100), rep(100,6)))
+
+plot_displace = ggplot(data = df_displace, aes(x = year, y = p_displace))+
+  geom_line(color = color_pal[4])+
+  theme_bw()+
+ scale_x_continuous(breaks = c(2015,2040, 2070))+
+  labs(x = "Year", y = "Dirty fuels displaced by\n electricity in \n SSP1_univ_elec (%)")
+
+plot_displace
+
+```
+
+\newpage
+
+
+# Calculation of emissions
+
+## Supplementary Method 1: Calculation of greenhouse gases emissions {.unnumbered}
+
+We converted household energy use into greenhouse gas emissions using data on emissions factors, fraction of renewable biomass, global warming potential as well as projection of electricity mix for the region sub-Saharan Africa. We here provide details on the calculations. We accounted for the following greenhouse gases: carbon dioxide (CO2), methane (CH4) and nitrous dioxide (N2O), carbon monoxide (CO), Non-Volatile HydroCarbons (NMHC), black carbon (BC) and organic Carbon (OC). The conversion of charcoal and firewood into emissions required to account for the share of non-renewable biomass [@bailis_carbon_2015].
+
+For emission factors, whenever possible we used the default emission factors for stationary combustion in the residential and agriculture/forestry/fishing categories from the 2006 IPCC guidelines for national greenhouse gas inventories [@ipcc_2006_2006] (see Supplementary Table 3 and 4). When not available, we used the 1996 IPCC guidelines [@ipcc_1996_1996], and two other studies from @freeman_how_2014 and @zavala_emission_2017. 
+
+To convert non-CO2 greenhouse gases into CO2 equivalent, we used values of global warming potential to 100 years from  @arias_ipcc_2021, @reynolds_climate_2008 and @shindell_improved_2009 (see Supplementary Table 6). To obtain the emission factor of electricity, we needed data on the current and future electricity mix of Zambia. We used data from IRENA [@iea_tracking_2021] combined with projection of electricity mix for sub-Saharan Africa from @van_vuuren_2021_2021 to project the electricity mix of Zambia until 2070. 
+
+The formula to calculate the greenhouse gas emissions (in CO2e) $GHG_{i}$ for each type of energy $i$ writes:
+
+$$GHG_{i} = e_{i} \times \sum_{g}cf_{g,i}* GWP_{{g}}$$
+
+with: 
+
+- $e_{i}$, the energy use from energy source $i$, in GJ (NB: for firewood and charcoal, we only account for the share of energy that is considered non-renewable, see next paragraph),
+
+- $cf_{g,i}$, the emission factor for greenhouse gas $g$, for energy source $i$, in kg/GJ,
+
+- $GWP_{g}$, the Greenhouse gas Warming Potential to 100 years, for gas $g$. 
+
+
+Since firewood and charcoal are not a fossil fuels and can be considered as partly renewable, we only converted into greenhouse gas emissions the share of energy use from firewood that can be considered as non-renewable. To account for that, we multiply the energy use for firewood and charcoal by the fraction of non-renewable biomass $f_{NRB}$ (see the two equations below). We took the value for $f_{NRB}$ for Zambia (34%) from the study of @bailis_carbon_2015 (see Supplementary Table 5).
+
+$$e_{firewood} =  e'_{firewood} \times f_{NRB}$$
+
+with: 
+
+- $e_{firewood}$, the energy use from firewood considered non-renewable,
+
+- $e'_{firewood}$, the total energy use from firewood,
+
+- $f_{NRB}$, the fraction of non-renewable biomass.
+
+For charcoal, we first convert charcoal energy use into the equivalent in firewood energy, by multiplying the total charcoal energy use by two factors. The first factor is 3.6, which is the quantity of firewood (in kg) necessary to produce one kg of charcoal, that we took from @bailis_carbon_2015. The second factor is the ratio of calorific value between firewood and charcoal. The formula to obtain the non-renewable energy use from charcoal is the following:
+
+$$e_{charcoal} =  e'_{charcoal} \times  3.6  \times \frac{NCV_{firewood}}{NCV_{charcoal}} \times f_{NRB}$$ 
+
+with: 
+
+- $e_{charcoal}$, the energy use from charcoal considered non-renewable,
+
+- $e'_{charcoal}$, the total energy use from charcoal,
+
+- $f_{NRB}$, the fraction of non-renewable biomass. 
+
+
+Emissions from electricity depend on the way electricity is generated, which depends from one country to the other. To calculate emissions from electricity, we adopted the following steps. First, we calculated the percentage of non-renewable energy in the electricity source mix of Zambia, using 2020 data from IRENA [@iea_tracking_2021]. 
+
+Second, we estimated how renewable energy will develop in the future in Zambia. Since projections specific to Zambia do not exist, we used data from @van_vuuren_2021_2021 to obtain the percentage change in renewable energy source in the electricity mix of sub-Saharan Africa, using the SSP2 projection. We then obtained a percentage of renewable energy in the electricity source mix for Zambia until 2070. 
+
+Third, we calculated the average CO2 factor for non-renewable sources of electricity. Finally, we calculated the average CO2 factor of electricity for every 5-year time step using the projected percentage of renewable in the electricity source mix, and the average CO2 factor for non-renewable sources of electricity, as follows: 
+
+$$ef_{elec,t} = p_{NRB_{elec,t}} \times  \frac{\sum_{s} ef_{NRB_{s}}}{S}$$
+
+with: 
+
+- $ef_{elec, t}$, the emission factor for electricity in Zambia for timestep $t$, 
+
+- $p_{NRB_{elec, t}}$, the percentage of non-renewable energy in the electricity source mix of Zambia at time step $t$ and 
+
+- $\frac{\sum_{s} ef_{NRB_{s}}}{S}$, the average emission factor of non-renewable energy source for electricity production in Sub-Saharan Africa, across $S$ sources. 
+
+\newpage
+
+## Supplementary Tables 3, 4, 5 and 6: Values and data sources for emission factors, fNRB and GWP {.unnumbered}
+
+```{r}
+
+emission_factors = read_csv(here("analysis", "data", "raw_data", "emission_factors.csv")) %>% 
+  select(-CO2eq_gwp20, -CO2eq_gwp100, -fnrb, -wood_equivalent,-NCV) %>% 
+  rename("Fuel" = "Fuel/Gas")
+  
+emission_factors %>% 
+  kable(
+        caption = "Emission factors in kg/GJ for different energy sources and greenhouse gases. Data sources: see Supplementary Table 4.") %>% 
+      row_spec(0,bold=TRUE) %>% 
+     kable_styling(latex_options = "HOLD_position")
+
+
+
+```
+
+
+```{r, fig.pos = "h"}
+
+emission_factors_sources = read_csv(here("analysis", "data", "raw_data", "emission_factors_sources_for_SI.csv")) %>% 
+#  select(-CO2eq_gwp20, -fnrb, -wood_equivalent,-NCV) %>% 
+  rename("Fuel" = "Fuel/Gas")
+  
+emission_factors_sources %>% 
+  kable(
+        caption = "Data sources for emission factors for different energy sources and greenhouse gases. For all values taken from Freeman and Zerriffi (2014) and Zavala et al. (2017), the values were divided by the corresponding Net Calorific Values found in Table 5. Values: see Supplementary Table 3.", 
+            linesep = "\\addlinespace") %>% 
+    row_spec(0,bold=TRUE) %>% 
+   kable_styling(full_width = TRUE, 
+                 latex_options = "striped") %>% 
+     #kable_styling(latex_options = "HOLD_position") %>% 
+   column_spec(4:8, width = "4.5cm")
+
+
+
+```
+
+
+
+
+```{r, fig.pos = "h"}
+
+
+
+wood_param = read_csv(here("analysis", "data", "raw_data", "emission_factors.csv")) %>% 
+    mutate(wood_equivalent = round(wood_equivalent,2)) %>% 
+  select("Fuel" = "Fuel/Gas", fNRB = fnrb, "Wood equivalent" = wood_equivalent,"NCV (GJ/t)" = NCV)
+
+  
+wood_param %>% 
+  kable(
+        caption = "Data for fraction of Non-Renewable Biomass (fNRB), Wood equivalent and Net Calorific Values for different energy sources. Source: Bailis et al. 2015 for fNRB and wood equivalent, IPCC 2006 default, Table 1.2, for NCV.") %>% 
+  row_spec(0,bold=TRUE) %>% 
+     kable_styling(latex_options = "HOLD_position")
+
+
+```
+
+```{r GWP, fig.pos = "h"}
+
+
+
+GWP = read_csv(here("analysis", "data", "raw_data", "gwp_table.csv"))
+
+GWP %>% 
+  kable(
+        caption = "Data for Global Warming Potential to 100 years, for different greenhouse gases, and their source") %>% 
+    row_spec(0,bold=TRUE) %>% 
+     kable_styling(latex_options = "HOLD_position")
+
+
+```
+
+\newpage
+
+## Supplementary Figure 2: Greenhouse gas emissions {.unnumbered}
+
+```{r}
+
+
+###################
+## Population 
+# 
+# # Data frame with population size
+# df_pop = df_data_pop %>% 
+#   group_by(scenario, iteration, timestep) %>% 
+#   summarise(population = sampling_fraction * sum(Freq)) %>% 
+#   ungroup() %>% unique() %>% 
+#   mutate(scenario_name = forcats::fct_relevel(scenario,
+#                                           "SSP2_EA", 
+#                                           "SSP1_EA",
+#                                         "SSP1_univ"))
+
+#######################
+## Energy demand 
+
+############
+# Dataframe with population by education metagroup, energy access and rururb
+
+df_pop_educ_rurub_energy = df_data_pop %>% 
+  filter(!(edu_group == 7)) %>% 
+  # create column energy that summarizes energy access
+  mutate(energy = case_when(elec_access == 1 & mcf_access == 1 ~ "elec1_CC1", 
+                            elec_access == 1 & mcf_access == 0 ~ "elec1_CC0", 
+                            elec_access == 0 & mcf_access == 1 ~ "elec0_CC1", 
+                            elec_access == 0 & mcf_access == 0 ~ "elec0_CC0")) %>% 
+  # meta_education to match the categorization in the energy footprint data
+  mutate(meta_education = case_when(edu_group %in% 1:3 ~ "low_education", 
+                                    edu_group == 4 ~ "junior_secondary",
+                                    edu_group == 5 ~ "senior_secondary",  
+                                    edu_group == 6 ~ "post_secondary")) %>% 
+  group_by(iteration,timestep, scenario,urban, energy,meta_education) %>%
+  summarize(pop_educ_rururb_energy = sampling_fraction * sum(Freq)) %>% 
+  ungroup() %>% unique() 
+
+##########
+# Energy use per capita by education metagroup, energy access and rururb calculated from Marta's data
+ef_by_edu_urban_energy = read.csv(file = here("analysis", "data", "derived_data", "ef_by_edu_urban_energy.csv")) %>% 
+    mutate(urban = ifelse(rururb == "Urban",1,0 )) 
+
+ef_pc = ef_by_edu_urban_energy %>% 
+  group_by(meta_education, rururb, energy) %>% 
+  summarize(sum = sum(cap_GJ_average)) %>% 
+  ungroup()
+
+# average consumption per capita (in GJ) in Zambia, in marta's data 
+# mean(ef_pc$sum) # 11 GJ per capita per year 
+
+# Merge the two dataframe to obtain energy demand in education metagroup, energy access and rururb group, by fuel
+energy_demand_educ_rurub_energy = df_pop_educ_rurub_energy %>% 
+  left_join(ef_by_edu_urban_energy %>% select(fuel, cap_GJ_average, cap_GJ_se, cap_GJ_sd, urban,energy, meta_education),
+            by = c("meta_education", "urban", "energy")) %>% 
+  mutate(energy_demand_by_edu_energy_rururb_fuel = pop_educ_rururb_energy*cap_GJ_average) %>% 
+  mutate(fuel_name = case_when(fuel == "firewood"~"Firewood", 
+                               fuel == "gas" ~ "Gas", 
+                               fuel == "coal" ~"Coal", 
+                                fuel == "charcoal" ~ "Charcoal",
+                                fuel == "diesel_home" ~ "Diesel",
+                                fuel == "electricity" ~ "Electricity",
+                                fuel == "paraffin" ~ "Paraffin",
+                                fuel == "kerosene" ~ "Kerosene")) %>% 
+  mutate(urban_name = ifelse(urban == 0, "Rural", "Urban")) %>% 
+  mutate(fuel_type = case_when(fuel_name == "Firewood"~"Traditional", 
+                               fuel_name == "Gas" ~ "Modern", 
+                               fuel_name == "Coal" ~"Traditional", 
+                                fuel_name == "Charcoal" ~ "Traditional",
+                                fuel_name == "Diesel" ~ "Modern",
+                                fuel_name == "Electricity" ~ "Modern",
+                                fuel_name == "Paraffin" ~ "Traditional",
+                                fuel_name == "Kerosene" ~ "Traditional"))
+
+#####
+# Energy consumption in the SSP1_univ_elec scenario, i.e. 
+# scenario with universal modern energy access with electricity for cooking displacement
+
+# Load ef with progressive displace of dirty fuels by electricity
+ef_by_edu_urban_energy_by_year = read.csv(file = here("analysis", "data", "derived_data", "ef_by_edu_urban_energy_by_year.csv")) %>% 
+    mutate(urban = ifelse(rururb == "Urban",1,0 )) 
+
+# Merge the two dataframe to obtain energy demand in education metagroup, energy access and rururb group, by fuel
+# for the univ-elec scenario
+energy_demand_educ_rurub_energy_univ_elec = df_pop_educ_rurub_energy %>% 
+  filter(scenario == "SSP1_univ") %>% 
+  mutate(scenario = "SSP1_univ_elec") %>% 
+  mutate(year = (timestep-1)*5+2020) %>% 
+  left_join(ef_by_edu_urban_energy_by_year %>% select(fuel, cap_GJ_average,  urban,energy, meta_education, year),
+            by = c("meta_education", "urban", "energy", "year")) %>% 
+  mutate(energy_demand_by_edu_energy_rururb_fuel = pop_educ_rururb_energy*cap_GJ_average) %>% 
+  mutate(fuel_name = case_when(fuel == "firewood"~"Firewood", 
+                               fuel == "gas" ~ "Gas", 
+                               fuel == "coal" ~"Coal", 
+                                fuel == "charcoal" ~ "Charcoal",
+                                fuel == "diesel_home" ~ "Diesel",
+                                fuel == "electricity" ~ "Electricity",
+                                fuel == "paraffin" ~ "Paraffin",
+                                fuel == "kerosene" ~ "Kerosene")) %>% 
+  mutate(urban_name = ifelse(urban == 0, "Rural", "Urban")) %>% 
+  mutate(fuel_type = case_when(fuel_name == "Firewood"~"Traditional", 
+                               fuel_name == "Gas" ~ "Modern", 
+                               fuel_name == "Coal" ~"Traditional", 
+                                fuel_name == "Charcoal" ~ "Traditional",
+                                fuel_name == "Diesel" ~ "Modern",
+                                fuel_name == "Electricity" ~ "Modern",
+                                fuel_name == "Paraffin" ~ "Traditional",
+                                fuel_name == "Kerosene" ~ "Traditional"))
+
+
+# Merge the two dataframes
+energy_demand_educ_rurub_energy_all = energy_demand_educ_rurub_energy %>%  
+    mutate(year = (timestep-1)*5+2020) %>% 
+  bind_rows(energy_demand_educ_rurub_energy_univ_elec)
+
+
+
+##################
+# Emission factors for electricity 
+
+# For electricity, in kg/GJ
+co2_factor_electricity_zambia = read_csv(here("analysis", "data", "derived_data", "co2_factor_electricity_zambia.csv")) %>% 
+  filter(year == 2020) %>% 
+  select(mean_co2_factor) %>% 
+  pull() %>% round(1)
+
+# For all other fuels. # Unit is kg/GJ or t/TJ
+emission_factors_all_gases_bc_460 = read_csv(here("analysis", "data", "raw_data", "emission_factor_all_gases_bc_460.csv"), n_max = 8) %>% # Unit is kg/GJ 
+  select(fuel, CO2eq_gwp100_klimont) %>% 
+  # add electricity 
+  add_row(fuel = "electricity", CO2eq_gwp100_klimont = co2_factor_electricity_zambia) %>%
+    mutate(CO2eq_gwp100_klimont = CO2eq_gwp100_klimont) 
+
+
+# Energy demand across education metagroup, energy access and rururb group, by fuel. We weightt
+df_emissions_by_fuel = energy_demand_educ_rurub_energy_all %>% 
+  group_by(iteration, timestep, scenario, fuel) %>% 
+  summarize(energy_demand_by_fuel = sum(x= energy_demand_by_edu_energy_rururb_fuel)) %>% 
+  ungroup() %>% 
+  left_join(emission_factors_all_gases_bc_460, by = "fuel") %>% 
+  # !!!! Here charcoal energy needs to be converted to firewood eq!!
+  mutate(CO2eq_emission_by_fuel = # in t
+           energy_demand_by_fuel* # in TJ
+           CO2eq_gwp100_klimont) # t/TJ
+
+df_emissions = df_emissions_by_fuel %>% 
+  group_by(iteration, timestep, scenario) %>% 
+  summarize(CO2eq_emissions = sum(CO2eq_emission_by_fuel)) %>% 
+  ungroup() %>% 
+  mutate(scenario_name = forcats::fct_relevel(scenario,
+                                          "SSP2_EA",
+                                          "SSP1_EA",
+                                        "SSP1_univ", "SSP1_univ_elec"))
+
+color_pal = c("#440154FF", "#20A387FF", "#FDE725FF","#31688e")
+
+plot_emissions = ggplot(data = df_emissions,  
+                        aes(x=(timestep-1)*5+2020, y= CO2eq_emissions, 
+                            fill = scenario_name, color = scenario_name, group = scenario_name ))+ 
+   geom_smooth(method = "loess", se=T, size = 0.5)+
+  scale_color_manual(name = "Scenario", values = color_pal) + 
+  scale_fill_manual(guide = "none", values = color_pal)+
+  #scale_color_viridis_d(name = "Scenario") +
+  #scale_fill_viridis_d(guide = "none") +
+  theme_minimal()+ 
+  labs(x = "Year", y = "Emissions (tCO2eq)")
+
+
+################ 
+# Metrics for the main text (discussion)
+################
+
+emissions_ssp2_2070 = df_emissions %>% filter(timestep == 11, scenario_name == "SSP2_EA")  %>% summarize(mean = mean(CO2eq_emissions)) %>% pull() 
+emissions_ssp2_2050 = df_emissions %>% filter(timestep == 7, scenario_name == "SSP2_EA")  %>% summarize(mean = mean(CO2eq_emissions)) %>% pull() 
+
+emissions_ssp1_2070 = df_emissions %>% filter(timestep == 11, scenario_name == "SSP1_EA")  %>% summarize(mean = mean(CO2eq_emissions)) %>% pull() 
+
+emissions_ssp1_univ_2070 = df_emissions %>% filter(timestep == 11, scenario_name == "SSP1_univ")  %>% summarize(mean = mean(CO2eq_emissions)) %>% pull() 
+emissions_ssp1_univ_2050 = df_emissions %>% filter(timestep == 7, scenario_name == "SSP1_univ")  %>% summarize(mean = mean(CO2eq_emissions)) %>% pull() 
+
+emissions_ssp1_univ_elec_2070 = df_emissions %>% filter(timestep == 11, scenario_name == "SSP1_univ_elec")  %>% summarize(mean = mean(CO2eq_emissions)) %>% pull() 
+emissions_ssp1_univ_elec_2050 = df_emissions %>% filter(timestep == 7, scenario_name == "SSP1_univ_elec")  %>% summarize(mean = mean(CO2eq_emissions)) %>% pull() 
+
+p_diff_emissions_ssp2_ssp1_univ_2070 = percentage_difference(emissions_ssp2_2070, emissions_ssp1_univ_2070)  %>% round()
+p_diff_emissions_ssp2_ssp1_univ_2050 = percentage_difference(emissions_ssp2_2050, emissions_ssp1_univ_2050)  %>% round() # 52%
+
+p_diff_emissions_ssp1_univ_2070 = percentage_difference(emissions_ssp1_2070, emissions_ssp1_univ_2070) %>% round() # 18%
+
+p_diff_emissions_ssp1_univ_ssp1_univ_elec_2070 = percentage_difference(emissions_ssp1_univ_2070, emissions_ssp1_univ_elec_2070) %>% round()
+p_diff_emissions_ssp1_univ_ssp1_univ_elec_2050 = percentage_difference(emissions_ssp1_univ_2050, emissions_ssp1_univ_elec_2050) %>% round() # 160%
+
+# savings in tC02 eq
+
+savings_ssp2_ssp1_univ_2050 = emissions_ssp2_2050 - emissions_ssp1_univ_2050
+
+#om 2070 
+savings_ssp2_ssp1_univ_2070 = emissions_ssp2_2070 - emissions_ssp1_univ_2070
+
+
+```
+
+```{r}
+
+
+#######
+# Calculate accumulated CO2 demand
+
+df_emissions_cum = df_emissions %>% 
+    group_by(scenario_name, timestep) %>% 
+    # average over iterations
+    summarize(mean_CO2eq_emissions = mean(CO2eq_emissions)) %>% 
+    ungroup() %>% 
+   # pivot_wider(names_from = timestep, values_from = energy_demand) %>% 
+   group_by(scenario_name) %>% 
+    summarize(CO2eq_emissions_cum = cumsum(mean_CO2eq_emissions)) %>% 
+    ungroup() %>% 
+    mutate(timestep = rep(seq(1,11),4))
+
+df_emissions_cum_2070 = df_emissions_cum %>% 
+  filter(timestep == 11)
+
+inset = ggplot(df_emissions_cum_2070, aes(x = scenario_name, y = CO2eq_emissions_cum, fill = scenario_name))+
+  geom_bar(stat= "identity")+
+  scale_color_manual(name = "Scenario", values = color_pal) + 
+  scale_fill_manual(guide = "none", values = color_pal)+
+  labs(y = "Accumulated emissions \n by 2070 (tCOeq)", x = "")+
+  theme_bw()+ 
+theme(#axis.text.x = element_text(angle = 45, hjust = 1),
+      axis.text =element_text(size=4), 
+      axis.title.y=element_text(size=5), 
+      axis.text.x=element_blank())
+
+```
+
+```{r, eval = F}
+# **Main message**
+# 
+# Emissions of greenhouse gases are about `r p_diff_emissions_ssp2_ssp1_univ`% lower in the *SSP1_univ* scenario compared to the baseline scenario (*SSP2_EA*). Displacing quickly all traditional fuels by electricity leads to an even more drastic decline in emissions (*SSP1_univ_elec*).
+# 
+# [+ compare the cummulated emissions with carbon budget for 1.5/2 degree].
+
+```
+
+
+```{r, fig.cap = "Emissions of the population under four scenarios. Inset: Cummulated emissions in 2070 under four scenarios."}
+
+layout <- c(
+   area(t = 1, l = 1, b = 14, r = 16), # main plot emissions
+  area(t = 1.5, l = 2, b = 3.5,r = 6.7) # inset cum emissions 2070 
+)
+
+
+wrap_plots(A = plot_emissions, B = inset, design = layout) +
+   plot_layout(tag_level = 'new') +
+  #  plot_annotation(tag_levels = list(c('a', 'b'))) &
+  theme(plot.margin = unit(c(0.15,0.15,0.15,0.15), "cm")#, text = element_text(size=8)
+        ) +
+  # put position at bottom
+  theme(legend.position='right')
+
+```
+
+
+\newpage 
+
+# Validation 
+
+## Supplementary Figures 3 and 4: Validation of the education pathways {-} 
+
+
+```{r}
+
+# Retrieve education distribution from raw file (code similar to the one in Scenario2.Rmd) ####
+
+edu_sc_raw = read.csv(here("analysis", "data", "raw_data", "wcde_data_educ_distribution_age.csv"), skip = 8) %>%
+  janitor::clean_names() %>% 
+    filter(!(age == "100+")) %>% 
+  mutate(age = ifelse(age == "95--99", "95+", age)) %>% 
+    left_join(age_group_map, by = "age") %>% 
+  # from percentage to proportion (from 0 to 1)
+  mutate(p_educ_age = distribution/100) %>% 
+  filter(#age_group %in% 4:6, 
+         sex == "Both",  
+         !(education == "Under 15")) %>% 
+ mutate(edu_group = case_when(education == "No Education" ~1,
+                               education == "Incomplete Primary" ~2, 
+                               education == "Primary" ~3, 
+                               education == "Lower Secondary" ~4, 
+                               education == "Upper Secondary" ~5, 
+                               education == "Post Secondary" ~6)) %>% 
+    filter(scenario %in% c("SSP1", "SSP2")) %>% 
+    mutate(source = "WIC")
+
+
+# Selection of education and age group (because we can't look at everything at the same time #####
+s_edu_group = 1
+s_age_group = 4
+
+
+edu_scenario = edu_sc_raw %>%
+  filter(age_group %in% c(4,5,6))
+
+
+df_educ_age = df_data_pop %>% 
+  group_by(iteration, scenario, age_group, timestep, edu_group) %>%
+  summarize(pop_educ_age = sampling_fraction * sum(Freq)) %>% 
+  ungroup() %>% unique() %>% 
+  left_join(df_pop_age %>% unique(), by = c("timestep", "iteration","age_group", "scenario")) %>% 
+  group_by(scenario, age_group, edu_group, timestep) %>% 
+  summarize(pop_educ_age = mean(pop_educ_age), 
+            population = mean(population)) %>% 
+  ungroup() %>% 
+  mutate(p_educ_age  = pop_educ_age/ population)
+
+# DF comparing the education distrib in our simulation, and in the raw scenario, per age group  ######
+df_educ_age_comparison = df_educ_age %>% 
+  filter(age_group %in% c(4,5,6), scenario %in% c("SSP1_EA", "SSP2_EA")) %>% 
+    mutate(scenario = case_when(scenario == "SSP1_EA" ~ "SSP1", 
+                              scenario == "SSP2_EA" ~ "SSP2" )) %>% 
+    mutate(source = "own") %>% 
+  mutate(year =(timestep-1)*5+2020) %>% 
+  select(-population, -pop_educ_age, -timestep) %>% 
+  # ADD THE DATA FROM THE SCENARIO 
+  bind_rows(edu_scenario %>% select(-distribution, - area,  -age, -sex, - education)) %>% 
+  mutate(age_group_char = case_when(age_group == 4 ~ "15-19", 
+                                    age_group == 5~ "20-24", 
+                                    age_group == 6~ "25-29"))
+
+```
+
+```{r, fig.cap = "Proportion of the population in three age categories from 2030 to 2050 in the microsimulation, compared with WIC data, for SSP1 scenario."}
+
+
+ggplot(data =df_educ_age_comparison %>% 
+         filter(year %in% c(2030, 2035, 2040,2045, 2050), 
+                scenario == "SSP1") , aes(x = edu_group, y = p_educ_age, fill = source)  )+
+  geom_bar(stat = "identity", position = "dodge")+
+  facet_grid(rows = vars(year), cols = vars(age_group_char))+
+  theme_bw()+
+  labs(title = "SSP1", 
+       x = "Education group", y = "Proportion of the population")
+
+```
+
+```{r, fig.cap = "Proportion of the population in three age categories from 2030 to 2050 in the microsimulation, compared with WIC data, for SSP2 scenario."}
+
+
+
+ggplot(data =df_educ_age_comparison %>% 
+         filter(year %in% c(2030, 2035, 2040,2045, 2050), 
+                scenario == "SSP2") , aes(x = edu_group, y = p_educ_age, fill = source)  )+
+  geom_bar(stat = "identity", position = "dodge")+
+  facet_grid(rows = vars(year), cols = vars(age_group_char))+
+  theme_bw()+
+  labs(title ="SSP2", 
+       x = "Education group", y = "Proportion of the population")
+
+```
+
+## Supplementary Figure 5: Validation of the microsimulation model {.unnumbered}
+ 
+ 
+
+```{r}
+# Load validation data 
+
+experiment = "51"
+
+###########
+# Load all files
+##########
+
+# An experiment can consist of different scenarios (e.g. SSP1, SSP2) and then different iterations using different random seeds to capture the stochastic variability of the model.
+
+#######################
+# Data population 
+
+files_pop = filename_pop = list.files(res_path, 
+                              pattern = paste0("st_population_", 
+                                               experiment, "_"))
+# dataframe with the results from one experiement (different scenarios, different seeds)
+data_pop <- files_pop %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_population = data.frame(filename = files_pop) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_pop = nrow(read_rds(file.path(res_path, files_pop[1])))
+
+# Add iteration, experiment, sampling fraction to the pop data
+df_data_pop = data.frame(exp = rep(grid_population$exp, each=rows_pop),
+                    scenario = rep(grid_population$scenario, each=rows_pop),
+                    iteration = rep(grid_population$iteration, each=rows_pop),
+                    seed = rep(grid_population$seed, each=rows_pop)) %>% 
+  bind_cols(data_pop) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration),
+         mcf_access = strtoi(mcf_access),
+         elec_access = strtoi(elec_access)) %>% 
+  select(-seed) %>% 
+  # change scenario names 
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA"))
+
+# Determine the Initial size pop and add it to the sim_param parameter
+df_pop_init = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sum(Freq)) %>% 
+  ungroup() %>% 
+  filter(timestep == 1) %>% 
+  select(scenario,population_init = population, iteration) 
+
+#######################
+# Sim parameters 
+
+# load sim_param file
+files_params = filename_params = list.files(res_path, 
+                              pattern = paste0("sim_params_", 
+                                               experiment, "_"))
+data_params <- files_params %>%
+  # read in all the files, appending the path before the filename
+  map(~ readRDS(file.path(res_path, .))) %>% # NB: this should be read_rds in the next round
+  #  map(~ read_csv(file.path(res_path, .))) %>% # NB: this should be read_rds in the next round
+  reduce(rbind) %>%
+  # add column for iteration
+  mutate(iteration = str_split_fixed(run_id, pattern = "_", n = 4)[,3])  %>% 
+  rename(scenario = scenario_name) %>% 
+  mutate(iteration = strtoi(iteration)) %>% 
+    # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  left_join(df_pop_init, by = c("scenario", "iteration")) %>% 
+  # Add sampling fraction 
+  mutate(sampling_fraction = pop_zambia/population_init)
+
+# Add the  sampling fraction to  df_data_pop
+df_data_pop = df_data_pop %>% 
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+#######################
+# Data births
+
+files_births = filename_births = list.files(res_path, 
+                              pattern = paste0("st_birth_", 
+                                               experiment, "_"))
+data_births <- files_births %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_births = data.frame(filename = files_births) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_births = nrow(read_rds(file.path(res_path, files_births[1])))
+
+# Add iteration, experiment, sampling fraction to the birth data
+df_data_births = data.frame(exp = rep(grid_births$exp, each=rows_births),
+                    scenario = rep(grid_births$scenario, each=rows_births),
+                    iteration = rep(grid_births$iteration, each=rows_births),
+                    seed = rep(grid_births$seed, each=rows_births)) %>% 
+  bind_cols(data_births) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration)) %>% 
+  select(-seed) %>% 
+    # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  # Add the sampling fraction
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+#######################
+# Data deaths
+
+files_deaths = filename_deaths = list.files(res_path, 
+                              pattern = paste0("st_death_", 
+                                               experiment, "_"))
+data_deaths <- files_deaths %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_rds(file.path(res_path, .))) %>% 
+  reduce(rbind)
+
+grid_deaths = data.frame(filename = files_deaths) %>% 
+  separate(col=filename, sep="[_|.]", into=c("x1", "x2", "exp", 
+                                         "scenario", "iteration", "seed", "suffix")) 
+
+rows_births = nrow(read_rds(file.path(res_path, files_deaths[1])))
+
+# Add iteration, experiment, sampling fraction to the death data
+df_data_deaths = data.frame(exp = rep(grid_deaths$exp, each=rows_births),
+                    scenario = rep(grid_deaths$scenario, each=rows_births),
+                    iteration = rep(grid_deaths$iteration, each=rows_births),
+                    seed = rep(grid_deaths$seed, each=rows_births)) %>% 
+  bind_cols(data_deaths) %>% 
+  mutate(urban = strtoi(urban),
+         iteration = strtoi(iteration)) %>% 
+  select(-seed) %>% 
+      # change scenario names
+  mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1_EA", 
+                           scenario == "Universal" ~ "SSP1_univ", 
+                           scenario == "SSP2" ~ "SSP2_EA", 
+                           scenario == "SSP3" ~ "SSP3_EA")) %>% 
+  # Add the sampling fraction
+  left_join(data_params %>% select(iteration, scenario, sampling_fraction), by = c("iteration", "scenario"))
+
+### Useful dataframes 
+
+
+# data frame with population size
+df_pop = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup()
+
+# data frame with population by age group 
+df_pop_age = df_data_pop %>% 
+  group_by(scenario, age_group, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup()
+
+
+
+
+```
+
+
+```{r, fig.cap = "Population pathways from a simulation of the microsimulation model in which the fertility module was replaced by Age-Specific Fertility Rates projections from WIC data, compared with population pathways from the WIC data, for SSP1 and SSP2."}
+
+# Plot 
+
+
+color_pal = c("paleturquoise2", "#20A387FF","deeppink2" ,"#440154FF")
+###################
+## Population 
+
+# Data frame with population size
+df_pop = df_data_pop %>% 
+  group_by(scenario, iteration, timestep) %>% 
+  summarise(population = sampling_fraction * sum(Freq)) %>% 
+  ungroup() %>% unique() %>% 
+  mutate(scenario_name = forcats::fct_relevel(scenario,
+                                          "SSP2_EA", 
+                                          "SSP1_EA")) # 
+
+
+
+
+# From WC projections
+df_pop_wc = read.csv(here("analysis", "data", "raw_data", "wcde_data_pop_zambia.csv"), skip = 8) %>% 
+  clean_names() %>% 
+ mutate(scenario = case_when(scenario == "SSP1" ~ "SSP1 - IIASA", 
+                              scenario == "SSP2" ~ "SSP2 - IIASA")) %>% 
+  select( year, population , scenario_name = scenario) %>% 
+  mutate(timestep = (as.numeric(year)-2020)/5 +1 , 
+         source = "WCDE", 
+         population = population*1000) %>% 
+  mutate(timestep_st = as.character(year)) %>% 
+  filter(scenario_name %in% c("SSP2 - IIASA","SSP1 - IIASA"),  
+         year < 2075,
+         year > 2015)
+
+plot_pop_smooth_valid = 
+  ggplot()+
+  #geom_line(data = df_pop %>% filter(iteration == 2), aes(x=(timestep-1)*5+2020, y = population))+
+  geom_smooth(data = df_pop, aes(x=(timestep-1)*5+2020, y = population, 
+                                 color = scenario_name, fill = scenario_name),
+              method = "loess", se=T, size = 0.7) +
+  geom_line(data = df_pop_wc, aes(x = year, y = population, color = scenario_name), size = 0.7)+
+  scale_color_manual(name = "Scenario", values = color_pal) +
+  scale_fill_manual(guide = "none", values = color_pal) +
+  theme_minimal()+ 
+  labs(x = "", y = "Population")
+
+plot_pop_smooth_valid
+```
+
+
+
+\pagebreak 
+
+# References {.unnumbered}
+
+
+::: {#refs}
+:::

@@ -1,0 +1,513 @@
+"meta_education","rururb","energy","fuel","cap_GJ_average","cap_GJ_sd","n_cases","cap_GJ_se","name_meta_education","name_energy"
+"junior_secondary","Rural","elec0_CC0","firewood",7.2830217148681,7.56678210954582,1127,0.225397591124215,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Rural","elec0_CC0","gas",0,0,1127,0,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Rural","elec0_CC0","coal",0.000677237446441546,0.050565532902263,1127,0.00150623463779987,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Rural","elec0_CC0","charcoal",1.93458628261886,5.21902032764293,1127,0.15546299508149,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Rural","elec0_CC0","diesel_home",0.0074664022410211,0.190184334821324,1127,0.00566516787687184,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Rural","elec0_CC0","electricity",0,0,1127,0,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Rural","elec0_CC0","paraffin",0.0211791003954336,0.240172118014549,1127,0.00715419263723575,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Rural","elec0_CC0","kerosene",0.008410638038359,0.112590975004105,1127,0.00335383445444225,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC0","firewood",4.44734796556555,8.50206619911378,41,1.32779966214156,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC0","gas",0,0,41,0,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC0","coal",0,0,41,0,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC0","charcoal",5.62038671312975,6.13652349642642,41,0.958363959354736,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC0","diesel_home",0,0,41,0,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC0","electricity",0.972134561392512,1.32754907933827,41,0.207328333812012,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC0","paraffin",0.00758450518700443,0.124518260139264,41,0.019446485109773,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC0","kerosene",0,0,41,0,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Rural","elec1_CC1","firewood",0,0,31,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Rural","elec1_CC1","gas",0,0,31,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Rural","elec1_CC1","coal",0,0,31,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Rural","elec1_CC1","charcoal",5.54267288225585,7.66071678197787,31,1.37590535136872,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Rural","elec1_CC1","diesel_home",0,0,31,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Rural","elec1_CC1","electricity",2.63063029921247,3.28165051262004,31,0.589401831465442,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Rural","elec1_CC1","paraffin",0.041861359873771,0.32498929947268,31,0.0583698012872607,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Rural","elec1_CC1","kerosene",0,0,31,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC0","firewood",0.829880498455587,3.08861770844196,458,0.144321627633703,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Urban","elec0_CC0","gas",0,0,458,0,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Urban","elec0_CC0","coal",0,0,458,0,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Urban","elec0_CC0","charcoal",11.4934992757246,9.57454171404645,458,0.447388953395277,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Urban","elec0_CC0","diesel_home",0.109569771705816,0.798402677856828,458,0.0373069071191494,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Urban","elec0_CC0","electricity",0.000625225540169011,0.0274904040397458,458,0.00128454222239294,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Urban","elec0_CC0","paraffin",0.0600798506181879,0.397602068262391,458,0.0185787245489508,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Urban","elec0_CC0","kerosene",0.0145645560953229,0.253317375778998,458,0.0118367436281926,"Junior sec.","No elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC0","firewood",0.0291603180526556,0.38041771570865,309,0.0216412077279787,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC0","gas",0,0,309,0,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC0","coal",0,0,309,0,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC0","charcoal",14.2053334076577,9.91785749188601,309,0.564207199968512,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC0","diesel_home",0,0,309,0,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC0","electricity",1.95926053863045,1.85767965621724,309,0.105679703315992,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC0","paraffin",0.0840892207266958,0.445982594959013,309,0.025371063391703,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC0","kerosene",0.00460908734470731,0.0655353469190511,309,0.0037281756280944,"Junior sec.","Elec, 
+ No CC"
+"junior_secondary","Urban","elec1_CC1","firewood",0,0,116,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Urban","elec1_CC1","gas",0,0,116,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Urban","elec1_CC1","coal",0,0,116,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Urban","elec1_CC1","charcoal",8.57750884102497,7.93510744431438,116,0.7367562301716,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Urban","elec1_CC1","diesel_home",0,0,116,0,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Urban","elec1_CC1","electricity",3.07913528477073,3.04531206181421,116,0.282750126586623,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Urban","elec1_CC1","paraffin",0.107384722013023,0.787062802773978,116,0.0730769466638461,"Junior sec.","Elec, 
+ CC"
+"junior_secondary","Urban","elec1_CC1","kerosene",0,0,116,0,"Junior sec.","Elec, 
+ CC"
+"low_education","Rural","elec0_CC0","firewood",8.05463328990585,8.57861893093907,3847,0.138310860533358,"Low educ.","No elec, 
+ No CC"
+"low_education","Rural","elec0_CC0","gas",0,0,3847,0,"Low educ.","No elec, 
+ No CC"
+"low_education","Rural","elec0_CC0","coal",0,0,3847,0,"Low educ.","No elec, 
+ No CC"
+"low_education","Rural","elec0_CC0","charcoal",1.13593877138024,3.94573261042419,3847,0.0636160292438312,"Low educ.","No elec, 
+ No CC"
+"low_education","Rural","elec0_CC0","diesel_home",0.00957630485815561,0.348202253516971,3847,0.005613975129481,"Low educ.","No elec, 
+ No CC"
+"low_education","Rural","elec0_CC0","electricity",0.00267504145323223,0.161720172172448,3847,0.00260737262709088,"Low educ.","No elec, 
+ No CC"
+"low_education","Rural","elec0_CC0","paraffin",0.0136421068657382,0.175501881603633,3847,0.00282957157384363,"Low educ.","No elec, 
+ No CC"
+"low_education","Rural","elec0_CC0","kerosene",0.00861226063802349,0.426387265441575,3847,0.00687453191224034,"Low educ.","No elec, 
+ No CC"
+"low_education","Rural","elec1_CC0","firewood",7.76215535855753,11.1736267433207,39,1.78921222171509,"Low educ.","Elec, 
+ No CC"
+"low_education","Rural","elec1_CC0","gas",0,0,39,0,"Low educ.","Elec, 
+ No CC"
+"low_education","Rural","elec1_CC0","coal",0,0,39,0,"Low educ.","Elec, 
+ No CC"
+"low_education","Rural","elec1_CC0","charcoal",3.69723542449935,7.08734629297021,39,1.13488367727065,"Low educ.","Elec, 
+ No CC"
+"low_education","Rural","elec1_CC0","diesel_home",0,0,39,0,"Low educ.","Elec, 
+ No CC"
+"low_education","Rural","elec1_CC0","electricity",0.481371974069129,1.09431434919755,39,0.175230536419419,"Low educ.","Elec, 
+ No CC"
+"low_education","Rural","elec1_CC0","paraffin",0.0147146662039378,0.193711049180166,39,0.0310185926768665,"Low educ.","Elec, 
+ No CC"
+"low_education","Rural","elec1_CC0","kerosene",0,0,39,0,"Low educ.","Elec, 
+ No CC"
+"low_education","Rural","elec1_CC1","firewood",0.116782473937446,0.430165836585708,31,0.0772600650015763,"Low educ.","Elec, 
+ CC"
+"low_education","Rural","elec1_CC1","gas",0,0,31,0,"Low educ.","Elec, 
+ CC"
+"low_education","Rural","elec1_CC1","coal",0,0,31,0,"Low educ.","Elec, 
+ CC"
+"low_education","Rural","elec1_CC1","charcoal",5.81932897297421,8.02178647064303,31,1.44075538185414,"Low educ.","Elec, 
+ CC"
+"low_education","Rural","elec1_CC1","diesel_home",0,0,31,0,"Low educ.","Elec, 
+ CC"
+"low_education","Rural","elec1_CC1","electricity",1.99735216348998,2.79475182221348,31,0.501952245118531,"Low educ.","Elec, 
+ CC"
+"low_education","Rural","elec1_CC1","paraffin",0,0,31,0,"Low educ.","Elec, 
+ CC"
+"low_education","Rural","elec1_CC1","kerosene",0,0,31,0,"Low educ.","Elec, 
+ CC"
+"low_education","Urban","elec0_CC0","firewood",0.973191879940662,3.35767891793321,667,0.130009846910735,"Low educ.","No elec, 
+ No CC"
+"low_education","Urban","elec0_CC0","gas",0,0,667,0,"Low educ.","No elec, 
+ No CC"
+"low_education","Urban","elec0_CC0","coal",0,0,667,0,"Low educ.","No elec, 
+ No CC"
+"low_education","Urban","elec0_CC0","charcoal",10.5082553869771,8.65624966605987,667,0.335171325612717,"Low educ.","No elec, 
+ No CC"
+"low_education","Urban","elec0_CC0","diesel_home",0.0137455636187139,0.183830990578553,667,0.00711796438156088,"Low educ.","No elec, 
+ No CC"
+"low_education","Urban","elec0_CC0","electricity",0.0195026604782463,0.374294556576926,667,0.014492743108993,"Low educ.","No elec, 
+ No CC"
+"low_education","Urban","elec0_CC0","paraffin",0.0686622853162662,0.472905990209064,667,0.0183109930678229,"Low educ.","No elec, 
+ No CC"
+"low_education","Urban","elec0_CC0","kerosene",0.0180675517766166,0.21574199864748,667,0.00835356354848844,"Low educ.","No elec, 
+ No CC"
+"low_education","Urban","elec1_CC0","firewood",0.118276843623149,0.706397422795482,250,0.0446764957861334,"Low educ.","Elec, 
+ No CC"
+"low_education","Urban","elec1_CC0","gas",0,0,250,0,"Low educ.","Elec, 
+ No CC"
+"low_education","Urban","elec1_CC0","coal",0,0,250,0,"Low educ.","Elec, 
+ No CC"
+"low_education","Urban","elec1_CC0","charcoal",17.2741467964748,14.4316052694364,250,0.912734858878138,"Low educ.","Elec, 
+ No CC"
+"low_education","Urban","elec1_CC0","diesel_home",0,0,250,0,"Low educ.","Elec, 
+ No CC"
+"low_education","Urban","elec1_CC0","electricity",1.91299588978961,2.08882864409737,250,0.132109123142979,"Low educ.","Elec, 
+ No CC"
+"low_education","Urban","elec1_CC0","paraffin",0.0796463632540921,0.67818791398664,250,0.0428923697959229,"Low educ.","Elec, 
+ No CC"
+"low_education","Urban","elec1_CC0","kerosene",0.00247003464237581,0.0520489306382045,250,0.00329186341185695,"Low educ.","Elec, 
+ No CC"
+"low_education","Urban","elec1_CC1","firewood",0,0,89,0,"Low educ.","Elec, 
+ CC"
+"low_education","Urban","elec1_CC1","gas",0,0,89,0,"Low educ.","Elec, 
+ CC"
+"low_education","Urban","elec1_CC1","coal",0,0,89,0,"Low educ.","Elec, 
+ CC"
+"low_education","Urban","elec1_CC1","charcoal",10.9172993899485,13.8418082730767,89,1.46722874249158,"Low educ.","Elec, 
+ CC"
+"low_education","Urban","elec1_CC1","diesel_home",0.000224325726059261,0.0111032568541891,89,0.00117694287266065,"Low educ.","Elec, 
+ CC"
+"low_education","Urban","elec1_CC1","electricity",2.96577070971784,2.13800202563748,89,0.226627761462503,"Low educ.","Elec, 
+ CC"
+"low_education","Urban","elec1_CC1","paraffin",0.000741999272313803,0.0227676293701618,89,0.0024133638865142,"Low educ.","Elec, 
+ CC"
+"low_education","Urban","elec1_CC1","kerosene",0,0,89,0,"Low educ.","Elec, 
+ CC"
+"post_secondary","Rural","elec0_CC0","firewood",4.45399059343282,6.55809013726385,155,0.526758475893516,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Rural","elec0_CC0","gas",0.0268989288340878,0.260591547452018,155,0.0209312167862074,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Rural","elec0_CC0","coal",0,0,155,0,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Rural","elec0_CC0","charcoal",7.4019880273037,9.48641084544432,155,0.761966855297117,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Rural","elec0_CC0","diesel_home",0.344203396270344,4.31789049884665,155,0.346821310875808,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Rural","elec0_CC0","electricity",0.363870979679619,4.31755036603557,155,0.346793990750983,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Rural","elec0_CC0","paraffin",0.0172400385533839,0.130793229811327,155,0.0105055650274044,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Rural","elec0_CC0","kerosene",0.00241304950721629,0.0555745686685357,155,0.00446385677499871,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC0","firewood",1.48331371111719,3.37820286163901,50,0.477750030337749,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC0","gas",0.0363379991339126,0.321291193955719,50,0.0454374363963222,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC0","coal",0,0,50,0,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC0","charcoal",10.8477837323662,11.5681368213927,50,1.63598159842011,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC0","diesel_home",0,0,50,0,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC0","electricity",1.64379025444651,2.5561474824289,50,0.361493843707679,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC0","paraffin",0,0,50,0,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC0","kerosene",0,0,50,0,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Rural","elec1_CC1","firewood",0,0,98,0,"Post sec.","Elec, 
+ CC"
+"post_secondary","Rural","elec1_CC1","gas",0,0,98,0,"Post sec.","Elec, 
+ CC"
+"post_secondary","Rural","elec1_CC1","coal",0,0,98,0,"Post sec.","Elec, 
+ CC"
+"post_secondary","Rural","elec1_CC1","charcoal",6.12989022849704,7.90389609327302,98,0.798414075049601,"Post sec.","Elec, 
+ CC"
+"post_secondary","Rural","elec1_CC1","diesel_home",0.0638149044697122,1.18269384293668,98,0.119470119486872,"Post sec.","Elec, 
+ CC"
+"post_secondary","Rural","elec1_CC1","electricity",4.62947516547962,3.72134058264963,98,0.375912165870893,"Post sec.","Elec, 
+ CC"
+"post_secondary","Rural","elec1_CC1","paraffin",0.06090726718044,0.300035954402746,98,0.0303082082797085,"Post sec.","Elec, 
+ CC"
+"post_secondary","Rural","elec1_CC1","kerosene",0,0,98,0,"Post sec.","Elec, 
+ CC"
+"post_secondary","Urban","elec0_CC0","firewood",1.18309930420977,3.32200872722898,88,0.354127320192405,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Urban","elec0_CC0","gas",0,0,88,0,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Urban","elec0_CC0","coal",0,0,88,0,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Urban","elec0_CC0","charcoal",10.486498408546,10.2573028287055,88,1.09343215547822,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Urban","elec0_CC0","diesel_home",0.0128372047169718,0.0985528145738774,88,0.0105057653330062,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Urban","elec0_CC0","electricity",0.0861997765421166,0.460703010004784,88,0.049111105880103,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Urban","elec0_CC0","paraffin",0.0127785797192503,0.127373139007172,88,0.0135780222403959,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Urban","elec0_CC0","kerosene",0,0,88,0,"Post sec.","No elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC0","firewood",0.0646120857221334,0.881727622172589,431,0.0424713251074822,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC0","gas",0.0159228434919907,0.645132045300156,431,0.0310749171787143,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC0","coal",0.0217212975058463,0.329991965590428,431,0.0158951536744585,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC0","charcoal",14.6700490693473,10.8838938104439,431,0.524258717584097,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC0","diesel_home",0.00421865790083435,0.246710591219348,431,0.0118836310257785,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC0","electricity",2.55666596516492,2.37673058971053,431,0.114483084152189,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC0","paraffin",0.0759832854429539,0.392660836665638,431,0.0189138069757986,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC0","kerosene",0.063879651344609,0.40742575152898,431,0.0196250078995036,"Post sec.","Elec, 
+ No CC"
+"post_secondary","Urban","elec1_CC1","firewood",0.00954648491335342,0.195674259515099,1278,0.00547353969611931,"Post sec.","Elec, 
+ CC"
+"post_secondary","Urban","elec1_CC1","gas",0.567362702496975,6.88283060743295,1278,0.19253143793572,"Post sec.","Elec, 
+ CC"
+"post_secondary","Urban","elec1_CC1","coal",0.000220074490267309,0.0223309875631454,1278,0.000624658282511561,"Post sec.","Elec, 
+ CC"
+"post_secondary","Urban","elec1_CC1","charcoal",7.55245494155269,9.08411154793238,1278,0.254107235590418,"Post sec.","Elec, 
+ CC"
+"post_secondary","Urban","elec1_CC1","diesel_home",0.263673357733671,5.54578315396039,1278,0.155130594665313,"Post sec.","Elec, 
+ CC"
+"post_secondary","Urban","elec1_CC1","electricity",5.10944207127666,3.73622498174788,1278,0.104512345169507,"Post sec.","Elec, 
+ CC"
+"post_secondary","Urban","elec1_CC1","paraffin",0.0250412595112298,0.330304345983073,1278,0.00923950832377915,"Post sec.","Elec, 
+ CC"
+"post_secondary","Urban","elec1_CC1","kerosene",0.0261201646260958,0.394915725609742,1278,0.0110468638343302,"Post sec.","Elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC0","firewood",6.47233174883974,6.713856668397,671,0.259185561971906,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Rural","elec0_CC0","gas",0,0,671,0,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Rural","elec0_CC0","coal",0,0,671,0,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Rural","elec0_CC0","charcoal",3.03419699832603,6.2893079439522,671,0.242796040246243,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Rural","elec0_CC0","diesel_home",0.0211765034185737,0.754879834191675,671,0.0291418127776241,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Rural","elec0_CC0","electricity",0.000272043161751439,0.0157056060308662,671,0.000606308196059734,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Rural","elec0_CC0","paraffin",0.0230047493368648,0.234923349934679,671,0.00906911533571363,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Rural","elec0_CC0","kerosene",0.0105283641278739,0.236586924053932,671,0.00913333690228507,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC0","firewood",1.82536598202609,3.86879277293707,49,0.552684681848153,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC0","gas",0,0,49,0,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC0","coal",0,0,49,0,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC0","charcoal",9.16238132218064,12.9751272329722,49,1.85358960471031,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC0","diesel_home",0.312732274037875,2.17141224077885,49,0.310201748682692,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC0","electricity",1.60786496921239,1.55765836054164,49,0.22252262293452,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC0","paraffin",0,0,49,0,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC0","kerosene",0,0,49,0,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Rural","elec1_CC1","firewood",0,0,49,0,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Rural","elec1_CC1","gas",0,0,49,0,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Rural","elec1_CC1","coal",0,0,49,0,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Rural","elec1_CC1","charcoal",3.75587719262083,7.48243464105314,49,1.06891923443616,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Rural","elec1_CC1","diesel_home",0,0,49,0,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Rural","elec1_CC1","electricity",3.82228339729223,2.64116081636622,49,0.377308688052317,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Rural","elec1_CC1","paraffin",0,0,49,0,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Rural","elec1_CC1","kerosene",0,0,49,0,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC0","firewood",0.649428197830852,2.91720185418948,448,0.137824832685034,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Urban","elec0_CC0","gas",0,0,448,0,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Urban","elec0_CC0","coal",0,0,448,0,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Urban","elec0_CC0","charcoal",13.1563232635853,10.0037911047065,448,0.472634704123098,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Urban","elec0_CC0","diesel_home",0,0,448,0,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Urban","elec0_CC0","electricity",0.0358608958691047,0.417400060342408,448,0.0197202992301672,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Urban","elec0_CC0","paraffin",0.0171295269309254,0.161019057889992,448,0.00760743541997914,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Urban","elec0_CC0","kerosene",0,0,448,0,"Senior sec.","No elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC0","firewood",0.0290260324118987,0.620487797097351,523,0.0271320369834864,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC0","gas",0.058703728846899,0.659723320928169,523,0.0288476866523827,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC0","coal",0.00834969075389248,0.173202635021461,523,0.00757362243225918,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC0","charcoal",16.2725367208883,12.6874215151761,523,0.554782207458674,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC0","diesel_home",0,0,523,0,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC0","electricity",2.06771255344762,1.82538745999727,523,0.0798186206167531,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC0","paraffin",0.0873637183447201,0.690508911863227,523,0.03019384655386,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC0","kerosene",0.0099007575319718,0.101821838737656,523,0.00445235814028947,"Senior sec.","Elec, 
+ No CC"
+"senior_secondary","Urban","elec1_CC1","firewood",0.00454130217314947,0.0850142546204035,513,0.00375347103521636,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Urban","elec1_CC1","gas",0.137952681456016,3.46525166407534,513,0.152994598481376,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Urban","elec1_CC1","coal",0.00601090500431145,0.178162621701977,513,0.00786607190879357,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Urban","elec1_CC1","charcoal",8.30465790467153,9.57109746930303,513,0.422574276357174,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Urban","elec1_CC1","diesel_home",0.0608540009963679,1.1563444277209,513,0.0510538536809398,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Urban","elec1_CC1","electricity",3.46814893847021,2.7682441776864,513,0.122220966186752,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Urban","elec1_CC1","paraffin",0.0245066566900408,0.230610194102781,513,0.0101816887986061,"Senior sec.","Elec, 
+ CC"
+"senior_secondary","Urban","elec1_CC1","kerosene",0.00939161869140526,0.211040814147204,513,0.00931767956664408,"Senior sec.","Elec, 
+ CC"
+"junior_secondary","Rural","elec0_CC1","firewood",3.81795356259137,4.95119730061724,26,0.971009678903662,"Junior sec.","No elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC1","firewood",3.81795356259137,4.95119730061724,26,0.971009678903662,"Junior sec.","No elec, 
+ CC"
+"low_education","Rural","elec0_CC1","firewood",3.81795356259137,4.95119730061724,26,0.971009678903662,"Low educ.","No elec, 
+ CC"
+"low_education","Urban","elec0_CC1","firewood",3.81795356259137,4.95119730061724,26,0.971009678903662,"Low educ.","No elec, 
+ CC"
+"post_secondary","Rural","elec0_CC1","firewood",3.81795356259137,4.95119730061724,26,0.971009678903662,"Post sec.","No elec, 
+ CC"
+"post_secondary","Urban","elec0_CC1","firewood",3.81795356259137,4.95119730061724,26,0.971009678903662,"Post sec.","No elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC1","firewood",3.81795356259137,4.95119730061724,26,0.971009678903662,"Senior sec.","No elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC1","firewood",3.81795356259137,4.95119730061724,26,0.971009678903662,"Senior sec.","No elec, 
+ CC"
+"junior_secondary","Rural","elec0_CC1","gas",0.127693195186448,3.49669609115492,26,0.685758523150098,"Junior sec.","No elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC1","gas",0.127693195186448,3.49669609115492,26,0.685758523150098,"Junior sec.","No elec, 
+ CC"
+"low_education","Rural","elec0_CC1","gas",0.127693195186448,3.49669609115492,26,0.685758523150098,"Low educ.","No elec, 
+ CC"
+"low_education","Urban","elec0_CC1","gas",0.127693195186448,3.49669609115492,26,0.685758523150098,"Low educ.","No elec, 
+ CC"
+"post_secondary","Rural","elec0_CC1","gas",0.127693195186448,3.49669609115492,26,0.685758523150098,"Post sec.","No elec, 
+ CC"
+"post_secondary","Urban","elec0_CC1","gas",0.127693195186448,3.49669609115492,26,0.685758523150098,"Post sec.","No elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC1","gas",0.127693195186448,3.49669609115492,26,0.685758523150098,"Senior sec.","No elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC1","gas",0.127693195186448,3.49669609115492,26,0.685758523150098,"Senior sec.","No elec, 
+ CC"
+"junior_secondary","Rural","elec0_CC1","coal",0,0,26,0,"Junior sec.","No elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC1","coal",0,0,26,0,"Junior sec.","No elec, 
+ CC"
+"low_education","Rural","elec0_CC1","coal",0,0,26,0,"Low educ.","No elec, 
+ CC"
+"low_education","Urban","elec0_CC1","coal",0,0,26,0,"Low educ.","No elec, 
+ CC"
+"post_secondary","Rural","elec0_CC1","coal",0,0,26,0,"Post sec.","No elec, 
+ CC"
+"post_secondary","Urban","elec0_CC1","coal",0,0,26,0,"Post sec.","No elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC1","coal",0,0,26,0,"Senior sec.","No elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC1","coal",0,0,26,0,"Senior sec.","No elec, 
+ CC"
+"junior_secondary","Rural","elec0_CC1","charcoal",4.86882676885703,8.49892602846697,26,1.66677652552826,"Junior sec.","No elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC1","charcoal",4.86882676885703,8.49892602846697,26,1.66677652552826,"Junior sec.","No elec, 
+ CC"
+"low_education","Rural","elec0_CC1","charcoal",4.86882676885703,8.49892602846697,26,1.66677652552826,"Low educ.","No elec, 
+ CC"
+"low_education","Urban","elec0_CC1","charcoal",4.86882676885703,8.49892602846697,26,1.66677652552826,"Low educ.","No elec, 
+ CC"
+"post_secondary","Rural","elec0_CC1","charcoal",4.86882676885703,8.49892602846697,26,1.66677652552826,"Post sec.","No elec, 
+ CC"
+"post_secondary","Urban","elec0_CC1","charcoal",4.86882676885703,8.49892602846697,26,1.66677652552826,"Post sec.","No elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC1","charcoal",4.86882676885703,8.49892602846697,26,1.66677652552826,"Senior sec.","No elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC1","charcoal",4.86882676885703,8.49892602846697,26,1.66677652552826,"Senior sec.","No elec, 
+ CC"
+"junior_secondary","Rural","elec0_CC1","diesel_home",0,0,26,0,"Junior sec.","No elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC1","diesel_home",0,0,26,0,"Junior sec.","No elec, 
+ CC"
+"low_education","Rural","elec0_CC1","diesel_home",0,0,26,0,"Low educ.","No elec, 
+ CC"
+"low_education","Urban","elec0_CC1","diesel_home",0,0,26,0,"Low educ.","No elec, 
+ CC"
+"post_secondary","Rural","elec0_CC1","diesel_home",0,0,26,0,"Post sec.","No elec, 
+ CC"
+"post_secondary","Urban","elec0_CC1","diesel_home",0,0,26,0,"Post sec.","No elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC1","diesel_home",0,0,26,0,"Senior sec.","No elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC1","diesel_home",0,0,26,0,"Senior sec.","No elec, 
+ CC"
+"junior_secondary","Rural","elec0_CC1","electricity",0.011872285986278,0.146266734467418,26,0.0286852666630331,"Junior sec.","No elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC1","electricity",0.011872285986278,0.146266734467418,26,0.0286852666630331,"Junior sec.","No elec, 
+ CC"
+"low_education","Rural","elec0_CC1","electricity",0.011872285986278,0.146266734467418,26,0.0286852666630331,"Low educ.","No elec, 
+ CC"
+"low_education","Urban","elec0_CC1","electricity",0.011872285986278,0.146266734467418,26,0.0286852666630331,"Low educ.","No elec, 
+ CC"
+"post_secondary","Rural","elec0_CC1","electricity",0.011872285986278,0.146266734467418,26,0.0286852666630331,"Post sec.","No elec, 
+ CC"
+"post_secondary","Urban","elec0_CC1","electricity",0.011872285986278,0.146266734467418,26,0.0286852666630331,"Post sec.","No elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC1","electricity",0.011872285986278,0.146266734467418,26,0.0286852666630331,"Senior sec.","No elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC1","electricity",0.011872285986278,0.146266734467418,26,0.0286852666630331,"Senior sec.","No elec, 
+ CC"
+"junior_secondary","Rural","elec0_CC1","paraffin",0.127322251986369,0.383495721644703,26,0.0752096987709879,"Junior sec.","No elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC1","paraffin",0.127322251986369,0.383495721644703,26,0.0752096987709879,"Junior sec.","No elec, 
+ CC"
+"low_education","Rural","elec0_CC1","paraffin",0.127322251986369,0.383495721644703,26,0.0752096987709879,"Low educ.","No elec, 
+ CC"
+"low_education","Urban","elec0_CC1","paraffin",0.127322251986369,0.383495721644703,26,0.0752096987709879,"Low educ.","No elec, 
+ CC"
+"post_secondary","Rural","elec0_CC1","paraffin",0.127322251986369,0.383495721644703,26,0.0752096987709879,"Post sec.","No elec, 
+ CC"
+"post_secondary","Urban","elec0_CC1","paraffin",0.127322251986369,0.383495721644703,26,0.0752096987709879,"Post sec.","No elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC1","paraffin",0.127322251986369,0.383495721644703,26,0.0752096987709879,"Senior sec.","No elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC1","paraffin",0.127322251986369,0.383495721644703,26,0.0752096987709879,"Senior sec.","No elec, 
+ CC"
+"junior_secondary","Rural","elec0_CC1","kerosene",0,0,26,0,"Junior sec.","No elec, 
+ CC"
+"junior_secondary","Urban","elec0_CC1","kerosene",0,0,26,0,"Junior sec.","No elec, 
+ CC"
+"low_education","Rural","elec0_CC1","kerosene",0,0,26,0,"Low educ.","No elec, 
+ CC"
+"low_education","Urban","elec0_CC1","kerosene",0,0,26,0,"Low educ.","No elec, 
+ CC"
+"post_secondary","Rural","elec0_CC1","kerosene",0,0,26,0,"Post sec.","No elec, 
+ CC"
+"post_secondary","Urban","elec0_CC1","kerosene",0,0,26,0,"Post sec.","No elec, 
+ CC"
+"senior_secondary","Rural","elec0_CC1","kerosene",0,0,26,0,"Senior sec.","No elec, 
+ CC"
+"senior_secondary","Urban","elec0_CC1","kerosene",0,0,26,0,"Senior sec.","No elec, 
+ CC"

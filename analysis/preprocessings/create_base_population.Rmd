@@ -1,0 +1,600 @@
+---
+title: "base_population"
+author: "Camille Belmin"
+date: "7/20/2021"
+output: pdf_document
+---
+
+All input from this file: 
+
+age_group_correspondance.csv
+wcde_data_zambia_pop_structure.csv
+(metadata_dhs_PR.csv)
+(base_pop.csv)
+wcde_data_educ_distribution_age.csv
+
+
+All output from this file: 
+
+base_pop.csv
+metadata_dhs_PR.csv
+base_pop_calib_2015.csv
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(countrycode)
+library(rdhs)
+library(patchwork)
+library(miceadds)
+library(survey)
+library(imputeTS)
+
+#library(microbenchmark)
+path_dhs_data = paste0(str_remove(here(), "microsim.energy"), "DHS_data/") # the DHS data is in the parent directory because I use DHS data in several projects
+
+source.all(here("R"))
+
+path_PR_data = paste0(path_dhs_data, "PR/") # path to individual recode
+
+# Map between age group string and num ####
+age_group_map = read.csv(here("analysis", "data", "raw_data", "age_group_correspondance.csv")) %>%
+  rename(age = age_group_char) %>% 
+  mutate(age = as.character(age)) %>% 
+  # create the age group cat 95+ 
+  mutate(age = ifelse(age == "95--99", "95+", age)) %>% 
+  filter(!(age == "100"))
+```
+
+
+Here, we create a base population using the most recent DHS survey of Zambia, our case study country. We use the Person's recode file from the DHS data of 2018. Before we download Zambia's data, we create a metadata file containing all the metadata (i.e. file names etc) of the PR files (to eventually run the code for all countries later). 
+
+# 1. Create the metadata file 
+
+```{r}
+
+# Create the metadata for PR files
+
+PR_data_downloaded = F
+
+
+set_rdhs_config(email = "belmin@pik-potsdam.de",
+                project = "Energy access and fertility decline in developing countries",
+                cache_path = path_PR_data, # here i store the data in a folder in the parent repository of this project
+                config_path = "rdhs.json",
+                global = F)
+
+
+# List of all DHS surveys, only the "Household recode Recode"
+metadata_dhs_PR <- dhs_datasets(fileFormat = "spss", fileType = "PR", surveyType = "DHS") %>% # this lines requires internet connection (API request)
+  dplyr::select(SurveyId, SurveyYear, CountryName, DHS_CountryCode, FileName, FileSize) %>%
+  rename(country_code_2 = DHS_CountryCode,
+         country_name =  CountryName,
+         zip_file_name = FileName,
+         survey_year = SurveyYear) %>%
+  mutate(file_name =  # create a column corresponding to the RDS file name instead of zip file name
+           paste0(substr(zip_file_name, start=1, stop = 8 ),".rds"),
+         country_code = countrycode(sourcevar = country_name, origin = "country.name", destination = "iso3c"))
+
+##  Remove some surveys
+# Remove surveys corresponding to Indian districts in the wave of 1999 
+metadata_dhs_PR <- rbind(
+  metadata_dhs_PR %>% filter(zip_file_name == "IAPR42SV.ZIP"), # separate the 1999 survey of india
+  metadata_dhs_PR %>% filter(!(country_code == "IND" & survey_year == 1999))) %>% # and bind all datasets expept the 1999 Indian survey
+  arrange(country_name,survey_year)
+
+# Remove  Turkey 1998, Gabon 1998 and India 2015 because it was impossible to load them
+metadata_dhs_PR <- metadata_dhs_PR %>%
+  filter(!(zip_file_name %in% c("TRPR41SV.ZIP","GAPR41SV.ZIP","IAPR74SV.ZIP")))
+
+# Remove surveys that are not in the harmonized_region_datasets dataframe (to avoid downloading/processing dhs surveys that are not harmonized)
+#metadata_dhs_PR <- metadata_dhs_PR %>% filter(SurveyId %in% harmonized_region_datasets$SurveyId)
+
+# Remove surveys that have only one wave
+metadata_dhs_PR <- metadata_dhs_PR %>%
+  left_join(metadata_dhs_PR %>% # data frame with number of wave per country
+              group_by(country_code) %>%
+              summarize(n_wave = n()),
+            by = "country_code") %>%
+  filter(!(n_wave ==1)) # remove countries that have only one wave
+
+# if necessary, write the "metadata_dhs" dataframe
+write.csv(metadata_dhs_PR, file = here("analysis","data", "derived_data", "metadata_dhs_PR.csv"), row.names = F)
+
+# Download the datasets with the RDHS function 
+# TODO to get the newest datasets
+# if (BR_data_downloaded == FALSE) {
+#   
+#    #for (i in 1:nrow(metadata_dhs_BR)) { 
+#    for (i in 66:nrow(metadata_dhs_BR)) { 
+#     rdhs::get_datasets(dataset_filenames =metadata_dhs_BR$zip_file_name[i], output_dir_root = path_BR_data,
+#                        download_option = "rds")
+#   }
+# }
+
+```
+
+# 2. Download the PR data for Zambia
+
+```{r}
+
+
+metadata_dhs_PR =read.csv(file = here("analysis","data", "derived_data", "metadata_dhs_PR.csv"))
+
+
+
+# Download the data for Zambia 2018
+rdhs::get_datasets(dataset_filenames ="ZMPR71SV.ZIP", output_dir_root = path_PR_data,
+                       download_option = "rds")
+
+```
+
+# 3. Create the base population
+
+```{r}
+
+metadata_dhs_PR =read.csv(file = here("analysis","data", "derived_data", "metadata_dhs_PR.csv"))
+
+# This creates a base population from Zambia DHS Person Recode of the year 2018. 
+base_pop = create_base_population(metadata_dhs_PR, p_surveyid = "ZM2018DHS" )
+
+# create the column "selected" with 99 as NA to be able to run the model with the new sogreen infrastructure
+base_pop = base_pop  %>% mutate(selected = 99)
+write.csv(base_pop, file = here("analysis", "data", "derived_data", "base_pop.csv"), row.names = F)
+
+```
+
+# 4. Calibrate base population
+
+The DHS data is not meant to be representative of the education distribution of the population. IIASA's data used census data on education to create the age-specific and eduation specific distribution of the population in each country. 
+Here, I calibrate our base population coming from DHS data from Zambia with IIASA data. To do so: 
+i) I calculated the ratio between the proportion of the pop (per age group and per edu group) in IIASA data (interpolated to 2018) and in the base pop DHS 2018. It results in a datadframe with calibration ratio for each age and education group.
+ii) I merged this dataframe to the base pop and I multiply the weight of individuals with the corresponding calibration ratio. 
+When I calculated again the proportion of pop, with the calibrated weight, it matches IIASA data. 
+
+NB: After this, I created another version of the base population with the calibration done on 2015. The reason for this is that the simulation uses 5-year time step and starts in 2015. 
+
+## 4.1. Calculate age-educ distribution from the non-calibrated base population, 
+
+```{r}
+
+base_pop = read.csv(file = here("analysis","data", "derived_data", "base_pop.csv"))
+
+# Base pop age structure
+base_pop_age_str = base_pop %>% 
+  group_by(age_group) %>% 
+  summarize(size_age_group_w = sum(weight), 
+            size_age_group = n())
+
+# Education distrib by age group
+educ_age_distrib_base_pop = base_pop %>% filter(age_group > 3) %>% 
+  group_by(age_group, educ_level) %>% 
+  summarize(size_age_group_educ_group = n(), 
+            size_age_group_educ_group_w = sum(weight)) %>% 
+  left_join(base_pop_age_str, by = "age_group") %>% 
+  mutate(p_educ_age = size_age_group_educ_group/size_age_group, 
+         p_educ_age_w = size_age_group_educ_group_w/size_age_group_w) %>% 
+  mutate(source = "DHS") %>% 
+  rename(edu_group = educ_level)
+
+# Check it sums toi 1 in each age group
+educ_age_distrib_base_pop %>% group_by(age_group) %>% 
+  summarize(test = sum(p_educ_age), 
+            test_w = sum(p_educ_age_w))
+
+# Plot education distrib by age group
+ggplot(educ_age_distrib_base_pop %>% 
+         filter(age_group %in% 4:5), 
+       aes(x = edu_group, y = p_educ_age_w))+ 
+  geom_bar(stat = "identity",  fill = "pink")+ 
+  facet_wrap(~age_group)+
+  theme_bw()+
+  labs(y = "Proportion of the population in base pop", x = "Education levels")
+
+```
+## 4.2. Get the age-educ distribution from IIASA for 2018 (code similar to the one in Scenario2.Rmd)
+
+```{r}
+
+# Retrieve age-education distribution of IIASA from from raw file (code similar to the one in Scenario2.Rmd) ####
+
+edu_sc_raw = read.csv(here("analysis", "data", "raw_data", "wcde_data_educ_distribution_age.csv"), skip = 8) %>%
+  janitor::clean_names() %>% 
+    filter(!(age == "100+")) %>% 
+  mutate(age = ifelse(age == "95--99", "95+", age)) %>% 
+    left_join(age_group_map, by = "age") %>% 
+  # from percentage to proportion (from 0 to 1)
+  mutate(p_educ_age = distribution/100) %>% 
+  filter(#age_group %in% 4:6, 
+         sex == "Both",  
+         !(education == "Under 15")) %>% 
+ mutate(edu_group = case_when(education == "No Education" ~1,
+                               education == "Incomplete Primary" ~2, 
+                               education == "Primary" ~3, 
+                               education == "Lower Secondary" ~4, 
+                               education == "Upper Secondary" ~5, 
+                               education == "Post Secondary" ~6)) %>% 
+    filter(scenario %in% c("SSP1", "SSP2")) %>% 
+    mutate(source = "WIC")
+
+edu_sc_dat = edu_sc_raw %>%
+  filter(year %in% c(2015, 2020), scenario == "SSP1") 
+
+# Calculate the educ distribution in 2018 using linera interpolation.
+
+edu_sc_dat_ext = edu_sc_dat %>% select(-area, -sex, -distribution, -age, -education) %>% 
+  bind_rows(expand_grid(scenario = "SSP2", year = 2016:2019, age_group = 4:20, edu_group = 1:6, p_educ_age = NA, source = "WIC")) %>% arrange(year,age_group, edu_group) %>% 
+  group_by(age_group, edu_group) %>% 
+   mutate(p_educ_age = imputeTS::na_interpolation(p_educ_age)) %>% 
+  ungroup()
+
+# Check whether linear interpolation worked
+ggplot(data = edu_sc_dat_ext %>%  filter( edu_group == 5), 
+       aes(x = year, y = p_educ_age))+
+  geom_point()+
+  facet_wrap(~age_group)+
+  theme_bw()
+```
+
+## 4.3. Put the two distribution together calculate the ratio for of p_educ_age for each age/educ group
+
+```{r}
+year_calibration = 2015
+# Add the p_educ_age from IIASA to the df on p_educ_age of base pop
+
+educ_age_distrib_comparison = edu_sc_dat_ext %>% filter(year == year_calibration) %>% select(-year) %>% 
+  mutate(p_educ_age_w = p_educ_age) %>% 
+  bind_rows(educ_age_distrib_base_pop %>% select(-contains("size")))
+
+# Compare Base pop DHS 2018 and IIASA interpolated to  2018
+ggplot(data = educ_age_distrib_comparison, 
+       aes(x = edu_group, y = p_educ_age_w, fill = source))+
+  geom_bar(stat = "identity", position = "dodge")+
+  facet_wrap(~age_group)+
+  theme_bw()
+```
+
+```{r}
+
+# Calculate the ratio between p_educ_age_w from DHS and from IIASA
+ratio_calibration_educ_age = educ_age_distrib_comparison %>% 
+  select(-p_educ_age, -scenario) %>% 
+  pivot_wider(names_from = "source", values_from = "p_educ_age_w",
+              names_prefix = "p_educ_age_") %>% 
+  mutate(ratio = p_educ_age_WIC/p_educ_age_DHS)
+
+# Apply the calibration ratio to the base pop
+base_pop_calib = base_pop %>% 
+  rename(edu_group = educ_level) %>% 
+  left_join(ratio_calibration_educ_age %>% select(age_group, edu_group, ratio),
+            by = c("age_group", "edu_group") ) %>% 
+  mutate(ratio = ifelse(is.na(ratio), 1, ratio)) %>% 
+  mutate(weight_calib = weight * ratio)
+
+base_pop_calib$weight_calib %>% sum()
+nrow(base_pop_calib)
+
+# Now test if the proportion are the same now 
+
+# Calibrated base pop age structure
+base_pop_calib_age_str = base_pop_calib %>% 
+  group_by(age_group) %>% 
+  summarize(size_age_group_w = sum(weight_calib), 
+            size_age_group = n())
+
+# Education distrib by age group
+educ_age_distrib_base_pop_calib = base_pop_calib %>% filter(age_group > 3) %>% 
+  group_by(age_group, edu_group) %>% 
+  summarize(size_age_group_educ_group = n(), 
+            size_age_group_educ_group_w = sum(weight_calib)) %>% 
+  left_join(base_pop_calib_age_str, by = "age_group") %>% 
+  mutate(p_educ_age = size_age_group_educ_group/size_age_group, 
+         p_educ_age_w = size_age_group_educ_group_w/size_age_group_w) %>% 
+  mutate(source = "DHS") 
+
+
+educ_age_distrib_comparison_calib = edu_sc_dat_ext %>% filter(year == year_calibration) %>% select(-year) %>%
+  mutate(p_educ_age_w = p_educ_age) %>% 
+  bind_rows(educ_age_distrib_base_pop_calib %>% select(-contains("size"))) %>% 
+  left_join(age_group_map, by = "age_group")
+
+# Compare Base pop DHS 2018 and IIASA interpolated to  2018
+ggplot(data = educ_age_distrib_comparison_calib, 
+       aes(x = edu_group, y = p_educ_age_w, fill = source))+
+  geom_bar(stat = "identity", position = "dodge")+
+  facet_wrap(~age)+
+  labs(y = "Proportion of the population", x = "Education group")+
+  theme_bw()
+
+# create the column "selected" with 99 as NA to be able to run the model with the new sogreen infrastructure
+base_pop_calib = base_pop_calib  %>% mutate(selected = 99)
+
+# write the base pop and make sure that we rename the weight so that the population is sampled in the model with the calibrated weight 
+#write.csv(base_pop_calib %>% select(-weight) %>% rename(weight = weight_calib, 
+ #                                                       educ_level = edu_group), file = here("analysis", "data", "derived_data", paste0("base_pop_calib_", year_calibration, ".csv")), row.names = F)
+
+```
+
+*Check impact of sampling at household level on calibration*
+
+The calibration creates indiv-specific weights. However, in the base population without calibration, weights are based on households (i.e. all members of households have the same weight). This is now a problem because when I sub-sample the population, I do it at the household level because I need that the population only contains full households (because children are asigned to their mothers). To sample at the hh level I use hh-specific weights. Now household members have differents weights. 
+
+Option 1: 
+Sample at the individual level (5X smaller than the desired sample size).
+Then complete with hh members that are not in base pop 
+Then compare distribution with IIASA's. 
+
+```{r}
+
+base_pop_sample = base_pop_calib %>% 
+ # select(-weight) %>% 
+  #rename(weight = weight_calib, educ_level = edu_group) %>%
+    dplyr::sample_n(size=3000, weight=weight_calib, replace = TRUE)
+
+# retrieve the other members of the hh not selected
+other_members = base_pop_calib %>% 
+  filter(hh_id %in% base_pop_sample$hh_id & !(indiv_id %in% base_pop_sample$indiv_id))
+
+# Gather with sample 
+base_pop_sample = base_pop_sample %>% 
+  bind_rows(other_members)
+
+
+########
+# Now look at the distrib 
+
+base_pop_sample_age_str = base_pop_sample %>% 
+  group_by(age_group) %>% 
+  summarize(size_age_group_w = sum(weight_calib), 
+            size_age_group = n())
+
+# Education distrib by age group
+educ_age_distrib_base_pop_sample = base_pop_sample %>% filter(age_group > 3) %>% 
+  group_by(age_group, edu_group) %>% 
+  summarize(size_age_group_educ_group = n(), 
+            size_age_group_educ_group_w = sum(weight_calib)) %>% 
+  left_join(base_pop_sample_age_str, by = "age_group") %>% 
+  mutate(p_educ_age = size_age_group_educ_group/size_age_group, 
+         p_educ_age_w = size_age_group_educ_group_w/size_age_group_w) %>% 
+  mutate(source = "DHS") 
+
+
+educ_age_distrib_comparison_calib = edu_sc_dat_ext %>% filter(year == 2018) %>% select(-year) %>%
+  mutate(p_educ_age_w = p_educ_age) %>% 
+  bind_rows(educ_age_distrib_base_pop_sample %>% select(-contains("size")))
+
+# Compare Base pop DHS 2018 and IIASA interpolated to  2018
+ggplot(data = educ_age_distrib_comparison_calib, 
+       aes(x = edu_group, y = p_educ_age_w, fill = source))+
+  geom_bar(stat = "identity", position = "dodge")+
+  facet_wrap(~age_group)+
+  theme_bw()
+
+
+base_pop %>% group_by(urban) %>% 
+  summarize(n = sum(weight)) %>% 
+  mutate(p = n/sum(.)) # p_urban in base_pop: 0.399
+
+base_pop_calib %>% group_by(urban) %>% 
+  summarize(n = sum(weight_calib)) %>% 
+  mutate(p = n/sum(.))# p_urban in base_pop_calib: 0.411
+
+base_pop_sample %>% group_by(urban) %>% 
+  summarize(n = sum(weight_calib)) %>% 
+  mutate(p = n/sum(.))# p_urban in base_pop_sample: 0.4849453	
+
+## elec
+base_pop %>% group_by(elec) %>% 
+  summarize(n = sum(weight)) %>% 
+  mutate(p = n/sum(n)) # p_urban in base_pop: 0.330
+
+base_pop_calib %>% group_by(elec) %>% 
+  summarize(n = sum(weight_calib)) %>% 
+  mutate(p = n/sum(n)) # p_urban in base_pop_calib: 0.346
+
+base_pop_sample %>% group_by(elec) %>% 
+  summarize(n = sum(weight_calib)) %>% 
+  mutate(p = n/sum(n))# p_urban in base_pop_sample: 0.397
+
+## educ 
+
+## elec
+base_pop %>% group_by(educ_level) %>% 
+  summarize(n = sum(weight)) %>% 
+  mutate(p = n/sum(n)) # p_urban in base_pop: 0.330
+
+base_pop_calib %>% group_by(edu_group) %>% 
+  summarize(n = sum(weight_calib)) %>% 
+  mutate(p = n/sum(n)) # p_urban in base_pop_calib: 0.346
+
+base_pop_sample %>% group_by(edu_group) %>% 
+  summarize(n = sum(weight_calib)) %>% 
+  mutate(p = n/sum(n))# p_urban in base_pop_sample: 0.397
+
+
+
+```
+
+Second try. This time, sample based on indiv, then, only add to the population the mothers of children, not the whole hh. 
+
+```{r}
+
+base_pop_sample = base_pop_calib %>% 
+ # select(-weight) %>% 
+  #rename(weight = weight_calib, educ_level = edu_group) %>%
+    dplyr::sample_n(size=3000, weight=weight_calib, replace = TRUE)
+
+# Retrieve the mothers of children that are in the sample, that were not selected. 
+
+TODO 
+
+```
+
+*Do a sort of Monte Carlo to see whether sampling affects the distribution of the pop*
+
+```{r}
+
+calculate_stat_base_pop = function(base_pop, seed, sample_size){
+  
+  set.seed(seed)
+  
+  base_pop_sample  = base_pop_calib %>% 
+ # select(-weight) %>% 
+  #rename(weight = weight_calib, educ_level = edu_group) %>%
+    dplyr::sample_n(size=sample_size,  replace = TRUE)
+  
+  # retrieve the other members of the hh not selected
+other_members = base_pop_calib %>% 
+  filter(hh_id %in% base_pop_sample$hh_id & !(indiv_id %in% base_pop_sample$indiv_id))
+
+# Gather with sample 
+base_pop_sample = base_pop_sample %>% 
+  bind_rows(other_members)
+
+stat = base_pop_sample %>% group_by(urban) %>% 
+  summarize(n = sum(weight_calib)) %>% 
+  mutate(p = n/sum(.)) %>% # p_urban in base_pop_sample: 0.4849453
+select(-n) %>% 
+mutate(seed = seed)
+return(stat)
+
+}
+
+calculate_stat_base_pop(base_pop_calib, 1, 5000)
+stat_all_samples = data.frame()
+for(i in 1:300){
+  stat_all_samples = bind_rows(stat_all_samples, calculate_stat_base_pop(base_pop_calib, i, 3000))
+}
+
+# Plot 
+ggplot(stat_all_samples %>% 
+         filter(urban == 1),
+         aes(x = p )) + 
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8) +
+    geom_vline(xintercept=0.399, linetype="dashed", color = "red")+
+  #  ggtitle("Night price distribution of Airbnb appartements") +
+    theme_bw()
+```
+
+# Do some sanity checks on the base population 
+
+*Check the age distribution*  
+
+```{r}
+
+base_pop = base_pop %>% 
+  # Re-order the age groups
+   mutate(name = forcats::fct_relevel(age_group, "0--4", "5--9" , "10--14", "15--19", "20--24" ,"25--29" ,"30--34", "35--39", "40--44" ,"45--49" ,"50--54", "55--59", "60--64" ,"65--69" ,"70--74" ,"75--79" ,"80--84" ,"85--89" ,"90--94" ,"95--99" ,"100+")) 
+  
+# Look at the age distribution in the data 
+
+dat_age_distrib_dhs = base_pop %>%  
+  group_by(name) %>%
+  summarise(pop_age_group = n()) %>%
+  ungroup() %>%  
+  mutate(proportion = 100*pop_age_group/nrow(base_pop))
+
+age_distrib_dhs = ggplot(data = dat_age_distrib_dhs, aes(x = name, y = proportion))+
+  geom_bar(stat = "identity")+
+  theme_bw()+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+ 
+  labs(x = "Age category", y = "% of the DHS sample")
+
+
+# Compare with actual population distribution for Zambia 2015
+pop_structure = read.csv(here("analysis", "data", "raw_data", "wcde_data_zambia_pop_structure.csv"), skip = 8) %>% 
+  filter(Year == 2015) %>% 
+  filter(!(Age == "All")) %>% 
+  mutate(Age = as.factor(Age)) %>% 
+  mutate(name = forcats::fct_relevel(Age, "0--4", "5--9" , "10--14", "15--19", "20--24" ,"25--29" ,"30--34", "35--39", "40--44" ,"45--49" ,"50--54", "55--59", "60--64" ,"65--69" ,"70--74" ,"75--79" ,"80--84" ,"85--89" ,"90--94" ,"95--99" ,"100+")) %>% 
+  mutate(Proportion = 100*Population/sum(Population))
+  
+  
+
+age_distrib_wc = ggplot(data = pop_structure, aes(x = name, y = Proportion))+ 
+  geom_bar(stat = "identity")+
+  theme_bw()+ 
+  # put an angle on ticks labels
+theme(axis.text.x = element_text(angle = 45, hjust = 1))+ 
+  labs(x = "Age category", y = "% of the Population")
+
+age_distrib_dhs + age_distrib_wc
+
+```
+
+*Check how access to elec varies with age*
+
+```{r}
+# URBAN
+survey_design = survey::svydesign(id = ~ PSU, strata = ~ strata, weights = ~ weight,
+                                  data = base_pop %>% filter(urban ==1))
+
+# Electrification rate by urban/rural
+elec_age_urban= svyby(~elec, by = ~age_group, design = survey_design, na.rm = T, svymean ) %>%
+ as.data.frame() %>%
+ select(age_group, "elec1", "se.elec1") %>% 
+ mutate(urban = "urban") %>% 
+ rename(elec_rate = elec1, SE_elec_rate = se.elec1)
+  
+# RURAL 
+survey_design = survey::svydesign(id = ~ PSU, strata = ~ strata, weights = ~ weight, 
+                                  data = base_pop %>% filter(urban == 0))
+
+# Electrification rate by urban/rural
+elec_age_rural= svyby(~elec, by = ~age_group, design = survey_design, na.rm = T, svymean ) %>%
+  as.data.frame() %>%
+  select(age_group, "elec1", "se.elec1") %>% 
+  mutate(urban = "rural") %>% 
+  rename(elec_rate = elec1, SE_elec_rate = se.elec1)
+  
+elec_age  = bind_rows(elec_age_urban, elec_age_rural)
+  
+ggplot(data = elec_age , aes(x = age_group, y = elec_rate))+
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin = elec_rate - SE_elec_rate, ymax = elec_rate + SE_elec_rate)) +
+  facet_wrap(~urban)+
+  theme_bw()+
+    labs(x = "5-year age group", y = "Population with access to  \n electricity (%)")
+
+```
+
+*Check how access to modern cooking fuels varies with age*
+
+```{r}
+# URBAN
+survey_design = survey::svydesign(id = ~ PSU, strata = ~ strata, weights = ~ weight,
+                                  data = base_pop %>% filter(urban ==1))
+
+# Electrification rate by urban/rural
+mcf_age_urban= svyby(~modern_cooking_fuel, by = ~age_group, design = survey_design, na.rm = T, svymean ) %>%
+ as.data.frame() %>%
+ select(age_group, "mcf_rate"="modern_cooking_fuel","SE_mcf_rate"= "se") %>% 
+ mutate(urban = "urban")
+  
+# RURAL 
+survey_design = survey::svydesign(id = ~ PSU, strata = ~ strata, weights = ~ weight, 
+                                  data = base_pop %>% filter(urban == 0))
+
+# Electrification rate by urban/rural
+mcf_age_rural = svyby(~modern_cooking_fuel, by = ~age_group, design = survey_design, na.rm = T, svymean ) %>%
+  as.data.frame() %>%
+  select(age_group, "mcf_rate"="modern_cooking_fuel","SE_mcf_rate"= "se") %>% 
+  mutate(urban = "rural")
+  
+mcf_age  = bind_rows(mcf_age_urban, mcf_age_rural)
+  
+ggplot(data = mcf_age , aes(x = age_group, y = mcf_rate))+
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin = mcf_rate - SE_mcf_rate, ymax =mcf_rate + SE_mcf_rate)) +
+  facet_wrap(~urban)+
+  theme_bw()+
+    labs(x = "5-year age group", y = "Population with access to  \n modern cooking fuels (%)")
+
+```
+
+In all four cases, we see that energy access is lower in younger age group. Guillaume said it may be a problem for the modelling, because if we apply the same transition probability to all age groups, then we will overestimate energy access in young age and under estimate energy access in middle ages. 
+But I think this effect might be due to the fact that fertility is higher in poorer families who tend not to have access to modern energy. As a result, in a population, younger age groups would tend to have lower access because a higher proportion of them come from poor families, but this is not due to age itself. 
+It would be important to check in the population simulated, at each time step, whether this type of distribution still holds. 
+

@@ -1,0 +1,9 @@
+Fuel/Gas,CO2,CH4,NO2,CO,NMHC,BC,OC,SO2
+Coal,IPCC 2006 default,IPCC 2006 default,IPCC 2006 default,"Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1"
+Firewood,IPCC 2006 default,IPCC 2006 default,IPCC 2006 default,IPCC 1996 default,IPCC 1996 default,"Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1"
+Charcoal,IPCC 2006 default,IPCC 2006 default,IPCC 2006 default,IPCC 1996 default,IPCC 1996 default,"Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1"
+Kerosene,IPCC 2006 default,IPCC 2006 default,IPCC 2006 default,"Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1"
+LPG,IPCC 2006 default,IPCC 2006 default,IPCC 2006 default,"Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1"
+Gas,IPCC 2006 default,IPCC 2006 default,IPCC 2006 default,IPCC 1996 default,IPCC 1996 default,"Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1"
+Diesel,IPCC 2006 default,IPCC 2006 default,IPCC 2006 default,IPCC 1996 default for road transportation,IPCC 1996 default for road transportation,"Zavala et al. 2017, averaged on Table 2","Zavala et al. 2017, averaged on Table 2","Zavala et al. 2017, averaged on Table 2"
+Paraffin,IPCC 2006 default,IPCC 2006 default,IPCC 2006 default,"Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1","Freeman and Zerriffi 2014, Table S1"
