@@ -274,9 +274,80 @@ df_pop_age = df_data_pop %>%
 
 \newpage
 
-# Supplementary information about data processing
+# Supplementary Methods
 
-## Supplementary Table 1 {.unnumbered}
+## Supplementary Method 1: Calibration of the base population {-}
+
+
+To ensure representativeness of the base population in terms of education, we calibrated the base population using age-specific, education-specific population distribution data for the year 2015 from the Wittgenstein Center for Demography and Human Capital (WIC) [@lutz_demographic_2018]. Education level is a central variable in the model. However, the DHS data is not a survey specifically meant to create a sample representative of the education distribution in a country. Therefore, our calibration consists of re-weighting the DHS survey weights to ensure that the re-weighted age-education distribution in the base population matches that of the WIC dataset. This also allows avoiding any discontinuity between the education distribution of the base year population and the education distribution in the first time step in our projections. Unfortunately, we could not calibrate the population also in terms of energy access. While the DHS data allows for determining energy access by education, age, and urbanization for the sample, this could only be compared to national energy access indicators distinguishing between rural and urban regions but not the other demographic variables like age or education. 
+
+## Supplementary Method 2: Fertility regression model {-}
+
+
+In the microsimulation model (MSM), the probability that a woman will give birth is endogenously determined at each time step and for each woman of fertile age (between 15 and 49 years old). We used a logistic regression to estimate the parameters allowing us to predict the probability for a woman to give birth, depending on her age group (five-year), level of education, whether her household has access to electricity, to modern cooking fuels and whether she lives in a rural or urban area. The dependent variable is whether the women gave birth in the last year.
+
+The data used for the regression is a pool of four Individual Recode files from the DHS data for Zambia, for the years 2002, 2007, 2013 and 2018. This resulted in a sample consisting in `r data_regression_size` women. In the regression, we added a parameter corresponding to the year in which the data was collected, allowing us to account for the fact that fertility may follow a secular trend. We also added interaction terms between age group and (i) whether the household has access to electricity, and (ii) whether the primary fuel used for cooking by the household is modern. The results of the model are displayed in Table 1 and the logistic regression model takes the form:
+
+```{=tex}
+\begin{equation}
+\begin{split}
+\log\left[ \frac { P( \operatorname{birth} = \operatorname{1} ) }{ 1 - P( \operatorname{birth} = \operatorname{1} ) } \right] = \alpha + \sum_{i=1}^{6} \beta_{i} Agecat_{i} + 
+\sum_{j=1}^{5} \gamma_{j} Educcat_{j} + \delta Urban + \\
+\theta Elec +  \sum_{k=1}^{5} \theta_{k} Elec \times Agecat_{k} + 
+\mu  MCF + \sum_{l=1}^{5} \mu_{l} MCF \times Agecat_{l} + \eta Year + \epsilon
+\end{split}
+\end{equation}
+```
+where $P( \operatorname{birth} = \operatorname{1} )$ is the probability that a women gave birth in the past year, $Agecat_{1..6}$ the five-year age group to which the woman belonged at the time of the survey, $Educcat_{1..5}$ the education group to which the woman belongs, $Elec$, $MCF$ and $Urban$ are dummy variables taking the value 1 if the woman has access to electricity, modern cooking fuels, or lives in an urban area, respectively, and $Year$ is the year of the survey. $\alpha$ is the coefficient for the reference category, which corresponds to age group 15-19, for those with no education, no access to electricity, no access to modern cooking fuel and living in rural areas.
+
+\newpage 
+
+
+## Supplementary Method 3: Implementation of education pathways {-}
+
+The education projections are represented in the WIC data as proportions of the population being in a given education group: *No education*, *Incomplete primary education*, *Completed primary education*, *Lower secondary education*, *Upper secondary education*, *Post secondary education*. Our MSM also uses the same education categories. In order to use the WIC education projections as the education assumptions in our model, at each time step we reassigned an education category to each individual so that the education distribution of the simulated population matches the education distribution of the WIC projection (Supplementary Figure 3 and 4).
+
+
+## Supplementary Method 4: Adaptation of SSP scenarios for energy access to Zambia {-}
+
+
+
+The first two energy  energy access trajectories, used in the scenarios *SSP1_EA* and *SSP2_EA* came from  energy access projection by @poblete-cazenave_global_2021 for the SSP1 and SSP2 pathways for the period from 2020 to 2050, that we adapted to Zambia and further projected until 2070. These scenarios were developed for the entire region of sub-Saharan Africa, without any distinction at the individual country level. To apply these scenarios to Zambia, we considered the absolute percentage increase in access to electricity (respectively modern cooking fuels) between 2020 and 2030 in sub-Saharan Africa and applied this to the initial level of electricity (resp. modern cooking fuels) access in Zambia, that we determined from the DHS data of 2018. This way we obtained projected values of energy access for Zambia in 2040 and 2050. To obtain energy access values for 2060 and 2070, we assumed the absolute percentage increase between 2040 and 2050 is perpetuated.
+
+\newpage
+
+
+## Supplementary Method 5: Calculation of probability of transition for modern energy access {-}
+
+
+From the macro-level pathways for energy access derived adapted from SSP scenarios (see the sub-Section on *Energy access assumptions* in Section 2.2.3 in the main text), we then derived the probability for an individual to get access to electricity, and to get access to modern cooking fuels. Although, in reality, a household might use multiple cooking fuels at the same time or revert back to the use of firewood after using mostly modern fuels, in our model the transition can only occur in one direction: from not having access to having access. The formula for the transition probability is as follows:
+
+$$p_{e} = \frac{elec_{t+5} - elec_{t}}{1 - elec_{t}} $$
+
+with $p_{e}$ the probability of getting access to electricity, $elec_{t+5}$ the proportion of the population having access to electricity in time step $t+5$ and $1 - elec_{t}$ the proportion of the population not having access to electricity in time step $t$. A similar equation defines the probability of getting access to modern cooking fuels.  
+
+
+## Supplementary Method 6: Displacement of traditional fuels by electricity in *SSP1_univ_elec* {-}
+
+To create the scenario for completely electrifying clean cooking *SSP1_univ_elec*, we used the same mortality, education, urbanization and energy access assumptions as in *SSP1_univ*, but we added a new assumption on energy consumption. To do so, we modified the energy consumption data we derived from @baltruszewicz_final_2021 by converting traditional fuels into the equivalent electricity use, applying conversion efficiency factors of the respective fuels. 
+
+
+For example, if 10 GJ per capita of charcoal is the estimated energy consumption for a particular population group, and the conversion efficiency of an electric stove is 75% while that of a traditional firewood stove is 12%, we estimated that 10\*12/75 = 1.6 GJ per capita of electricity is needed to replace the charcoal use. We sourced the conversion efficiencies from @dagnachew_scenario_2020 (Table 1 in the original paper) and from the Global Energy Assessment [@gea_global_2012].
+
+We assumed a linear rate of displacement of traditional fuels by electricity for the period from 2020 to 2040. In other words, we assumed that in 2020, 0% of traditional fuels are displaced, 25% is displaced in 2025, 50% in 2030, 75% in 2035 and 100% in 2040. After 2040, we assumed that households keep using only electricity for cooking.
+
+
+
+\newpage 
+
+## Supplementary Method 7: Pre-processing of the energy data {-}
+
+We calculated estimates of average per capita energy consumption for cross-categories along education level, access to energy, and location (urban/rural), using the data output from @baltruszewicz_final_2021. This study combines the 2015 Living Condition Measurement Survey (LCMS) for Zambia [@central_statistical_office_of_zambia_world_2015] with a multi-regional input-output model to derive the energy footprint of all households surveyed. Since the household survey contains information about the education level, energy access, location of residence (urban or rural areas), we used this information to calculate the average energy consumption per capita, for households grouped along these variables. 
+ 
+We carried out two pre-processing steps to estimate the average energy consumption for each population group. First, we re-categorized the variables from the LCMS to match those used in the microsimulation model. The original LCMS contains two variables regarding cooking: the main type of energy used for cooking and the main device used for cooking. We first re-categorized these two variables into two categories - modern and traditional (see Supplementary Table 1 to see the full list of fuels and devices and the re-categorization). Then we assumed that a household uses modern cooking fuels if it uses either a modern fuel or a modern stove. In total, we created four population sub-groups of energy access by combining access to modern cooking fuel (or not) and access to electricity (or not). The second variable that we re-categorized is education. In the LCMS, the education categories are specific to Zambia, so we re-categorized them into *No education*, *Primary education*, *Junior secondary education*, *Senior secondary education* and *Post-secondary education* (see Supplementary Table 2 to see the full list of education levels and the re-categorization). In the data there was only one category for primary education. This is in contrast to the WIC data categorization which has two categories for this level. This resulted in five education groups.
+
+In a second pre-processing step, we combined some categories to increase their sample size. Ideally, considering the distinct average per capita energy consumption for 40 sub-groups, corresponding to the combination of 5 education levels, 2 residence locations and 4 energy access groups would have allowed for capturing more of the population heterogeneity in energy consumption. Unfortunately, splitting the data along all 40 categories resulted in samples sizes that were at times too small and combinations that are not very common (e.g., having access to modern cooking fuels but no access to electricity in rural areas for those with post-secondary education) (Supplementary Figure 1). To ensure an adequate sample size, some categories were merged. The categories *No education* and *Primary education* were combined. Then we grouped together all cases corresponding having at the same time *No access to electricity* and *Access to modern cooking fuels* because these cases are very rare across urban and rural areas and across all education levels. This resulted in only one per capita energy consumption value for this category. The estimates of energy consumption per capita for each category considered are presented in Figure 3 in the main text.
+
 
 ```{r cook-table}
 
@@ -300,9 +371,6 @@ cook_table %>%
 
 ```
 
-\newpage
-
-## Supplementary Table 2 {.unnumbered}
 
 ```{r}
 
@@ -321,11 +389,8 @@ educ_categories_table %>% kable(col.names = c("Education level in the LCMS datas
                      
 ```
 
-\newpage
 
-## Supplementary Figure 1 {.unnumbered}
-
-```{r, fig.cap = "Number of cases in each sub-group of the LCMS dataset for Zambia 2015. The numbers in red show the number of cases for groups with less than 100 cases."}
+```{r, out.width = "80%", fig.cap = "Number of cases in each sub-group of the LCMS dataset for Zambia 2015. The numbers in red show the number of cases for groups with less than 100 cases."}
 
 zambia_ef = read_rds(file = here("analysis", "data", "derived_data", "zambia_ef_clean.rds"))
 
@@ -388,9 +453,7 @@ plot_displace
 \newpage
 
 
-# Calculation of emissions
-
-## Supplementary Method 1: Calculation of greenhouse gases emissions {.unnumbered}
+## Supplementary Method 8: Calculation of greenhouse gases emissions {-}
 
 We converted household energy use into greenhouse gas emissions using data on emissions factors, fraction of renewable biomass, global warming potential as well as projection of electricity mix for the region sub-Saharan Africa. We here provide details on the calculations. We accounted for the following greenhouse gases: carbon dioxide (CO2), methane (CH4) and nitrous dioxide (N2O), carbon monoxide (CO), Non-Volatile HydroCarbons (NMHC), black carbon (BC) and organic Carbon (OC). The conversion of charcoal and firewood into emissions required to account for the share of non-renewable biomass [@bailis_carbon_2015].
 
@@ -454,7 +517,7 @@ with:
 
 \newpage
 
-## Supplementary Tables 3, 4, 5 and 6: Values and data sources for emission factors, fNRB and GWP {.unnumbered}
+<!--## Supplementary Tables 3, 4, 5 and 6: Values and data sources for emission factors, fNRB and GWP {.unnumbered}--> 
 
 ```{r}
 
@@ -530,6 +593,14 @@ GWP %>%
 ```
 
 \newpage
+
+
+# Supplementary results 
+
+## Supplementary Note 1: Comparison of our results with IEA data {-}
+
+
+The increase in electricity demand in our model is consistent with model results from the International Energy Agency's Africa Energy Outlook 2019. They projected electricity demand in sub-Saharan Africa (excluding South Africa) to 2040 under a *Stated Policy* scenario, which simulates a situation in which all current energy policies are implemented, and an *Africa Case* scenario, which reflects a situation with more ambitious goals for sustainability and economic development. They estimate that electricity demand would increase by a factor of 4 compared to 2018 levels under their *Stated Policy* scenario, and by a factor of 8 under their *Africa Case* scenario. These magnitudes are similar to our estimates. We estimated that by 2040, electricity demand could be as little as twice the 2020 level or as much as 10 times the 2020 level, depending on the scenario considered (Figure 6 in the main text).
 
 ## Supplementary Figure 2: Greenhouse gas emissions {.unnumbered}
 
@@ -798,10 +869,16 @@ wrap_plots(A = plot_emissions, B = inset, design = layout) +
 
 \newpage 
 
+
+
+
 # Validation 
+
 
 ## Supplementary Figures 3 and 4: Validation of the education pathways {-} 
 
+
+To validate the microsimulation model, we first verified that the population distribution by education category for the age groups affected by the education transition (from 15 to 30 years old) matched the input data (Figure 2 in the main text). We found that for both scenario SSP1 and SSP2, the model reproduces the educational and age distribution of the WIC projections for the population between 15 and 30 years old, for the entire period from 2020 to 2070 (Supplementary Figure \@ref(fig:valid-educ-ssp1) and \@ref(fig:valid-educ-ssp2), which shows only the period from 2030 to 2050 for clarity).
 
 ```{r}
 
@@ -863,7 +940,7 @@ df_educ_age_comparison = df_educ_age %>%
 
 ```
 
-```{r, fig.cap = "Proportion of the population in three age categories from 2030 to 2050 in the microsimulation, compared with WIC data, for SSP1 scenario."}
+```{r valid-educ-ssp1, fig.cap = "Proportion of the population in three age categories from 2030 to 2050 in the microsimulation, compared with WIC data, for SSP1 scenario."}
 
 
 ggplot(data =df_educ_age_comparison %>% 
@@ -877,7 +954,7 @@ ggplot(data =df_educ_age_comparison %>%
 
 ```
 
-```{r, fig.cap = "Proportion of the population in three age categories from 2030 to 2050 in the microsimulation, compared with WIC data, for SSP2 scenario."}
+```{r valid-educ-ssp2, fig.cap = "Proportion of the population in three age categories from 2030 to 2050 in the microsimulation, compared with WIC data, for SSP2 scenario."}
 
 
 
@@ -892,9 +969,12 @@ ggplot(data =df_educ_age_comparison %>%
 
 ```
 
+
+\newpage
+
 ## Supplementary Figure 5: Validation of the microsimulation model {.unnumbered}
  
- 
+A second step to the validation of the model was to run a simulation of the microsimulation model in which we replaced the fertility module by the age-specific fertility rate projections from the WIC data. We then compared our population projections for *SSP1_EA* and *SSP2_EA* with the population projections for the SSP1 and SSP2 scenarios from WIC. We found that our model reproduced the trajectories derived from the WIC macro model (Supplementary Figure \@ref(fig:valid-asfr)). However, there are small differences, especially for SSP1 after 2050. This may be because we did not include migration in our model while the projection from WIC do, or because of unavoidable differences in the implementation of the models, one being a micro-level model and the other a macro-level model. However, the similar trends validate the implementation of the microsimulation model. 
 
 ```{r}
 # Load validation data 
@@ -1068,7 +1148,7 @@ df_pop_age = df_data_pop %>%
 ```
 
 
-```{r, fig.cap = "Population pathways from a simulation of the microsimulation model in which the fertility module was replaced by Age-Specific Fertility Rates projections from WIC data, compared with population pathways from the WIC data, for SSP1 and SSP2."}
+```{r valid-asfr, fig.cap = "Population pathways from a simulation of the microsimulation model in which the fertility module was replaced by Age-Specific Fertility Rates projections from WIC data, compared with population pathways from the WIC data, for SSP1 and SSP2."}
 
 # Plot 
 
