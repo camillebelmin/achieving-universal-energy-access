@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+/git_ignore_new
+/analysis/data/raw_data/Full_output_zambia.csv

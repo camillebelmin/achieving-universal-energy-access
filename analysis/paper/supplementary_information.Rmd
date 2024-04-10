@@ -286,7 +286,7 @@ To ensure representativeness of the base population in terms of education, we ca
 
 In the microsimulation model (MSM), the probability that a woman will give birth is endogenously determined at each time step and for each woman of fertile age (between 15 and 49 years old). We used a logistic regression to estimate the parameters allowing us to predict the probability for a woman to give birth, depending on her age group (five-year), level of education, whether her household has access to electricity, to modern cooking fuels and whether she lives in a rural or urban area. The dependent variable is whether the women gave birth in the last year.
 
-The data used for the regression is a pool of four Individual Recode files from the DHS data for Zambia, for the years 2002, 2007, 2013 and 2018. This resulted in a sample consisting in `r data_regression_size` women. In the regression, we added a parameter corresponding to the year in which the data was collected, allowing us to account for the fact that fertility may follow a secular trend. We also added interaction terms between age group and (i) whether the household has access to electricity, and (ii) whether the primary fuel used for cooking by the household is modern. The results of the model are displayed in Table 1 and the logistic regression model takes the form:
+The data used for the regression is a pool of four Individual Recode files from the DHS data for Zambia, for the years 2002, 2007, 2013 and 2018. This resulted in a sample consisting in `r data_regression_size` women. Note that here, the resulting data is not a household panel dataset because in DHS data, not the same households are interviewed across waves. In the regression, we added a parameter corresponding to the year in which the data was collected, allowing us to account for the fact that fertility may follow a secular trend. We also added interaction terms between age group and (i) whether the household has access to electricity, and (ii) whether the primary fuel used for cooking by the household is modern. The results of the model are displayed in Table 1 and the logistic regression model takes the form:
 
 ```{=tex}
 \begin{equation}
@@ -350,6 +350,9 @@ In a second pre-processing step, we combined some categories to increase their s
 
 
 ```{r cook-table}
+# TODO, add a footnote that the category "gas" did not include any differentiation.
+
+# TODO, add a footnote about solar energy
 
 cook_table = data.frame(
   type = c("Traditional energy", "Modern energy", "Traditional stove", "Modern stove"),
@@ -366,7 +369,11 @@ cook_table = data.frame(
 cook_table %>% 
   kable(col.names = NULL, caption = "Categorization of the variables for the main energy type and the main type of stove used for cooking in the Living Condition Measurement Survey Zambia 2015 dataset.") %>% 
   column_spec(2, width = "8cm") %>% 
-     kable_styling(latex_options = "HOLD_position")
+     kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(label= "NB1: The category “Gas” did not include any differentiation in the input data.", notation = "none") %>% 
+  add_footnote(label= "NB2: Although solar energy represents a very small amount of the sample, we did not exclude it from the data.")
+
+
 
 
 ```
@@ -597,10 +604,10 @@ GWP %>%
 
 # Supplementary results 
 
-## Supplementary Note 1: Comparison of our results with IEA data {-}
+<!-- ## Supplementary Note 1: Comparison of our results with IEA data {-}
 
 
-The increase in electricity demand in our model is consistent with model results from the International Energy Agency's Africa Energy Outlook 2019. They projected electricity demand in sub-Saharan Africa (excluding South Africa) to 2040 under a *Stated Policy* scenario, which simulates a situation in which all current energy policies are implemented, and an *Africa Case* scenario, which reflects a situation with more ambitious goals for sustainability and economic development. They estimate that electricity demand would increase by a factor of 4 compared to 2018 levels under their *Stated Policy* scenario, and by a factor of 8 under their *Africa Case* scenario. These magnitudes are similar to our estimates. We estimated that by 2040, electricity demand could be as little as twice the 2020 level or as much as 10 times the 2020 level, depending on the scenario considered (Figure 6 in the main text).
+The increase in electricity demand in our model is consistent with model results from the International Energy Agency's Africa Energy Outlook 2019. They projected electricity demand in sub-Saharan Africa (excluding South Africa) to 2040 under a *Stated Policy* scenario, which simulates a situation in which all current energy policies are implemented, and an *Africa Case* scenario, which reflects a situation with more ambitious goals for sustainability and economic development. They estimate that electricity demand would increase by a factor of 4 compared to 2018 levels under their *Stated Policy* scenario, and by a factor of 8 under their *Africa Case* scenario. These magnitudes are similar to our estimates. We estimated that by 2040, electricity demand could be as little as twice the 2020 level or as much as 10 times the 2020 level, depending on the scenario considered (Figure 6 in the main text). -->
 
 ## Supplementary Figure 2: Greenhouse gas emissions {.unnumbered}
 
@@ -974,7 +981,7 @@ ggplot(data =df_educ_age_comparison %>%
 
 ## Supplementary Figure 5: Validation of the microsimulation model {.unnumbered}
  
-A second step to the validation of the model was to run a simulation of the microsimulation model in which we replaced the fertility module by the age-specific fertility rate projections from the WIC data. We then compared our population projections for *SSP1_EA* and *SSP2_EA* with the population projections for the SSP1 and SSP2 scenarios from WIC. We found that our model reproduced the trajectories derived from the WIC macro model (Supplementary Figure \@ref(fig:valid-asfr)). However, there are small differences, especially for SSP1 after 2050. This may be because we did not include migration in our model while the projection from WIC do, or because of unavoidable differences in the implementation of the models, one being a micro-level model and the other a macro-level model. However, the similar trends validate the implementation of the microsimulation model. 
+A second step to the validation of the model was to run a simulation of the microsimulation model in which we replaced the fertility module by the age-specific fertility rate projections from the WIC data. We then compared our population projections that we call *SSP1_EA_valid* and *SSP2_EA_valid* with the population projections for the SSP1 and SSP2 scenarios from WIC. We found that our model reproduced the trajectories derived from the WIC macro model (Supplementary Figure \@ref(fig:valid-asfr)). However, there are small differences, especially for SSP1 after 2050. This may be because we did not include migration in our model while the projection from WIC do, or because of unavoidable differences in the implementation of the models, one being a micro-level model and the other a macro-level model. However, the similar trends validate the implementation of the microsimulation model. 
 
 ```{r}
 # Load validation data 
@@ -1162,9 +1169,13 @@ df_pop = df_data_pop %>%
   group_by(scenario, iteration, timestep) %>% 
   summarise(population = sampling_fraction * sum(Freq)) %>% 
   ungroup() %>% unique() %>% 
+  mutate(scenario = case_when(scenario == "SSP1_EA" ~ "SSP1_EA_valid", 
+                           scenario == "Universal" ~ "SSP1_univ_valid", 
+                           scenario == "SSP2_EA" ~ "SSP2_EA_valid", 
+                           scenario == "SSP3_EA" ~ "SSP3_EA_valid")) %>%
   mutate(scenario_name = forcats::fct_relevel(scenario,
-                                          "SSP2_EA", 
-                                          "SSP1_EA")) # 
+                                          "SSP2_EA_valid", 
+                                          "SSP1_EA_valid″")) # 
 
 
 
