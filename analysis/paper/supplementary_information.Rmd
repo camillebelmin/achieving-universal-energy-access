@@ -1,11 +1,11 @@
 ---
 title: "Supplementary information"
-subtitle: "Achieving universal energy access while reducing energy demand? Evidence from energy-specific population projections"
+subtitle: "The energy-population dividend: Evidence from energy-specific population projections"
 author: 
 - Camille Belmin$^1$$^2$$^3$
 - Peter-Paul Pichler$^1$ 
-- Guillaume Marois $^3$$^4$
-- Shonali Pachauri$^3$
+- Guillaume Marois $^3$$^5$
+- Shonali Pachauri$^4$
 - Helga Weisz$^1$$^2$
 output: 
   # bookdown::word_document2:
@@ -42,10 +42,11 @@ link-citations: true
 \ 
 \ 
 
-$^1$ Potsdam Institute for Climate Impact Research, Germany\
-$^2$ Humboldt University Berlin, Germany\
-$^3$ International Institute for Applied Systems Analysis, Wittgenstein Centre (IIASA, OeAW, University of Vienna), Austria\
-$^4$ Asian Demographic Research Institute of the Shanghai University, China
+$^1$ Social Metabolism and Impacts, Potsdam Institute for Climate Impact Research (PIK), Member of the Leibniz Association, Germany\
+$^2$ Department of Cultural History and Theory and Department of Social Sciences, Humboldt University Berlin, Germany\
+$^3$ Wittgenstein Centre for Demography and Global Human Capital (University of Vienna, IIASA, VID/ÖAW), International Institute for Applied Systems Analysis, Austria\
+$^4$ International Institute for Applied Systems Analysis, Wittgenstein Center (IIASA, OeAW, University of Vienna), Austria\
+$^5$ Asian Demographic Research Institute of the Shanghai University, China
 
 ```{r setup, echo = FALSE, message = F, include = F}
 knitr::opts_chunk$set(
@@ -371,7 +372,7 @@ cook_table %>%
   column_spec(2, width = "8cm") %>% 
      kable_styling(latex_options = "HOLD_position") %>%
   add_footnote(label= "NB1: The category “Gas” did not include any differentiation in the input data.", notation = "none") %>% 
-  add_footnote(label= "NB2: Although solar energy represents a very small amount of the sample, we did not exclude it from the data.")
+  add_footnote(label= "NB2: Although solar energy represents a very small amount of the sample, we did not exclude it from the data.",  notation = "none")
 
 
 
@@ -801,6 +802,13 @@ p_diff_emissions_ssp1_univ_2070 = percentage_difference(emissions_ssp1_2070, emi
 
 p_diff_emissions_ssp1_univ_ssp1_univ_elec_2070 = percentage_difference(emissions_ssp1_univ_2070, emissions_ssp1_univ_elec_2070) %>% round()
 p_diff_emissions_ssp1_univ_ssp1_univ_elec_2050 = percentage_difference(emissions_ssp1_univ_2050, emissions_ssp1_univ_elec_2050) %>% round() # 160%
+
+p_diff_emissions_spp2_ssp1_univ_elec_2070 = 
+  percentage_difference(emissions_ssp2_2070, emissions_ssp1_univ_elec_2070) %>% round()
+# 177%
+p_diff_emissions_ssp2_ssp1_univ_elec_2050 =   percentage_difference(emissions_ssp2_2050, emissions_ssp1_univ_elec_2050) %>% round()
+# 179%
+
 
 # savings in tC02 eq
 

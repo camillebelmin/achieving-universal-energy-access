@@ -92,7 +92,11 @@ zambia_ef = zambia_ef %>%
                                   main_dev_cook == "VEHICLE TYRE RIM" ~ 0)) %>% 
   mutate(clean_cooking = ifelse((modern_fuel == 1 | modern_stove == 1 ), 1, 0)) 
 
+# get the data that have no elec and no clean cooking but still a consumption of electricity 
+elec_elec0cc0 =  zambia_ef %>% filter(cap_GJ_Electricity > 0 & el_access == "No") %>% select(rururb, el_access, edu_head, main_dev_cook, main_en_cook, cap_GJ_Electricity, clean_cooking) %>% filter(clean_cooking == 0) 
 
+# Remove observations that have electricity positive but no access to elec and no access to clean cooking
+zambia_ef = zambia_ef %>% filter(!(cap_GJ_Electricity > 0 & el_access == "No" & clean_cooking == 0))
 
 # Remove observations without weights 
 zambia_ef = zambia_ef %>% filter(!(is.na(wt_ind)))
@@ -105,8 +109,13 @@ zambia_ef %>% write_rds(file = here("analysis", "data", "derived_data", "zambia_
  
 ```{r}
 
+
+
 # Check whether sum of weights now sums to sample size
 sum(zambia_ef$wt_ind, na.rm = T)
+nrow(zambia_ef)
+
+sum(zambia_ef_test$wt_ind, na.rm = T)
 nrow(zambia_ef)
 
 # Calculate total energy footprint per capita

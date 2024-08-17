@@ -4,3 +4,7 @@
 .Ruserdata
 /git_ignore_new
 /analysis/data/raw_data/Full_output_zambia.csv
+/analysis/paper/revisions_files/
+/analysis/data/raw_data/zambia_baltruszewicz/socio_econ_EF_zambia_for_PiK.dta
+/analysis/data/raw_data/zambia_baltruszewicz/socio_econ_EF_zambia_for_PiK.xls
+/analysis/data/raw_data/zambia_baltruszewicz/socio_econ_EF_zambia_for_PiK_with_edu.xls
