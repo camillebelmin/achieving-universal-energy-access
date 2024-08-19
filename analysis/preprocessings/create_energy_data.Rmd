@@ -95,8 +95,10 @@ zambia_ef = zambia_ef %>%
 # get the data that have no elec and no clean cooking but still a consumption of electricity 
 elec_elec0cc0 =  zambia_ef %>% filter(cap_GJ_Electricity > 0 & el_access == "No") %>% select(rururb, el_access, edu_head, main_dev_cook, main_en_cook, cap_GJ_Electricity, clean_cooking) %>% filter(clean_cooking == 0) 
 
-# Remove observations that have electricity positive but no access to elec and no access to clean cooking
+# Remove observations that have electricity and diesel home positive but no access to elec and no access to clean cooking (in total about 50 cases)
 zambia_ef = zambia_ef %>% filter(!(cap_GJ_Electricity > 0 & el_access == "No" & clean_cooking == 0))
+
+zambia_ef = zambia_ef %>% filter(!(cap_GJ_Diesel_home > 0 & el_access == "No" & clean_cooking == 0))
 
 # Remove observations without weights 
 zambia_ef = zambia_ef %>% filter(!(is.na(wt_ind)))
